@@ -46,9 +46,9 @@ import glob as glob
 df = pd.DataFrame()
 
 
-# filepath = ".\data\\" # Local notebook in a data subfolder
+filepath = ".\data\\" # Local notebook in a data subfolder
 # filepath = '.\\' # If using temp files on colab
-filepath = '/content/drive/MyDrive/Cours/Stage/data/' # My drive repo
+# filepath = '/content/drive/MyDrive/Cours/Stage/data/' # My drive repo
 
 for filename in glob.glob(filepath + 'data-*.csv'):
     print(f"Concatening {filename} to df...")
@@ -241,7 +241,7 @@ print(X_train_seq[10])
 
 """Get max length of a sequence in the DataFrame and the value of the mean + the standard deviation"""
 
-from statistics import *
+from statistics import mean, stdev
 
 def get_max_len(seq):
     max_len = 0
@@ -286,8 +286,8 @@ print('y_test:', y_test.shape)
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, LSTM, Embedding, Dropout, SpatialDropout1D
-from tensorflow.keras.optimizers import Adam, RMSprop, Adadelta, Adagrad
+from tensorflow.keras.layers import Dense, LSTM, Embedding
+from tensorflow.keras.optimizers import RMSprop
 from keras.callbacks import EarlyStopping
 
 model = Sequential()
@@ -402,7 +402,6 @@ y_test
 """#### Confusion Matrix"""
 
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots(figsize=(8,8))
 
@@ -420,8 +419,8 @@ model.optimizer.learning_rate, model.optimizer.clipnorm, model.optimizer.clipval
 """## To load the model"""
 
 from tensorflow import keras
-model_loaded = keras.models.load_model("/content/drive/MyDrive/Cours/Stage/models/rnn-3")
-# model_loaded = keras.models.load_model("./rnn-3")
+# model_loaded = keras.models.load_model("/content/drive/MyDrive/Cours/Stage/models/rnn-3")
+model_loaded = keras.models.load_model("./models/rnn-3")
 model_loaded
 
 """**ERASE THE PREVIOUS MODEL**"""
@@ -439,7 +438,7 @@ Re-creating second model identical from the one trained but removing the last de
 model.summary()
 
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, LSTM, Embedding, Dropout
+from tensorflow.keras.layers import Dense, LSTM, Embedding
 
 model2 = Sequential()
 model2.add(Embedding(input_dim=MAX_NB_WORDS, output_dim=64, input_length=X_train_seq_padded.shape[1], weights=model.layers[0].get_weights()))
@@ -474,6 +473,121 @@ activations[0].shape
 
 """Creating DataFrame containing neurons and activations values for each neuron"""
 
+def get_activation_matrix_per_neuron(activations):
+    df = pd.DataFrame()
+
+    # MH: transpose the matrix to have neurons as index
+    for neuron_index, value_list in enumerate(activations.T):
+      # print(neuron_index, value_list)
+      index = f"neuron_{neuron_index + 1}" # Should we let 1st neuron at 0 ?
+      df[index] = value_list
+
+    return df
+
+df_act_matrix = get_activation_matrix_per_neuron(activations)
+df_act_matrix
+
+def create_full_df(activation_matrix_per_neuron):
+    dict_cat_all = {
+        'categories': []
+    }
+    
+    for i in range(len(X_test)): # len(X_test)
+        cats = []
+        for cat in get_cats_from_seq(X_test.iloc[i]):
+            cats.append(cat)
+        dict_cat_all['categories'].append(cats)
+    
+    df_cat_all = pd.DataFrame().from_dict(dict_cat_all)
+    
+    return pd.concat([df_cat_all, df_act_matrix], axis=1)
+
+df = create_full_df(df_act_matrix)
+df.head()
+
+"""## Store activations
+Store activations into a csv file to re-use it in a different notebook for cleaner code
+"""
+
+df.to_csv("./data/activations.csv", index=False)
+
+"""### Visualizing activation values over each neuron"""
+
+"""# Loading categories"""
+
+df_cat.head()
+
+df_cat.describe()
+
+df_cat.shape
+
+"""Number of distinct categories we have"""
+
+df_cat.cat.unique().shape
+
+"""## Search for films and categories related to a given activation"""
+
+activations[0]
+
+def get_film_index(film):
+  for i in range(len(X_test)): # X_test
+    if X_test.iloc[i] == film.desc_p:
+      return i
+  return None
+
+# We search for the film associated to a sequence of preprocessed words
+def get_film_from_seq(seq):
+    for i in range(len(dfwo.desc_p)):
+        if dfwo.desc_p.iloc[i] == seq:
+            return dfwo.iloc[i] # added [0]
+    return pd.DataFrame()
+
+film = get_film_from_seq(pd.DataFrame(X_test).desc_p.iloc[578])
+get_film_index(film)
+
+# Then we get categories from the film uri
+def get_cats_from_film(film):
+    cats= []
+    fetch_cats = df_cat[df_cat.film == film].cat_p.unique()
+    for cat in fetch_cats:
+        cats.append(cat)
+        
+    return cats
+
+# Upper function which gets categories for a given sequence
+def get_cats_from_seq(seq):
+    return get_cats_from_film(get_film_from_seq(seq).film)
+
+cats = get_cats_from_seq(X_test.iloc[0])
+cats
+
+"""Creating dict of activations associated to categories
+
+Sample use of getting activations for a given category
+"""
+
+# Return the list of activations (list) related to a given category
+def get_activations_for_cat(category):
+    activations = []
+    for i in range(len(df.categories)):
+        if category in df.categories.iloc[i]:
+#           print(df_cat_act.cat.iloc[i], i)
+            act = []
+            activations_row = df.iloc[i, 1:]
+            for j in range(len(activations_row)):
+              act.append(activations_row[j])
+            activations.append(act)
+    return np.array(activations)
+
+get_activations_for_cat('Metro-Goldwyn-Mayer_films')
+
+"""Then plot activations for this category"""
+
+def plot_activations(activations, title="Activation values"):
+    fig = px.scatter(activations, x='neuron_index', y='value', 
+           title=title, labels={'neuron_index': 'Neuron', 'value': 'Value'})
+    fig.show()
+
 def get_activation_matrix(activations):
     df_dict = {
         'value': [],
@@ -491,49 +605,11 @@ def get_activation_matrix(activations):
     df_act = pd.DataFrame().from_dict(df_dict)
     return df_act
 
-def get_activation_matrix_per_neuron(activations):
-    df = pd.DataFrame()
+category = 'Metro-Goldwyn-Mayer_films'
+plot_activations(get_activation_matrix(get_activations_for_cat(category)), 
+                 f"Activation values for {category}")
 
-    # MH: transpose the matrix to have neurons as index
-    for neuron_index, value_list in enumerate(activations.T):
-      # print(neuron_index, value_list)
-      index = f"neuron_{neuron_index + 1}" # Should we let 1st neuron at 0 ?
-      df[index] = value_list
-
-    return df
-
-df_act_matrix = get_activation_matrix_per_neuron(activations)
-df_act_matrix
-
-# We get all the films for a given category
-def get_films_from_cat(cat):
-  return df_cat[df_cat.cat_p == cat]
-
-# We search for the film associated to a sequence of preprocessed words
-def get_film_from_seq(seq):
-    for i in range(len(dfwo.desc_p)):
-        if dfwo.desc_p.iloc[i] == seq:
-            return dfwo.iloc[i] # added [0]
-    return pd.DataFrame()
-
-# Then we get categories from the film uri
-def get_cats_from_film(film):
-    cats= []
-    fetch_cats = df_cat[df_cat.film == film].cat_p.unique()
-    for cat in fetch_cats:
-        cats.append(cat)
-        
-    return cats
-
-# Upper function which gets categories for a given sequence
-def get_cats_from_seq(seq):
-    return get_cats_from_film(get_film_from_seq(seq).film)
-
-def get_film_index(film):
-  for i in range(len(X_test)): # X_test
-    if X_test.iloc[i] == film.desc_p:
-      return i
-  return None
+"""Getting most popular categories (n >= 200)"""
 
 # Get the list of distinct categories
 def get_unique_cats():
@@ -552,104 +628,7 @@ def get_cats_greater_or_equal_than(value):
             cats.append((cat, n))
     return cats
 
-activations_row = df.iloc[0, 1:]
-for j in range(len(activations_row)):
-  print(activations_row[j])
-
-# Return the list of activations (list) related to a given category
-def get_activations_for_cat(category):
-    activations = []
-    for i in range(len(df.categories)):
-        if category in df.categories.iloc[i]:
-#           print(df_cat_act.cat.iloc[i], i)
-            act = []
-            activations_row = df.iloc[i, 1:]
-            for j in range(len(activations_row)):
-              act.append(activations_row[j])
-            activations.append(act)
-    return np.array(activations)
-
-def get_activations_for_seq(model, seq, full_seq, X_test):
-  activations = model.predict(full_seq)
-  for i in range(3): #(len(X_test)):
-    print(pd.DataFrame(X_test).desc_p.iloc[i], seq)
-    # if pd.DataFrame(X_test).desc_p == seq:
-    #   index = i
-    #   return activations[i]
-  # return None # pd.DataFrame()
-
-
-# get_activations_for_seq(model2, X_test_seq_padded[0], X_test_seq_padded, X_test)
-def get_seq_padded_index(seq):
-  for i in range(len(X_test_seq_padded)):
-    if X_test_seq_padded[i].any() == seq.any():
-      return i, X_test_seq_padded, seq
-  return None
-
-dict_cat_all = {
-    'categories': []
-}
-
-for i in range(len(X_test)):
-  dict_cat_all['categories'].append(get_cats_from_seq(X_test.iloc[i]))
-
-df_cat_all = pd.DataFrame().from_dict(dict_cat_all)
-
-df = pd.concat([df_cat_all, df_act_matrix], axis=1)
-df.head()
-
-"""## Store activations
-Store activations into a csv file to re-use it in a different notebook for cleaner code
-"""
-
-import os
-
-df.to_csv("/content/drive/MyDrive/Cours/Stage/data/activations.csv", index=False)
-
-"""### Visualizing activation values over each neuron"""
-
-def plot_activations(activations, title="Activation values"):
-    fig = px.scatter(activations, x='neuron_index', y='value', 
-           title=title, labels={'neuron_index': 'Neuron', 'value': 'Value'})
-    fig.show()
-
-"""# Loading categories"""
-
-df_cat.head()
-
-df_cat.describe()
-
-df_cat.shape
-
-"""Number of distinct categories we have"""
-
-df_cat.cat.unique().shape
-
-"""## Search for films and categories related to a given activation"""
-
-activations[0]
-
-film = get_film_from_seq(pd.DataFrame(X_test).desc_p.iloc[578])
-get_film_index(film)
-
-cats = get_cats_from_seq(X_test.iloc[0])
-cats
-
-"""Creating dict of activations associated to categories
-
-Sample use of getting activations for a given category
-"""
-
-get_activations_for_cat('Metro-Goldwyn-Mayer_films')
-
-"""Then plot activations for this category"""
-
-plot_activations(get_activation_matrix(get_activations_for_cat('Metro-Goldwyn-Mayer_films')), 
-                 f"Activation values for Metro-Goldwyn-Mayer_films")
-
-"""Getting most popular categories (n >= 200)"""
-
-popular_categories = get_cats_greater_or_equal_than(200)
+popular_categories = get_cats_greater_or_equal_than(100)
 popular_categories
 
 """ ## Plot activations for all the most popular categories"""
