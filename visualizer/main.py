@@ -135,6 +135,7 @@ X_test_seq_padded = pad_sequences(X_test_seq, get_mean_std_len(X_train_seq))
 
 model = keras.models.load_model('../models/rnn-3')
 
-v = Visualizer(model, X_train_seq_padded, y_train)
+v = Visualizer(model, X_train_seq_padded, y_train, X_test_seq_padded, y_test)
 
-print(v.get_activations(4))
+v.get_activation_matrix_per_neuron()
+print(v.show_confusion_matrix())  # we can't display plots in IDE
