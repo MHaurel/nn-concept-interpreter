@@ -1,0 +1,12 @@
+QWidget {
+    /* background-color: #12ADC1;*/
+}
+
+#sidebar {
+    background-color: #0295A9;
+}
+
+QLabel#test {
+    color: #ffffff;
+}
+

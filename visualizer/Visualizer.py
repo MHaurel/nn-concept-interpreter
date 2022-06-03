@@ -12,29 +12,25 @@ class Visualizer(QWidget):
         """
         super(Visualizer).__init__()
         QWidget.__init__(self)
+        self.setFixedSize(1440, 800)
+        
+        self.model = None
+        self.data = []
+        self.layout = self.init_sidebar()
 
-        self.hello = [
-            "Hallo Welt",
-            "ä½ å¥½ï¼Œä¸–ç•Œ",
-            "Hei maailma",
-            "Hola Mundo",
-            "ÐŸÑ€Ð¸Ð²ÐµÑ‚ Ð¼Ð¸Ñ€",
-        ]
+    def init_sidebar(self):
+        layout = QVBoxLayout(self)
+        layout.setObjectName("sidebar")
 
-        self.button = QPushButton("Click me!")
-        self.message = QLabel("Hello World")
-        self.message.alignment = Qt.AlignCenter
+        t = QLabel('test')
+        t.setObjectName('test')
+        layout.addWidget(t)
 
-        self.layout = QVBoxLayout(self)
-        self.layout.addWidget(self.message)
-        self.layout.addWidget(self.button)
+        return layout
 
-        # Connecting the signal
-        self.button.clicked.connect(self.magic)
 
-    @Slot()
-    def magic(self):
-        self.message.setText(random.choice(self.hello))
+
+
 
 
 if __name__ == "__main__":
@@ -42,5 +38,9 @@ if __name__ == "__main__":
 
     widget = Visualizer()
     widget.show()
+
+    with open('./css/styles.qss', "r") as f:
+        _style = f.read()
+        app.setStyleSheet(_style)
 
     sys.exit(app.exec())
