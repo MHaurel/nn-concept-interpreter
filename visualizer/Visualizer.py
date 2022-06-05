@@ -32,8 +32,13 @@ class Visualizer(QtWidgets.QWidget):
         self.setup_connections()
 
     def create_widgets(self):
+        self.label_overview_head = QtWidgets.QLabel("Overview")
         self.btn_load_model = QtWidgets.QPushButton("Load model")
         self.btn_load_data = QtWidgets.QPushButton("Load data")
+
+        self.label_overview_nav = QtWidgets.QPushButton("Overview")
+        self.label_activations_nav = QtWidgets.QPushButton("Activations")
+        self.label_categories_nav = QtWidgets.QPushButton("Categories")
 
     def modify_widgets(self):
         self.btn_load_model.setObjectName("button-load")
@@ -42,16 +47,29 @@ class Visualizer(QtWidgets.QWidget):
         self.btn_load_data.setObjectName("button-load")
         self.btn_load_data.setFixedSize(150, 50)
 
+        self.label_overview_nav.setObjectName("nav")
+        self.label_activations_nav.setObjectName("nav")
+        self.label_categories_nav.setObjectName("nav")
+
     def create_layouts(self):
-        self.main_layout = QtWidgets.QHBoxLayout(self)
+        self.main_layout = QtWidgets.QGridLayout(self)  # QtWidgets.QHBoxLayout(self)
+        self.sidebar_layout = QtWidgets.QVBoxLayout(self)
 
     def add_widgets_to_layouts(self):
-        self.main_layout.addWidget(self.btn_load_model)
-        self.main_layout.addWidget(self.btn_load_data)
+        self.main_layout.addWidget(self.btn_load_model, 0, 0, 2, 2)
+        self.main_layout.addWidget(self.btn_load_data, 2, 2, -1, 2)
+
+        self.sidebar_layout.addWidget(self.label_overview_nav)
+        self.sidebar_layout.addWidget(self.label_activations_nav)
+        self.sidebar_layout.addWidget(self.label_categories_nav)
 
     def setup_connections(self):
         self.btn_load_model.clicked.connect(self.load_model)
         self.btn_load_data.clicked.connect(self.load_data)
+
+        self.label_overview_nav.clicked.connect(self.load_overview_page)
+        self.label_activations_nav.clicked.connect(self.load_activations_page)
+        self.label_categories_nav.clicked.connect(self.load_categories_page)
 
     # END UI
 
@@ -66,7 +84,9 @@ class Visualizer(QtWidgets.QWidget):
             if self.data_path and self.model_path:
                 # Display figure
                 # self.display_model_fig()
-                pass
+                self.main_layout.addLayout(self.sidebar_layout, 0, 0, 1, 1)
+                self.main_layout.addWidget(self.label_overview_head, 0, 1, 2, 1)
+
         except:
             # Shows error via label
             print("This is not a model !")
@@ -80,7 +100,17 @@ class Visualizer(QtWidgets.QWidget):
             if self.data_path and self.model_path:
                 # Display figure
                 # self.display_model_fig()
-                pass
+                self.main_layout.addLayout(self.sidebar_layout, 0, 0, 1, 1)
+                self.main_layout.addWidget(self.label_overview_head, 0, 1, 2, 1)
+
+    def load_overview_page(self):
+        print("Loading overview page")
+
+    def load_activations_page(self):
+        print("Loading activations page")
+
+    def load_categories_page(self):
+        print("Loading categories page")
 
     def display_model_fig(self):
         self.label_fig = QtWidgets.QLabel()

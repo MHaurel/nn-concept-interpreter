@@ -12,9 +12,16 @@ QLabel#nav {
     font-size: 25px;
 }
 
-QLabel#head-text {
+QLabel#nav:hover {
+    /* text-decoration: underline; */
+    border: 1px solid black;
+}
+
+QPushButton#nav {
     color: #fdd037;
     font-weight: 700;
+    font-size: 25px;
+    border: none;
 }
 
 QPushButton#button-load {
