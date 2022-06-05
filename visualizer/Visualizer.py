@@ -19,6 +19,9 @@ class Visualizer(QtWidgets.QWidget):
         self.setFixedSize(1080, 600)
         self.setWindowTitle("Visualizer")
 
+        self.model_path = None
+        self.data_path = None
+
         self.setup_ui()
 
     def setup_ui(self):
@@ -62,17 +65,11 @@ class Visualizer(QtWidgets.QWidget):
 
             if self.data_path and self.model_path:
                 # Display figure
-                self.label_fig = QtWidgets.QLabel()
-                self.pixmap_fig = QtGui.QPixmap('./src/img/model_ill.png')
-                self.label_fig.setPixmap(self.pixmap_fig)
-                self.label_fig.setMask(self.pixmap_fig.mask())
-
-                self.main_layout.addWidget(self.label_fig)
-
+                # self.display_model_fig()
+                pass
         except:
             # Shows error via label
             print("This is not a model !")
-
 
     def load_data(self):
         path = QtWidgets.QFileDialog.getOpenFileNames(self, "Select some files", '', 'JSON files (*.json)')
@@ -82,12 +79,17 @@ class Visualizer(QtWidgets.QWidget):
             self.btn_load_data.setParent(None)
             if self.data_path and self.model_path:
                 # Display figure
-                self.label_fig = QtWidgets.QLabel()
-                self.pixmap_fig = QtGui.QPixmap('./src/img/model_ill.png')
-                self.label_fig.setPixmap(self.pixmap_fig)
-                self.label_fig.setMask(self.pixmap_fig.mask())
+                # self.display_model_fig()
+                pass
 
-                self.main_layout.addWidget(self.label_fig)
+    def display_model_fig(self):
+        self.label_fig = QtWidgets.QLabel()
+        self.pixmap_fig = QtGui.QPixmap('./src/img/model_ill.png')
+        self.label_fig.setPixmap(self.pixmap_fig)
+        self.label_fig.setMask(self.pixmap_fig.mask())
+        self.label_fig.setFixedSize(500, 300)
+
+        self.main_layout.addWidget(self.label_fig)
 
 
 if __name__ == "__main__":

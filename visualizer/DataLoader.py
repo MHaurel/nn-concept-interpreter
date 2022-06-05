@@ -21,6 +21,7 @@ class DataLoader:
         :return: None
         """
         path = "./src/img/model_ill.png"
+        self.model.add(visualkeras.SpacingDummyLayer(spacing=150))
         visualkeras.layered_view(self.model, legend=True, to_file=path)
         return path
 
