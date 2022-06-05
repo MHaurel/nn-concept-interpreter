@@ -17,3 +17,12 @@ QLabel#head-text {
     font-weight: 700;
 }
 
+QPushButton#button-load {
+    background-color: #0295A9;
+    border-radius: 8px;
+}
+
+QPushButton#button-load:hover {
+    border: 1px solid #000000;
+}
+

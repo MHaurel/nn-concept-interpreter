@@ -33,7 +33,11 @@ class Visualizer(QtWidgets.QWidget):
         self.btn_load_data = QtWidgets.QPushButton("Load data")
 
     def modify_widgets(self):
-        pass
+        self.btn_load_model.setObjectName("button-load")
+        self.btn_load_model.setFixedSize(150, 50)
+
+        self.btn_load_data.setObjectName("button-load")
+        self.btn_load_data.setFixedSize(150, 50)
 
     def create_layouts(self):
         self.main_layout = QtWidgets.QHBoxLayout(self)
@@ -51,8 +55,6 @@ class Visualizer(QtWidgets.QWidget):
     def load_model(self):
         path = QtWidgets.QFileDialog.getExistingDirectory(self, "Select model folder")
         try:
-            self.label_load_model = QtWidgets.QLabel('Loading model...')
-            self.main_layout.addWidget(self.label_load_model)
             model = keras.models.load_model(path)
             self.model_path = path
             print(self.model_path)
@@ -70,12 +72,6 @@ class Visualizer(QtWidgets.QWidget):
         except:
             # Shows error via label
             print("This is not a model !")
-
-        finally:
-            if self.model_path:
-                self.label_load_model.setText("Model loaded!")
-            else:
-                self.label_load_model.setText("Could not load model!")
 
 
     def load_data(self):
