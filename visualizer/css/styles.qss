@@ -1,12 +1,19 @@
 QWidget {
-    /* background-color: #12ADC1;*/
+    background-color: #12ADC1;
 }
 
-#sidebar {
-    background-color: #0295A9;
-}
-
-QLabel#test {
+QLabel {
     color: #ffffff;
+}
+
+QLabel#nav {
+    color: #fdd037;
+    font-weight: 700;
+    font-size: 25px;
+}
+
+QLabel#head-text {
+    color: #fdd037;
+    font-weight: 700;
 }
 
