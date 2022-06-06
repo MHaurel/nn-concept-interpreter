@@ -53,11 +53,13 @@ class Visualizer(QtWidgets.QWidget):
 
     def create_layouts(self):
         self.main_layout = QtWidgets.QGridLayout(self)  # QtWidgets.QHBoxLayout(self)
+        self.main_layout.setAlignment(QtCore.Qt.AlignCenter)
+        self.main_layout.setSpacing(300)
         self.sidebar_layout = QtWidgets.QVBoxLayout(self)
 
     def add_widgets_to_layouts(self):
-        self.main_layout.addWidget(self.btn_load_model, 0, 0, 2, 2)
-        self.main_layout.addWidget(self.btn_load_data, 2, 2, -1, 2)
+        self.main_layout.addWidget(self.btn_load_model, 0, 0, 0, 0)
+        self.main_layout.addWidget(self.btn_load_data, 0, 1, 0, 1)
 
         self.sidebar_layout.addWidget(self.label_overview_nav)
         self.sidebar_layout.addWidget(self.label_activations_nav)
