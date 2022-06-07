@@ -1,8 +1,9 @@
-from PySide6.QtWidgets import QWidget, QListView, QHBoxLayout, QSizePolicy
+from PySide6.QtWidgets import QWidget, QListView, QHBoxLayout, QSizePolicy, QListWidget
 from PySide6.QtCharts import QChart, QChartView
 from PySide6.QtGui import QPainter
 
 from categories_list_model import CategoriesListModel
+from categories_list import CategoriesList
 
 
 class DataWidget(QWidget):
@@ -13,10 +14,9 @@ class DataWidget(QWidget):
         self.model = CategoriesListModel(data)
 
         # Creating a QListView
-        self.list_view = QListView()
-        self.list_view.setModel(self.model)
-
-        # QTableView Headers ?????
+        self.list_widget = CategoriesList(data=data)
+        # self.list_widget.itemSelectionChanged.connect(print("Changed"))  # ISSUE : print only at start
+        self.list_widget.clicked.connect(self.clicked)
 
         # Creating QChart
         self.chart = QChart()
@@ -33,8 +33,8 @@ class DataWidget(QWidget):
 
         # Left Layout
         size.setHorizontalStretch(1)
-        self.list_view.setSizePolicy(size)
-        self.main_layout.addWidget(self.list_view)
+        self.list_widget.setSizePolicy(size)
+        self.main_layout.addWidget(self.list_widget)
 
         # Right Layout
         size.setHorizontalStretch(4)
@@ -43,3 +43,7 @@ class DataWidget(QWidget):
 
         # Set the layout to the QWidget
         self.setLayout(self.main_layout)
+        
+    def clicked(self, qmodelindex):
+        item = self.list_widget.currentItem()
+        print(item.text())

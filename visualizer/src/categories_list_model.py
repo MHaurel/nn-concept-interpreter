@@ -2,6 +2,7 @@ from PySide6.QtCore import QAbstractListModel, QModelIndex, Qt
 from PySide6.QtGui import QColor
 
 
+# MIGHT BE TO REMOVE
 class CategoriesListModel(QAbstractListModel):
     def __init__(self, data=None):
         QAbstractListModel.__init__(self)
