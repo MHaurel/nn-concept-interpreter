@@ -8,9 +8,10 @@ class CategoriesListModel(QAbstractListModel):
         self.load_data(data)
 
     def load_data(self, data):
-        self.row_count = 50
+        self.input_cat = data
+
+        self.row_count = len(self.input_cat)
         self.column_count = 1
-        print(data)
 
     def rowCount(self, parent=QModelIndex):
         return self.row_count
@@ -20,7 +21,7 @@ class CategoriesListModel(QAbstractListModel):
         row = index.row()
 
         if role == Qt.DisplayRole:
-            return f"Category: at index {row}"
+            return self.input_cat[row]
         elif role == Qt.BackgroundRole:
             return QColor(Qt.white)
         elif role == Qt.TextAlignmentRole:
