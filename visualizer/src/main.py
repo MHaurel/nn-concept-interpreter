@@ -14,7 +14,6 @@ data_cat = [ # Will be changed to JSON loaded files
 
 data = [
     np.random.randn(10, 12),
-    np.random.randn(10, 12)
 ]
 
 # model = keras.models.load_model('../../models/rnn-3')
