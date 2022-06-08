@@ -1,4 +1,5 @@
-from PySide6.QtWidgets import QWidget, QListView, QHBoxLayout, QSizePolicy, QListWidget
+from PySide6.QtWidgets import \
+    QWidget, QListView, QHBoxLayout, QSizePolicy, QListWidget, QPushButton
 from PySide6.QtCharts import QChart, QChartView
 from PySide6.QtGui import QPainter
 
@@ -12,7 +13,7 @@ class DataWidget(QWidget):
 
         # Creating a QListWidget
         self.list_widget = CategoriesList(data=data_cat)
-        self.list_widget.clicked.connect(self.clicked)
+        self.list_widget.clicked.connect(self.updateHeatmapList)
 
         # Creating QChart
         self.chart = QChart()
@@ -20,10 +21,6 @@ class DataWidget(QWidget):
 
         # Creating QListView to display heatmaps
         self.list_view = HeatmapList(data)
-
-        # Creating QChartView
-        self.chart_view = QChartView(self.chart)
-        self.chart_view.setRenderHint(QPainter.Antialiasing)
 
         # QWidget Layout
         self.main_layout = QHBoxLayout()
@@ -39,9 +36,18 @@ class DataWidget(QWidget):
         self.list_view.setSizePolicy(size)
         self.main_layout.addWidget(self.list_view)
 
+        # Button home
+        self.btn_home = QPushButton("Home")
+        self.btn_home.clicked.connect(self.goHome)
+        self.main_layout.addWidget(self.btn_home)
+
         # Set the layout to the QWidget
         self.setLayout(self.main_layout)
-        
-    def clicked(self, qmodelindex):
+
+    def updateHeatmapList(self, qmodelindex):
         item = self.list_widget.currentItem()
-        print(item.text())
+        print(f"Updating heatmap list widget with category: {item.text()}")
+
+    def goHome(self):
+        # Call goto method on parent
+        print(self.parent().goto('search'))
