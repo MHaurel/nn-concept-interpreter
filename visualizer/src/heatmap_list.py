@@ -16,7 +16,7 @@ class HeatmapList(QListWidget):
         self.data = data
 
         for i, h in enumerate(data):
-            heatmap = Heatmap(h)
+            heatmap = Heatmap(h, i)
 
             item = QListWidgetItem()
             icon = QIcon()
