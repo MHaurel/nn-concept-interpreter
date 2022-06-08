@@ -1,9 +1,6 @@
-import random
 import sys
 
-from PySide6 import QtWidgets, QtCore, QtGui
-
-from DataLoader import DataLoader
+from PySide6 import QtWidgets, QtGui
 
 from tensorflow import keras
 
@@ -53,8 +50,9 @@ class Visualizer(QtWidgets.QWidget):
 
     def create_layouts(self):
         self.main_layout = QtWidgets.QGridLayout(self)  # QtWidgets.QHBoxLayout(self)
-        self.main_layout.setAlignment(QtCore.Qt.AlignCenter)
-        self.main_layout.setSpacing(300)
+        # self.main_layout.setAlignment(QtCore.Qt.AlignCenter)
+        # self.main_layout.setSpacing(300)
+
         self.sidebar_layout = QtWidgets.QVBoxLayout(self)
 
     def add_widgets_to_layouts(self):
@@ -116,7 +114,7 @@ class Visualizer(QtWidgets.QWidget):
 
     def display_model_fig(self):
         self.label_fig = QtWidgets.QLabel()
-        self.pixmap_fig = QtGui.QPixmap('./src/img/model_ill.png')
+        self.pixmap_fig = QtGui.QPixmap('../src/img/model_ill.png')
         self.label_fig.setPixmap(self.pixmap_fig)
         self.label_fig.setMask(self.pixmap_fig.mask())
         self.label_fig.setFixedSize(500, 300)
@@ -130,7 +128,7 @@ if __name__ == "__main__":
     widget = Visualizer()
     widget.show()
 
-    with open('./css/styles.qss', "r") as f:
+    with open('../src/css/styles.qss', "r") as f:
         _style = f.read()
         app.setStyleSheet(_style)
 

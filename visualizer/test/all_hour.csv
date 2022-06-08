@@ -1,0 +1,4 @@
+time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,type,horizontalError,depthError,magError,magNst,status,locationSource,magSource
+2022-06-07T11:59:19.300Z,36.2611656,-120.4703369,2.07,1.35,md,8,199,0.1096,0.02,nc,nc73741146,2022-06-07T12:30:14.551Z,"17km NW of Coalinga, CA",earthquake,0.66,1.92,0.34,4,automatic,nc,nc
+2022-06-07T11:46:52.919Z,59.5973,-152.9855,107.5,1.1,ml,,,,0.32,ak,ak02279hqknw,2022-06-07T11:48:57.975Z,"66 km WNW of Nanwalek, Alaska",earthquake,,0.4,,,automatic,ak,ak
+2022-06-07T11:46:34.904Z,65.2986,-150.3298,0,1.2,ml,,,,0.99,ak,ak02279hqjb6,2022-06-07T11:48:37.024Z,"24 km SSW of Rampart, Alaska",earthquake,,0.6,,,automatic,ak,ak

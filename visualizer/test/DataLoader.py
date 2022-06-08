@@ -20,7 +20,7 @@ class DataLoader:
         Saves the visualization of the model. NOT WORKING
         :return: None
         """
-        path = "./src/img/model_ill.png"
+        path = "../src/img/model_ill.png"
         self.model.add(visualkeras.SpacingDummyLayer(spacing=150))
         visualkeras.layered_view(self.model, legend=True, to_file=path)
         return path
@@ -39,5 +39,5 @@ class DataLoader:
 
 
 if __name__ == "__main__":
-    dl = DataLoader('../models/rnn-3', '../data/data.json')
+    dl = DataLoader('../../models/rnn-3', '../data/data.json')
     dl.model_vis()
