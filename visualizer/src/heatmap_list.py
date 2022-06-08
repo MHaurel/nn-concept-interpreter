@@ -20,6 +20,7 @@ class HeatmapList(QListWidget):
 
             item = QListWidgetItem()
             icon = QIcon()
+            #Need to find a way to clear QIcon
             icon.addPixmap(heatmap.get_pixmap())
             item.setIcon(icon)
             self.addItem(item)

@@ -15,7 +15,7 @@ class Heatmap(QWidget):
         self.full_path = os.path.join(self.path, self.filename)
 
         # Create the heatmap
-        ax = sns.heatmap(data)
+        ax = sns.heatmap(data, cbar=False)
         fig = ax.get_figure()
         fig.savefig(self.full_path)
 
