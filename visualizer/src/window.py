@@ -24,6 +24,7 @@ class Window(QMainWindow):
         self.register(HomeWindow(), "home")
         self.register(SampleWindow(), "search")
 
+        # Static data importation for the moment
         data_cat = [  # Will be changed to JSON loaded files
             "French_films", "American_black_and_white_films"
         ]
