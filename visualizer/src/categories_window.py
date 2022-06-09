@@ -14,5 +14,9 @@ class CategoriesWindow(PageWindow):
         self.status.showMessage("Data loaded and plotted")
 
         # Window dimensions
+        """
         geometry = self.screen().availableGeometry()
-        self.setFixedSize(geometry.width() * 0.6, geometry.height() * 0.6)
+        self.setFixedSize(geometry.width() * 0.6, geometry.height() * 0.6)"""
+
+    def goHome(self):
+        pass

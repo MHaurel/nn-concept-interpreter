@@ -50,4 +50,4 @@ class DataWidget(QWidget):
 
     def goHome(self):
         # Call goto method on parent
-        print(self.parent().goto('search'))
+        self.parent().goto("sample")

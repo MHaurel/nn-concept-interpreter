@@ -3,7 +3,7 @@ import numpy as np
 
 from PySide6.QtWidgets import QApplication
 
-from categories_window import MainWindow
+from categories_window import CategoriesWindow
 from data_widget import DataWidget
 
 # from tensorflow import keras

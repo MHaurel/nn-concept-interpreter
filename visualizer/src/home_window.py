@@ -1,17 +1,25 @@
-from PySide6.QtWidgets import QLabel, QPushButton, QHBoxLayout
+from PySide6.QtWidgets import QLabel, QPushButton, QHBoxLayout, QVBoxLayout, QMainWindow
+from PySide6.QtCore import Qt
 
 from page_window import PageWindow
 
 
 class HomeWindow(PageWindow):
-    def __init__(self):
+    def __init__(self, widget):
+        QMainWindow.__init__(self)
+        self.setWindowTitle("Home")
+        self.setCentralWidget(widget)
+        """
         super().__init__()
         self.setWindowTitle("Home")
 
+        print(self.layout)
+        self.setLayout(self.layout)
+
         # Test search button
-        self.searchButton = QPushButton('', self)
-        self.searchButton.clicked.connect(
-            self.make_handleButton("searchButton")
+        self.sampleButton = QPushButton("Sample", self)
+        self.sampleButton.clicked.connect(
+            self.make_handleButton("sampleButton")
         )
 
         # Categories button
@@ -20,15 +28,16 @@ class HomeWindow(PageWindow):
             self.make_handleButton("categoriesButton")
         )
 
+        
         # Layout
-        self.main_layout = QHBoxLayout()
-        self.main_layout.addWidget(self.searchButton)
-        self.main_layout.addSpacing(100)
+        self.layout.addWidget(self.sampleButton)
+        self.layout.addWidget(self.categoriesButton)
+        """
 
     def make_handleButton(self, button):
         def handleButton():
-            if button == "searchButton":
-                self.goto("search")
+            if button == "sampleButton":
+                self.goto("sample")
             elif button == "categoriesButton":
                 self.goto("categories")
 

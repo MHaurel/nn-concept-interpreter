@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QStackedWidget, QApplication
+from PySide6.QtWidgets import QMainWindow, QStackedWidget, QApplication, QVBoxLayout
 from PySide6.QtCore import Slot
 from PySide6.QtGui import QAction, QKeySequence
 
@@ -10,6 +10,7 @@ from sample_window import SampleWindow
 from categories_window import CategoriesWindow
 
 from data_widget import DataWidget
+from home_widget import HomeWidget
 
 
 class Window(QMainWindow):
@@ -21,8 +22,8 @@ class Window(QMainWindow):
 
         self.m_pages = {}
 
-        self.register(HomeWindow(), "home")
-        self.register(SampleWindow(), "search")
+        self.register(HomeWindow(HomeWidget()), "home")
+        self.register(SampleWindow(), "sample")
 
         # Static data importation for the moment
         data_cat = [  # Will be changed to JSON loaded files
