@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QStackedWidget, QApplication, QVBoxLayout
+from PySide6.QtWidgets import QMainWindow, QStackedWidget, QApplication
 from PySide6.QtCore import Slot
 from PySide6.QtGui import QAction, QKeySequence
 
@@ -38,7 +38,7 @@ class Window(QMainWindow):
         self.register(CategoriesWindow(widget), "categories")
 
         # Default page
-        self.goto("home")
+        self.goto("home", None, None)
 
         # Menu
         self.menu = self.menuBar()
@@ -61,8 +61,11 @@ class Window(QMainWindow):
         if isinstance(widget, PageWindow):
             widget.gotoSignal.connect(self.goto)
 
-    @Slot(str)
-    def goto(self, name):
+    @Slot(str, object, object)
+    def goto(self, name, model, data_path):
+        print(f"model : {model}")  # DEBUG
+        print(f"data_path : {data_path}")
+
         if name in self.m_pages:
             widget = self.m_pages[name]
             self.stacked_widget.setCurrentWidget(widget)

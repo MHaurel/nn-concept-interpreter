@@ -1,5 +1,4 @@
-from PySide6.QtWidgets import QLabel, QPushButton, QHBoxLayout, QVBoxLayout, QMainWindow
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QMainWindow
 
 from page_window import PageWindow
 
@@ -37,8 +36,8 @@ class HomeWindow(PageWindow):
     def make_handleButton(self, button):
         def handleButton():
             if button == "sampleButton":
-                self.goto("sample")
+                self.goto("sample", 'c', 'd')
             elif button == "categoriesButton":
-                self.goto("categories")
+                self.goto("categories", 'c', 'd')
 
         return handleButton

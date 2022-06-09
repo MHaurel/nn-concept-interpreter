@@ -1,6 +1,5 @@
 from PySide6.QtWidgets import \
-    QWidget, QPushButton, QHBoxLayout, QSizePolicy, \
-    QGridLayout, QFileDialog
+    QWidget, QPushButton, QSizePolicy, QGridLayout, QFileDialog
 
 from tensorflow import keras
 
@@ -58,11 +57,10 @@ class HomeWidget(QWidget):
         path = QFileDialog.getOpenFileNames(self, 'Select data files', '', 'JSON files (*.json)')
         if path != ('', ''):
             self.data_path = path
-            print(self.data_path)
             self.btn_load_data.setEnabled(False)
 
     def goToSample(self):
-        self.parent().goto("sample")
+        self.parent().goto("sample", self.model, self.data_path)
 
     def goToCategories(self):
-        self.parent().goto("categories")
+        self.parent().goto("categories", self.model, self.data_path)

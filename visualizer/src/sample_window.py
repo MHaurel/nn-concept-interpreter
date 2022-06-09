@@ -14,7 +14,7 @@ class SampleWindow(PageWindow):
         self.UiComponents()
 
     def goToMain(self):
-        self.goto("home")
+        self.goto("home", 'c', 'd')
 
     def UiComponents(self):
         self.backButton = QPushButton("BackButton", self)
