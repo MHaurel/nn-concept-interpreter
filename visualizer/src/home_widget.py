@@ -1,5 +1,7 @@
 from PySide6.QtWidgets import \
-    QWidget, QPushButton, QSizePolicy, QGridLayout, QFileDialog
+    QWidget, QPushButton, QSizePolicy, QGridLayout, QFileDialog, QHBoxLayout
+
+from widgets.sidebar import Sidebar
 
 from tensorflow import keras
 
@@ -32,13 +34,16 @@ class HomeWidget(QWidget):
         self.main_layout = QGridLayout()
         size = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
 
+        self.main_layout = QHBoxLayout()
         # Sidebar layout
-        self.main_layout.addWidget(self.btn_sample, 1, 0)
-        self.main_layout.addWidget(self.btn_categories, 2, 0)
+        #self.main_layout.addWidget(self.btn_sample, 1, 0)
+        #self.main_layout.addWidget(self.btn_categories, 2, 0)
+        self.sidebar = Sidebar()
+        self.main_layout.addWidget(self.sidebar)
 
         # Right Layout
-        self.main_layout.addWidget(self.btn_load_model, 1, 1)
-        self.main_layout.addWidget(self.btn_load_data, 1, 2)
+        self.main_layout.addWidget(self.btn_load_model)
+        self.main_layout.addWidget(self.btn_load_data)
 
         # Set the Layout to the Widget
         self.setLayout(self.main_layout)
