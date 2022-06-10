@@ -1,5 +1,7 @@
 from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout
 
+from visualizer.src.widgets.sidebar_tile import SidebarTile
+
 
 class Sidebar(QWidget):
     def __init__(self):
@@ -15,6 +17,7 @@ class Sidebar(QWidget):
 
         # Button Categories
         self.btn_categories = QPushButton("Categories")
+        #self.btn_categories = SidebarTile("Categories")
         self.btn_categories.clicked.connect(self.goToCategories)
 
         self.btn_categories.setEnabled(False)
