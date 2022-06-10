@@ -31,13 +31,9 @@ class HomeWidget(QWidget):
         self.btn_categories.clicked.connect(self.goToCategories)
 
         # Widget Layout
-        self.main_layout = QGridLayout()
-        size = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-
         self.main_layout = QHBoxLayout()
+
         # Sidebar layout
-        #self.main_layout.addWidget(self.btn_sample, 1, 0)
-        #self.main_layout.addWidget(self.btn_categories, 2, 0)
         self.sidebar = Sidebar()
         self.main_layout.addWidget(self.sidebar)
 
@@ -63,6 +59,11 @@ class HomeWidget(QWidget):
         if path != ('', ''):
             self.data_path = path
             self.btn_load_data.setEnabled(False)
+
+    # These functions may need to be implemented in an abstract function
+    # and pages window to override them
+    def goToHome(self):
+        pass  # Because already on home page
 
     def goToSample(self):
         self.parent().goto("sample", self.model, self.data_path)

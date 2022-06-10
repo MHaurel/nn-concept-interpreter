@@ -27,10 +27,10 @@ class Sidebar(QWidget):
         self.setLayout(self.main_layout)
 
     def goToHome(self):
-        pass
+        self.parent().goToHome()
 
     def goToSample(self):
-        pass
+        self.parent().goToSample()
 
     def goToCategories(self):
-        pass
+        self.parent().goToCategories()

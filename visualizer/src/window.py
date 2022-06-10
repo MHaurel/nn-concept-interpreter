@@ -9,8 +9,8 @@ from page_window import PageWindow
 from sample_window import SampleWindow
 from categories_window import CategoriesWindow
 
-from data_widget import DataWidget
-from home_widget import HomeWidget
+from visualizer.src.widgets.data_widget import DataWidget
+from visualizer.src.widgets.home_widget import HomeWidget
 
 
 class Window(QMainWindow):
