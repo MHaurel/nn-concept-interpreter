@@ -9,8 +9,8 @@ from page_window import PageWindow
 from sample_window import SampleWindow
 from categories_window import CategoriesWindow
 
-from visualizer.src.widgets.data_widget import DataWidget
-from visualizer.src.widgets.home_widget import HomeWidget
+from widgets.categories_widget import CategoriesWidget
+from widgets.home_widget import HomeWidget
 
 
 class Window(QMainWindow):
@@ -34,7 +34,7 @@ class Window(QMainWindow):
             np.random.randn(9, 3),
             np.random.randn(17, 4),
         ]
-        widget = DataWidget(data_cat, data)
+        widget = CategoriesWidget(data_cat, data)
         self.register(CategoriesWindow(widget), "categories")
 
         # Default page

@@ -3,7 +3,7 @@ from PySide6.QtWidgets import \
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
 
-from heatmap import Heatmap
+from visualizer.src.widgets.heatmap import Heatmap
 
 
 class HeatmapList(QListWidget):

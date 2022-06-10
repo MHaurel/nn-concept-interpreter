@@ -8,7 +8,7 @@ import seaborn as sns
 class Heatmap(QWidget):
     def __init__(self, data, index):
         QWidget.__init__(self)
-        self.path = './heatmaps/'
+        self.path = '../heatmaps/'
         self.filename = f"heatmap-{index}.png"
         if not os.path.exists(self.path):
             os.makedirs(self.path)

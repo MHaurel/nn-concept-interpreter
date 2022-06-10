@@ -1,11 +1,12 @@
 from PySide6.QtWidgets import \
     QWidget, QHBoxLayout, QSizePolicy, QPushButton
 
-from categories_list import CategoriesList
-from heatmap_list import HeatmapList
+from visualizer.src.widgets.categories_list import CategoriesList
+from visualizer.src.widgets.heatmap_list import HeatmapList
+from visualizer.src.widgets.sidebar import Sidebar
 
 
-class DataWidget(QWidget):
+class CategoriesWidget(QWidget):
     def __init__(self, data_cat, data):
         QWidget.__init__(self)
 
@@ -24,6 +25,10 @@ class DataWidget(QWidget):
         self.main_layout = QHBoxLayout()
         size = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
 
+        # Sidebar
+        self.sidebar = Sidebar()
+        self.main_layout.addWidget(self.sidebar)
+
         # Left Layout
         size.setHorizontalStretch(1)
         self.list_widget.setSizePolicy(size)
@@ -34,11 +39,6 @@ class DataWidget(QWidget):
         self.list_view.setSizePolicy(size)
         self.main_layout.addWidget(self.list_view)
 
-        # Button home
-        self.btn_home = QPushButton("Home")
-        self.btn_home.clicked.connect(self.goHome)
-        self.main_layout.addWidget(self.btn_home)
-
         # Set the layout to the QWidget
         self.setLayout(self.main_layout)
 
@@ -46,6 +46,13 @@ class DataWidget(QWidget):
         item = self.list_widget.currentItem()
         print(f"Updating heatmap list widget with category: {item.text()}")
 
-    def goHome(self):
-        # Call goto method on parent
+    # These functions may need to be implemented in an abstract function
+    # and pages window to override them
+    def goToHome(self):
         self.parent().goto("home", self.model, self.data_path)
+
+    def goToSample(self):
+        self.parent().goto("sample", self.model, self.data_path)
+
+    def goToCategories(self):
+        pass  # Because already on this page

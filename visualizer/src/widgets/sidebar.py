@@ -17,6 +17,8 @@ class Sidebar(QWidget):
         self.btn_categories = QPushButton("Categories")
         self.btn_categories.clicked.connect(self.goToCategories)
 
+        self.btn_categories.setEnabled(False)
+
         # Layout
         self.main_layout = QVBoxLayout()
         self.main_layout.addWidget(self.btn_home)
@@ -25,6 +27,9 @@ class Sidebar(QWidget):
 
         # Set Layout to QWidget
         self.setLayout(self.main_layout)
+
+    def enableCategoriesButton(self):
+        self.btn_categories.setEnabled(True)
 
     def goToHome(self):
         self.parent().goToHome()

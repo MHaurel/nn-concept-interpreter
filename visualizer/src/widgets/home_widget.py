@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import \
-    QWidget, QPushButton, QSizePolicy, QGridLayout, QFileDialog, QHBoxLayout
+    QWidget, QPushButton, QFileDialog, QHBoxLayout
 
-from widgets.sidebar import Sidebar
+from visualizer.src.widgets.sidebar import Sidebar
 
 from tensorflow import keras
 
@@ -21,14 +21,6 @@ class HomeWidget(QWidget):
         # Button load data
         self.btn_load_data = QPushButton("Load data")
         self.btn_load_data.clicked.connect(self.loadData)
-
-        # Button load model
-        self.btn_sample = QPushButton("Sample")
-        self.btn_sample.clicked.connect(self.goToSample)
-
-        # Button load data
-        self.btn_categories = QPushButton("Categories")
-        self.btn_categories.clicked.connect(self.goToCategories)
 
         # Widget Layout
         self.main_layout = QHBoxLayout()
@@ -50,6 +42,10 @@ class HomeWidget(QWidget):
             model = keras.models.load_model(path)
             self.model = model
             self.btn_load_model.setEnabled(False)
+
+            if self.model is not None and self.data_path is not None:
+                self.sidebar.enableCategoriesButton()
+
         except:
             #Show error through label
             print("This is not a model !")
@@ -59,6 +55,9 @@ class HomeWidget(QWidget):
         if path != ('', ''):
             self.data_path = path
             self.btn_load_data.setEnabled(False)
+
+            if self.model is not None and self.data_path is not None:
+                self.sidebar.enableCategoriesButton()
 
     # These functions may need to be implemented in an abstract function
     # and pages window to override them
