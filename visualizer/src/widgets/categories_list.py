@@ -6,5 +6,13 @@ class CategoriesList(QListWidget):
         QListWidget.__init__(self)
 
         self.data = data
-        for i, rowName in enumerate(data):
-            self.insertItem(i, rowName)
+
+        if data is not None:
+            for i, rowName in enumerate(data):
+                self.insertItem(i, rowName[0])
+
+    def update(self, data=None):
+        self.data = data
+        if data is not None:
+            for i, rowName in enumerate(data):
+                self.insertItem(i, rowName[0])

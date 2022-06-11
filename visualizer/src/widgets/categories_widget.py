@@ -7,19 +7,22 @@ from visualizer.src.widgets.sidebar import Sidebar
 
 
 class CategoriesWidget(QWidget):
-    def __init__(self, data_cat, data):
+    def __init__(self): # , data_cat, data
         QWidget.__init__(self)
 
         self.model = None
         self.data_path = None
-        self.data = None
+
+        self.dataloader = None
+        self.df = None
+        self.categories = None
 
         # Creating a QListWidget
-        self.list_widget = CategoriesList(data=data_cat)
+        self.list_widget = CategoriesList(data=self.categories)
         self.list_widget.clicked.connect(self.updateHeatmapList)
 
         # Creating QListView to display heatmaps
-        self.list_view = HeatmapList(data)
+        self.list_view = HeatmapList(self.dataloader)
 
         # QWidget Layout
         self.main_layout = QHBoxLayout()
@@ -43,16 +46,33 @@ class CategoriesWidget(QWidget):
         self.setLayout(self.main_layout)
 
     def updateHeatmapList(self, qmodelindex):
+        """
+        Query dataloader to get heatmap for a specific category
+        :param qmodelindex:
+        :return: None
+        """
         item = self.list_widget.currentItem()
         print(f"Updating heatmap list widget with category: {item.text()}")
 
-    # These functions may need to be implemented in an abstract function
+        paths = self.dataloader.get_heatmaps_for_cat(item.text())
+        self.list_view.update(paths)
+
+    #These functions may need to be implemented in an abstract function
     # and pages window to override them
     def goToHome(self):
-        self.parent().goto("home", self.model, self.data_path)
+        self.parent().goto("home", self.dataloader)
 
     def goToSample(self):
-        self.parent().goto("sample", self.model, self.data_path)
+        self.parent().goto("sample", self.dataloader)
 
     def goToCategories(self):
         pass  # Because already on this page
+
+    def set_dataloader(self, dataloader):
+        self.dataloader = dataloader
+        self.categories = dataloader.get_popular_categories(thresh=500)
+
+        self.list_widget.update(self.categories)
+
+        self.df = self.dataloader.get_df()
+        self.model = self.dataloader.get_model()

@@ -25,6 +25,7 @@ class Window(QMainWindow):
         self.register(HomeWindow(HomeWidget()), "home")
         self.register(SampleWindow(), "sample")
 
+        """
         # Static data importation for the moment
         data_cat = [  # Will be changed to JSON loaded files
             "French_films", "American_black_and_white_films"
@@ -34,11 +35,12 @@ class Window(QMainWindow):
             np.random.randn(9, 3),
             np.random.randn(17, 4),
         ]
-        widget = CategoriesWidget(data_cat, data)
+        widget = CategoriesWidget(data_cat, data)"""
+        widget = CategoriesWidget()
         self.register(CategoriesWindow(widget), "categories")
 
         # Default page
-        self.goto("home", None, None)
+        self.goto("home", None)  # Dataloader is None
 
         # Menu
         self.menu = self.menuBar()
@@ -62,12 +64,14 @@ class Window(QMainWindow):
             widget.gotoSignal.connect(self.goto)
 
     @Slot(str, object, object)
-    def goto(self, name, model, data_path):
-        print(f"model : {model}")  # DEBUG
-        print(f"data_path : {data_path}")
+    def goto(self, name, dataloader):
+        # print(f"Dataloader : {dataloader}")  # DEBUG
 
         if name in self.m_pages:
             widget = self.m_pages[name]
+            if name == "categories":
+                widget.set_dataloader(dataloader)
+
             self.stacked_widget.setCurrentWidget(widget)
             self.setWindowTitle(widget.windowTitle())
 

@@ -2,6 +2,7 @@ from PySide6.QtWidgets import \
     QWidget, QPushButton, QFileDialog, QHBoxLayout
 
 from visualizer.src.widgets.sidebar import Sidebar
+from visualizer.src.backend.dataloader import DataLoader
 
 from tensorflow import keras
 
@@ -13,6 +14,7 @@ class HomeWidget(QWidget):
         self.model = None
         self.data = None #NOT USED
         self.data_path = None
+        self.dataloader = None
 
         # Button load model
         self.btn_load_model = QPushButton("Load model")
@@ -44,19 +46,21 @@ class HomeWidget(QWidget):
             self.btn_load_model.setEnabled(False)
 
             if self.model is not None and self.data_path is not None:
+                self.dataloader = DataLoader(self.data_path[0], self.model)
                 self.sidebar.enableCategoriesButton()
 
         except:
             #Show error through label
-            print("This is not a model !")
+            print("This is not a model ! / data could not be load successfully")
 
     def loadData(self):
-        path = QFileDialog.getOpenFileNames(self, 'Select data files', '', 'JSON files (*.json)')
+        path = QFileDialog.getOpenFileName(self, 'Select a data file', '', 'JSON files (*.json)')
         if path != ('', ''):
             self.data_path = path
             self.btn_load_data.setEnabled(False)
 
             if self.model is not None and self.data_path is not None:
+                self.dataloader = DataLoader(self.data_path[0], self.model)
                 self.sidebar.enableCategoriesButton()
 
     # These functions may need to be implemented in an abstract function
@@ -65,7 +69,7 @@ class HomeWidget(QWidget):
         pass  # Because already on home page
 
     def goToSample(self):
-        self.parent().goto("sample", self.model, self.data_path)
+        self.parent().goto("sample", self.dataloader)
 
     def goToCategories(self):
-        self.parent().goto("categories", self.model, self.data_path)
+        self.parent().goto("categories", self.dataloader)

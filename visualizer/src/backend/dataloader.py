@@ -1,3 +1,5 @@
+import os.path
+
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -18,6 +20,21 @@ class DataLoader:
         self.df = pd.read_json(self.path)
 
         self.df = self.get_all_activations()
+        self.heatmaps = self.get_heatmaps_dict()
+
+    def get_model(self):
+        return self.model
+
+    def get_df(self):
+        return self.df
+
+    def get_heatmaps_for_cat(self, category):
+        heatmaps = []
+        if category in self.heatmaps.keys():
+            for heatmap in self.heatmaps[category].keys():
+                heatmaps.append(self.heatmaps[category][heatmap]['path'])
+
+        return heatmaps
 
     def get_unique_categories(self):
         unique_categories = []
@@ -133,38 +150,44 @@ class DataLoader:
             reses.append(res)
         return pd.DataFrame(np.array(reses)).mean()
 
-    def get_pv_heatmaps(self):
+    def get_heatmaps_dict(self):
+        dheatmaps = {}
+
+        if not os.path.exists('../heatmaps'):
+            os.makedirs('../heatmaps')
+
         for c, n in self.get_popular_categories(thresh=500):
-            print(f"Generating heatmaps for {c}.")
+            for_cat = {}
+
             r = self.find_pv(c)
 
-            rdf = pd.DataFrame(r)
             # 1st heatmap
+            rdf = pd.DataFrame(r)
+            print(rdf.T)
             ax = sns.heatmap(rdf.T, cbar=False, cmap="Greys")
             fig = ax.get_figure()
-            fig.savefig(f"../heatmaps/{c}-1.png")
-            """
-            data = [go.Heatmap(z=rdf.T, zmin=0, zmax=1,
-                               colorscale=['rgb(255, 255, 255)', 'rgb(0, 0, 0)'],
-                               reversescale=False)]
-            layout = go.Layout(template='none', height=300)
-            fig = go.Figure(data=data, layout=layout)
-            fig.write_image(f"../heatmaps/{c}-1.png")
-            """
+            path = f"../heatmaps/{c}-1.png"
+            fig.savefig(path)
 
-            rdf[0] = rdf[0].apply(lambda x: 0 if x > 0.01 else 1)
+            for_cat['heatmap-1'] = {}
+            for_cat['heatmap-1']['path'] = path
+            for_cat['heatmap-1']['data'] = np.array(rdf[0]).T
+
             # 2nd heatmap
+            rdf[0] = rdf[0].apply(lambda x: 0 if x > 0.01 else 1)
             ax = sns.heatmap(rdf.T, cbar=False, cmap="Greys")
             fig = ax.get_figure()
-            fig.savefig(f"../heatmaps/{c}-2.png")
-            """
-            data = [go.Heatmap(z=rdf.T, zmin=0, zmax=1,
-                               colorscale=['rgb(0, 0, 0)', 'rgb(255, 255, 255)'],
-                               reversescale=False)]
-            layout = go.Layout(template='none', height=300)
-            fig = go.Figure(data=data, layout=layout)
-            fig.write_image(f"../heatmaps/{c}-2.png")
-            """
+            path = f"../heatmaps/{c}-2.png"
+            fig.savefig(path)
+
+            for_cat['heatmap-2'] = {}
+            for_cat['heatmap-2']['path'] = path
+            for_cat['heatmap-2']['data'] = np.array(rdf[0]).T
+
+            # Add paths to dict
+            dheatmaps[c] = for_cat
+
+        return dheatmaps
 
 
 if __name__ == '__main__':
@@ -172,4 +195,4 @@ if __name__ == '__main__':
     new_m = m.rebuild_model(1)
     dl = DataLoader('../../data/bycountry_ds.json', model=new_m)
 
-    dl.get_pv_heatmaps()
+    print(dl.get_heatmaps_dict())

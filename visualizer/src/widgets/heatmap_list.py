@@ -7,12 +7,18 @@ from visualizer.src.widgets.heatmap import Heatmap
 
 
 class HeatmapList(QListWidget):
-    def __init__(self, data=None):
+    def __init__(self, paths=None):
         QListWidget.__init__(self)
 
         self.setViewMode(QListView.IconMode)
         self.setIconSize(QSize(512, 512))
 
+        self.paths = paths
+
+        if self.paths is not None:
+            self.populate_list(self.paths)
+
+        """
         self.data = data
 
         for i, h in enumerate(data):
@@ -22,6 +28,19 @@ class HeatmapList(QListWidget):
             icon.addPixmap(heatmap.get_pixmap())
             item.setIcon(icon)
             self.addItem(item)
+        """
 
-    def update(self, data):
-        pass
+    def populate_list(self, paths):
+        for path in paths:
+            try:
+                heatmap = Heatmap(path)
+                item = QListWidgetItem()
+                icon = QIcon()
+                icon.addPixmap(heatmap.get_pixmap())
+                item.setIcon(icon)
+                self.addItem(item)
+            except:
+                print("Error encountered with heatmap loading")
+
+    def update(self, paths):
+        self.populate_list(paths)

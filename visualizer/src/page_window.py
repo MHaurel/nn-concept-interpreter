@@ -3,10 +3,8 @@ from PySide6.QtCore import Signal
 
 
 class PageWindow(QMainWindow):
-    gotoSignal = Signal(str, object, object)
+    gotoSignal = Signal(str, object)  # Name of the window and dataloader
     layout = QHBoxLayout()
 
-    def goto(self, name, model=None, data_path=None):
-        print(f"model : {model}")
-        print(f"data_path : {data_path}")
-        self.gotoSignal.emit(name, model, data_path)
+    def goto(self, name, dataloader=None):
+        self.gotoSignal.emit(name, dataloader)
