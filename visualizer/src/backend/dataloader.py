@@ -163,7 +163,6 @@ class DataLoader:
 
             # 1st heatmap
             rdf = pd.DataFrame(r)
-            print(rdf.T)
             ax = sns.heatmap(rdf.T, cbar=False, cmap="Greys")
             fig = ax.get_figure()
             path = f"../heatmaps/{c}-1.png"
@@ -194,5 +193,3 @@ if __name__ == '__main__':
     m = Model('../../models/bycountry_model')
     new_m = m.rebuild_model(1)
     dl = DataLoader('../../data/bycountry_ds.json', model=new_m)
-
-    print(dl.get_heatmaps_dict())

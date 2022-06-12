@@ -19,6 +19,8 @@ class Model:
         for i in range(layer_index + 1):
             model.add(self.model.layers[i])
 
+        print(f"Using layer {self.model.layers[i].name}")
+
         return model
 
 

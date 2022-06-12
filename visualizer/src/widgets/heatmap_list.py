@@ -18,18 +18,6 @@ class HeatmapList(QListWidget):
         if self.paths is not None:
             self.populate_list(self.paths)
 
-        """
-        self.data = data
-
-        for i, h in enumerate(data):
-            heatmap = Heatmap(h, i)
-            item = QListWidgetItem()
-            icon = QIcon()
-            icon.addPixmap(heatmap.get_pixmap())
-            item.setIcon(icon)
-            self.addItem(item)
-        """
-
     def populate_list(self, paths):
         for path in paths:
             try:
@@ -43,4 +31,5 @@ class HeatmapList(QListWidget):
                 print("Error encountered with heatmap loading")
 
     def update(self, paths):
+        self.clear()
         self.populate_list(paths)

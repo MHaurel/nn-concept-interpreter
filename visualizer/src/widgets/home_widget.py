@@ -3,6 +3,7 @@ from PySide6.QtWidgets import \
 
 from visualizer.src.widgets.sidebar import Sidebar
 from visualizer.src.backend.dataloader import DataLoader
+from visualizer.src.backend.model import Model
 
 from tensorflow import keras
 
@@ -12,6 +13,7 @@ class HomeWidget(QWidget):
         QWidget.__init__(self)
 
         self.model = None
+
         self.data = None #NOT USED
         self.data_path = None
         self.dataloader = None
@@ -41,8 +43,12 @@ class HomeWidget(QWidget):
     def loadModel(self):
         path = QFileDialog.getExistingDirectory(self, "Select model source folder")
         try:
-            model = keras.models.load_model(path)
-            self.model = model
+            #model = keras.models.load_model(path)
+            #self.model = model
+
+            self.model = Model(path)
+            self.model = self.model.rebuild_model(1) #2nd layer by default... param will be chose by user
+
             self.btn_load_model.setEnabled(False)
 
             if self.model is not None and self.data_path is not None:
