@@ -54,7 +54,15 @@ class CategoriesWidget(QWidget):
         item = self.list_widget.currentItem()
         print(f"Updating heatmap list widget with category: {item.text()}")
 
-        paths = self.dataloader.get_heatmaps_for_cat(item.text())
+        #paths = self.dataloader.get_heatmaps_for_layer_cat('embedding', item.text()) # By default embedding
+
+        heatmaps = self.dataloader.get_heatmaps()
+        paths = []
+        for h in heatmaps['dense']
+
+
+        #Need to add widget to select layer
+
         self.list_view.update(paths)
 
     #These functions may need to be implemented in an abstract function
@@ -74,5 +82,5 @@ class CategoriesWidget(QWidget):
 
         self.list_widget.update(self.categories)
 
-        self.df = self.dataloader.get_df()
+        self.dfs = self.dataloader.get_dfs()
         self.model = self.dataloader.get_model()

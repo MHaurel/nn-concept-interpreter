@@ -47,12 +47,14 @@ class HomeWidget(QWidget):
             #self.model = model
 
             self.model = Model(path)
-            self.model = self.model.rebuild_model(1) #2nd layer by default... param will be chose by user
+
+            #This line is comment because we want all the layers to be shown
+            #self.model = self.model.rebuild_model(1) #2nd layer by default... param will be chose by user
 
             self.btn_load_model.setEnabled(False)
 
             if self.model is not None and self.data_path is not None:
-                self.dataloader = DataLoader(self.data_path[0], self.model)
+                self.dataloader = DataLoader(self.data_path[0], self.model, compute_data=False) #This is NOT for production.
                 self.sidebar.enableCategoriesButton()
 
         except:
@@ -66,7 +68,7 @@ class HomeWidget(QWidget):
             self.btn_load_data.setEnabled(False)
 
             if self.model is not None and self.data_path is not None:
-                self.dataloader = DataLoader(self.data_path[0], self.model)
+                self.dataloader = DataLoader(self.data_path[0], self.model, compute_data=False) #This is NOT for production
                 self.sidebar.enableCategoriesButton()
 
     # These functions may need to be implemented in an abstract function
