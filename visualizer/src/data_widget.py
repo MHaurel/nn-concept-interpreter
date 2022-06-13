@@ -4,6 +4,8 @@ from PySide6.QtGui import QPainter
 
 from categories_list import CategoriesList
 from heatmap_list import HeatmapList
+from layer_selector import LayerSelector
+from heatmap_widget import HeatmapWidget
 
 
 class DataWidget(QWidget):
@@ -14,16 +16,21 @@ class DataWidget(QWidget):
         self.list_widget = CategoriesList(data=data_cat)
         self.list_widget.clicked.connect(self.clicked)
 
-        # Creating QChart
+        """# Creating QChart
         self.chart = QChart()
         self.chart.setAnimationOptions(QChart.AllAnimations)
+
+        # Creating LayerSelector
+        self.layer_selector = LayerSelector()
 
         # Creating QListView to display heatmaps
         self.list_view = HeatmapList(data)
 
         # Creating QChartView
         self.chart_view = QChartView(self.chart)
-        self.chart_view.setRenderHint(QPainter.Antialiasing)
+        self.chart_view.setRenderHint(QPainter.Antialiasing)"""
+
+        self.heatmap_widget = HeatmapWidget(data)
 
         # QWidget Layout
         self.main_layout = QHBoxLayout()
@@ -34,10 +41,15 @@ class DataWidget(QWidget):
         self.list_widget.setSizePolicy(size)
         self.main_layout.addWidget(self.list_widget)
 
+        # Adding layer selector to the layout
+        #self.main_layout.addWidget(self.layer_selector)
+
         # Right Layout
         size.setHorizontalStretch(4)
-        self.list_view.setSizePolicy(size)
-        self.main_layout.addWidget(self.list_view)
+        self.main_layout.addWidget(self.heatmap_widget)
+        self.heatmap_widget.setSizePolicy(size)
+        #self.list_view.setSizePolicy(size)
+        #self.main_layout.addWidget(self.list_view)
 
         # Set the layout to the QWidget
         self.setLayout(self.main_layout)
