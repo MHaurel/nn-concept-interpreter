@@ -1,5 +1,6 @@
 import os.path
 import glob
+import time
 
 import pandas as pd
 import numpy as np
@@ -26,25 +27,29 @@ class DataLoader:
         # Will contain a df of activations for each layer of the model
         self.dfs = []
 
+        self.heatmaps = None
+
         if compute_data:
             for i in range(len(self.model.get_layers())):
                 #if i != 0:#Excluding embedding layer because idk how to deal with 3D data right now
                 new_model = self.model.rebuild_model(i)
-                new_model.model.summary()
+
                 df = self.get_all_activations(self.df, new_model)
                 self.dfs.append(df)
 
             self.heatmaps = self.get_heatmaps_dict()
         else:
             # Doesn't compute data, only returns heatmaps
-            # self.heatmaps = self.get_heatmaps()
-            pass
+            self.heatmaps = self.get_heatmaps()
 
     def get_model(self):
         return self.model
 
     def get_dfs(self):
         return self.dfs
+
+    def get_heatmaps(self):
+        return self.heatmaps
 
     def get_heatmaps_for_layer_cat(self, layer, category):
         heatmaps = []
@@ -99,6 +104,7 @@ class DataLoader:
         return df_s
 
     def get_all_activations(self, df, model):
+        start_time = time.time()
         """
         Returns a DataFrame with all the information and activations associated
         :return: fully completed DataFrame
@@ -117,21 +123,23 @@ class DataLoader:
 
         # If the layer is an embedding layer, we take the mean of activations
         if isinstance(model.get_layers()[-1], Embedding):
+            mean_start_time = time.time()
+
             print("Taking mean for Embedding")
             mean_activations = []
             for a in activations:
                 mean_activations.append(pd.DataFrame(a).mean())
-                activations = np.array(mean_activations)
+            activations = np.array(mean_activations)
+
+            print(f"--- For taking mean for Embedding: {time.time() - mean_start_time} seconds ---")
 
         for neuron_index, value_list in enumerate(activations.T):
             index = f"neuron_{neuron_index + 1}"
-            print(index)
-            print(value_list)
-            print(np.array(value_list).shape)
             new_df[index] = value_list
-            print()
 
-        return self.standardize(new_df)
+        return_df = self.standardize(new_df)
+        print(f"--- For get_all_activations with layer {model.get_layers()[-1]}: {time.time() - start_time} seconds ---")
+        return return_df
 
     def get_cat_df(self, category, df):
         """
@@ -170,6 +178,8 @@ class DataLoader:
         return self.get_not_cat_df(category, df).iloc[:, 5:] #Must be more generic
 
     def find_pv(self, category, df):
+        start_time = time.time()
+
         actc = self.get_activation_for_cat(category, df)
         actnc = self.get_activation_for_not_cat(category, df)
         reses = []
@@ -180,9 +190,15 @@ class DataLoader:
                 p = stats.wilcoxon(np.array(actncs[col]), y=np.array(actc[col])).pvalue
                 res.append(p)
             reses.append(res)
-        return pd.DataFrame(np.array(reses)).mean()
+
+        return_df = pd.DataFrame(np.array(reses)).mean()
+
+        print(f"--- for find_pv with category: {category}: {time.time() - start_time} seconds ---")
+        return return_df
 
     def get_heatmaps_dict(self):
+        start_time = time.time()
+
         dheatmaps = {}
 
         heatmap_path = '../heatmaps/'
@@ -230,6 +246,8 @@ class DataLoader:
 
             dheatmaps[self.model.get_layers()[i].name] = ddf
 
+        print(f"--- For get_heatmaps_dict: {time.time() - start_time} seconds ---")
+
         return dheatmaps
 
     def get_category_from_path(self, path):
@@ -265,21 +283,14 @@ class DataLoader:
 
 
 if __name__ == '__main__':
-    """m = Model('../../models/bycountry_model')
-    new_m = m.rebuild_model(1)
-    dl = DataLoader('../../data/bycountry_ds.json', model=m)
 
-    print(dl.get_heatmaps_dict())"""
+    import time
+    start_time = time.time()
 
-    """for dir in os.listdir('../heatmaps'):
-        print(f"==={dir}===")
-        for img_path in glob.glob(os.path.join('..', 'heatmaps', dir, '*.png')):
-            print(img_path)
-        print("\n")"""
-
-    m = Model('../../models/bycountry_model')
-    dl = DataLoader('../../data/bycountry_ds.json', model=m, compute_data=False)
+    m = Model(path='../../models/bycountry_model')
+    # dl = DataLoader('../../data/bycountry_ds.json', model=m, compute_data=False) # 3 seconds
+    dl = DataLoader('../../data/bycountry_ds.json', model=m, compute_data=True)
     heatmaps = dl.get_heatmaps()
-    for c in heatmaps["dense"]:
-        for h in heatmaps["dense"][c]:
-            print(heatmaps["dense"][c][h]['path'])
+    #print(heatmaps)
+
+    print(f"--- Overall: {time.time() - start_time} seconds ---")

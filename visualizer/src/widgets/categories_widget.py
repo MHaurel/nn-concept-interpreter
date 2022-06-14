@@ -56,9 +56,9 @@ class CategoriesWidget(QWidget):
 
         #paths = self.dataloader.get_heatmaps_for_layer_cat('embedding', item.text()) # By default embedding
 
-        heatmaps = self.dataloader.get_heatmaps()
-        paths = []
-        for h in heatmaps['dense']
+        paths = self.dataloader.get_heatmaps()
+
+        
 
 
         #Need to add widget to select layer
