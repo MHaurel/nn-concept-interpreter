@@ -55,6 +55,7 @@ class HomeWidget(QWidget):
 
             if self.model is not None and self.data_path is not None:
                 self.dataloader = DataLoader(self.data_path[0], self.model, compute_data=False) #This is NOT for production.
+                self.sidebar.enableSampleButton()
                 self.sidebar.enableCategoriesButton()
 
         except:
@@ -69,6 +70,7 @@ class HomeWidget(QWidget):
 
             if self.model is not None and self.data_path is not None:
                 self.dataloader = DataLoader(self.data_path[0], self.model, compute_data=False) #This is NOT for production
+                self.sidebar.enableSampleButton()
                 self.sidebar.enableCategoriesButton()
 
     # These functions may need to be implemented in an abstract function

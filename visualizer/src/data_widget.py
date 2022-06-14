@@ -1,11 +1,7 @@
-from PySide6.QtWidgets import QWidget, QListView, QHBoxLayout, QSizePolicy, QListWidget
-from PySide6.QtCharts import QChart, QChartView
-from PySide6.QtGui import QPainter
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QSizePolicy
 
 from categories_list import CategoriesList
-from heatmap_list import HeatmapList
-from layer_selector import LayerSelector
-from heatmap_widget import HeatmapWidget
+from visualizer.src.widgets.heatmap_widget import HeatmapWidget
 
 
 class DataWidget(QWidget):

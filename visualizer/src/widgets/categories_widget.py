@@ -2,7 +2,7 @@ from PySide6.QtWidgets import \
     QWidget, QHBoxLayout, QSizePolicy, QPushButton
 
 from visualizer.src.widgets.categories_list import CategoriesList
-from visualizer.src.widgets.heatmap_list import HeatmapList
+from visualizer.src.widgets.heatmap_widget import HeatmapWidget
 from visualizer.src.widgets.sidebar import Sidebar
 
 
@@ -22,7 +22,7 @@ class CategoriesWidget(QWidget):
         self.list_widget.clicked.connect(self.updateHeatmapList)
 
         # Creating QListView to display heatmaps
-        self.list_view = HeatmapList(self.dataloader)
+        self.heatmap_widget = HeatmapWidget(self.dataloader)
 
         # QWidget Layout
         self.main_layout = QHBoxLayout()
@@ -39,8 +39,8 @@ class CategoriesWidget(QWidget):
 
         # Right Layout
         size.setHorizontalStretch(4)
-        self.list_view.setSizePolicy(size)
-        self.main_layout.addWidget(self.list_view)
+        self.heatmap_widget.setSizePolicy(size)
+        self.main_layout.addWidget(self.heatmap_widget)
 
         # Set the layout to the QWidget
         self.setLayout(self.main_layout)
@@ -53,12 +53,12 @@ class CategoriesWidget(QWidget):
         """
         item = self.list_widget.currentItem()
 
-        paths = self.dataloader.get_heatmaps_for_layer_cat('embedding', item.text()) #By default embedding
-        print(f"Paths:{paths}")
+        if item is not None:
+            selected_layer = self.heatmap_widget.get_selected_layer()
 
-        #Need to add widget to select layer
+            paths = self.dataloader.get_heatmaps_for_layer_cat(selected_layer, item.text()) #By default embedding
 
-        self.list_view.update(paths)
+            self.heatmap_widget.update(paths)
 
     #These functions may need to be implemented in an abstract function
     # and pages window to override them
@@ -73,8 +73,6 @@ class CategoriesWidget(QWidget):
 
     def set_dataloader(self, dataloader):
         self.dataloader = dataloader
-        print(self.dataloader.get_heatmaps())
-        print(self.dataloader.get_heatmaps_from_files())
 
         self.categories = dataloader.get_popular_categories(thresh=500)
 
