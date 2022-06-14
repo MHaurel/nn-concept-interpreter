@@ -25,17 +25,6 @@ class Window(QMainWindow):
         self.register(HomeWindow(HomeWidget()), "home")
         self.register(SampleWindow(), "sample")
 
-        """
-        # Static data importation for the moment
-        data_cat = [  # Will be changed to JSON loaded files
-            "French_films", "American_black_and_white_films"
-        ]
-        data = [
-            np.random.randn(10, 12),
-            np.random.randn(9, 3),
-            np.random.randn(17, 4),
-        ]
-        widget = CategoriesWidget(data_cat, data)"""
         widget = CategoriesWidget()
         self.register(CategoriesWindow(widget), "categories")
 

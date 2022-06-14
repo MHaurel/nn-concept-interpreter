@@ -40,7 +40,7 @@ class DataLoader:
             self.heatmaps = self.get_heatmaps_dict()
         else:
             # Doesn't compute data, only returns heatmaps
-            self.heatmaps = self.get_heatmaps()
+            self.heatmaps = self.get_heatmaps_from_files()
 
     def get_model(self):
         return self.model
@@ -183,7 +183,7 @@ class DataLoader:
         actc = self.get_activation_for_cat(category, df)
         actnc = self.get_activation_for_not_cat(category, df)
         reses = []
-        for i in range(1000):
+        for i in range(10):#1000 by default
             actncs = actnc.sample(len(actc), replace=True)
             res = []
             for col in actc:
@@ -253,7 +253,8 @@ class DataLoader:
     def get_category_from_path(self, path):
         return path.split('\\')[-1].split('.')[0].split('-')[0]
 
-    def get_heatmaps(self):
+    def get_heatmaps_from_files(self):
+
         dheatmaps = {}
 
         heatmap_path = '../heatmaps/'
@@ -261,12 +262,12 @@ class DataLoader:
         if not os.path.exists(heatmap_path):
             return {}
 
-        ddf = {}
-
         for dir in os.listdir(os.path.join('..', 'heatmaps')):
-            for_cat = {}
+            ddf = {}
 
             for p, n in self.get_popular_categories(thresh=500):
+                for_cat = {}
+
                 h1 = os.path.join('..', 'heatmaps', dir, f"{p}-1.png")
                 for_cat["heatmap-1"] = {}
                 for_cat["heatmap-1"]['path'] = h1
@@ -289,8 +290,9 @@ if __name__ == '__main__':
 
     m = Model(path='../../models/bycountry_model')
     # dl = DataLoader('../../data/bycountry_ds.json', model=m, compute_data=False) # 3 seconds
-    dl = DataLoader('../../data/bycountry_ds.json', model=m, compute_data=True)
-    heatmaps = dl.get_heatmaps()
+    dl = DataLoader('../../data/bycountry_ds.json', model=m, compute_data=False)
+    #heatmaps = dl.get_heatmaps()
     #print(heatmaps)
+    print(dl.get_heatmaps())
 
     print(f"--- Overall: {time.time() - start_time} seconds ---")

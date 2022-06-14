@@ -52,14 +52,9 @@ class CategoriesWidget(QWidget):
         :return: None
         """
         item = self.list_widget.currentItem()
-        print(f"Updating heatmap list widget with category: {item.text()}")
 
-        #paths = self.dataloader.get_heatmaps_for_layer_cat('embedding', item.text()) # By default embedding
-
-        paths = self.dataloader.get_heatmaps()
-
-        
-
+        paths = self.dataloader.get_heatmaps_for_layer_cat('embedding', item.text()) #By default embedding
+        print(f"Paths:{paths}")
 
         #Need to add widget to select layer
 
@@ -78,9 +73,10 @@ class CategoriesWidget(QWidget):
 
     def set_dataloader(self, dataloader):
         self.dataloader = dataloader
+        print(self.dataloader.get_heatmaps())
+        print(self.dataloader.get_heatmaps_from_files())
+
         self.categories = dataloader.get_popular_categories(thresh=500)
 
         self.list_widget.update(self.categories)
-
-        self.dfs = self.dataloader.get_dfs()
         self.model = self.dataloader.get_model()
