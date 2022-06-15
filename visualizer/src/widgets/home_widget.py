@@ -57,6 +57,7 @@ class HomeWidget(QWidget):
                 self.dataloader = DataLoader(self.data_path[0], self.model, compute_data=False) #This is NOT for production.
                 self.sidebar.enableSampleButton()
                 self.sidebar.enableCategoriesButton()
+                self.sidebar.enableGridButton()
 
         except:
             #Show error through label
@@ -72,6 +73,7 @@ class HomeWidget(QWidget):
                 self.dataloader = DataLoader(self.data_path[0], self.model, compute_data=False) #This is NOT for production
                 self.sidebar.enableSampleButton()
                 self.sidebar.enableCategoriesButton()
+                self.sidebar.enableGridButton()
 
     # These functions may need to be implemented in an abstract function
     # and pages window to override them
@@ -83,3 +85,6 @@ class HomeWidget(QWidget):
 
     def goToCategories(self):
         self.parent().goto("categories", self.dataloader)
+
+    def goToGrid(self):
+        self.parent().goto("grid", self.dataloader)

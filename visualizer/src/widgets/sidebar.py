@@ -24,13 +24,20 @@ class Sidebar(QWidget):
 
         self.btn_categories.setEnabled(False)
 
+        # Button Grid
+        self.btn_grid = QPushButton("Grid")
+        self.btn_grid.clicked.connect(self.goToGrid)
+
+        self.btn_grid.setEnabled(False)
+
         # Layout
         self.main_layout = QVBoxLayout()
         self.main_layout.addWidget(self.btn_home)
         self.main_layout.addWidget(self.btn_sample)
         self.main_layout.addWidget(self.btn_categories)
+        self.main_layout.addWidget(self.btn_grid)
 
-        self.setFixedSize(Q)
+        #self.setFixedSize(Q)
 
         # Set Layout to QWidget
         self.setLayout(self.main_layout)
@@ -41,6 +48,9 @@ class Sidebar(QWidget):
     def enableCategoriesButton(self):
         self.btn_categories.setEnabled(True)
 
+    def enableGridButton(self):
+        self.btn_grid.setEnabled(True)
+
     def goToHome(self):
         self.parent().goToHome()
 
@@ -49,3 +59,6 @@ class Sidebar(QWidget):
 
     def goToCategories(self):
         self.parent().goToCategories()
+
+    def goToGrid(self):
+        self.parent().goToGrid()

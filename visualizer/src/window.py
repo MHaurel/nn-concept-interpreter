@@ -8,9 +8,11 @@ from home_window import HomeWindow
 from page_window import PageWindow
 from sample_window import SampleWindow
 from categories_window import CategoriesWindow
+from grid_window import GridWindow
 
 from widgets.categories_widget import CategoriesWidget
 from widgets.home_widget import HomeWidget
+from widgets.grid_widget import GridWidget
 
 
 class Window(QMainWindow):
@@ -28,6 +30,8 @@ class Window(QMainWindow):
         widget = CategoriesWidget()
         self.register(CategoriesWindow(widget), "categories")
 
+        self.register(GridWindow(GridWidget()), "grid")
+
         # Default page
         self.goto("home", None)  # Dataloader is None
 
@@ -44,7 +48,7 @@ class Window(QMainWindow):
 
         # Window dimensions
         geometry = self.screen().availableGeometry()
-        self.setFixedSize(geometry.width() * 0.6, geometry.height() * 0.6)
+        #self.setFixedSize(geometry.width() * 0.6, geometry.height() * 0.6)
 
     def register(self, widget, name):
         self.m_pages[name] = widget

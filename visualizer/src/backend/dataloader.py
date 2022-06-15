@@ -183,7 +183,7 @@ class DataLoader:
         actc = self.get_activation_for_cat(category, df)
         actnc = self.get_activation_for_not_cat(category, df)
         reses = []
-        for i in range(10):#1000 by default
+        for i in range(100): #1000 by default
             actncs = actnc.sample(len(actc), replace=True)
             res = []
             for col in actc:
