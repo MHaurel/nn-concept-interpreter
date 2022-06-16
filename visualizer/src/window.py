@@ -9,10 +9,12 @@ from page_window import PageWindow
 from sample_window import SampleWindow
 from categories_window import CategoriesWindow
 from grid_window import GridWindow
+from explore_category_window import ExploreCategoryWindow
 
 from widgets.categories_widget import CategoriesWidget
 from widgets.home_widget import HomeWidget
-from widgets.grid_widget import GridWidget
+from widgets.table_categories_widget import TableCategoriesWidget
+from widgets.explore_category_widget import ExploreCategoryWidget
 
 
 class Window(QMainWindow):
@@ -25,15 +27,11 @@ class Window(QMainWindow):
         self.m_pages = {}
 
         self.register(HomeWindow(HomeWidget()), "home")
+        self.register(ExploreCategoryWindow(ExploreCategoryWidget()), "explore_category")
         self.register(SampleWindow(), "sample")
 
-        widget = CategoriesWidget()
-        self.register(CategoriesWindow(widget), "categories")
-
-        self.register(GridWindow(GridWidget()), "grid")
-
         # Default page
-        self.goto("home", None)  # Dataloader is None
+        self.goto("home", None, None)  # Dataloader is None
 
         # Menu
         self.menu = self.menuBar()
@@ -48,7 +46,7 @@ class Window(QMainWindow):
 
         # Window dimensions
         geometry = self.screen().availableGeometry()
-        #self.setFixedSize(geometry.width() * 0.6, geometry.height() * 0.6)
+        self.setFixedSize(geometry.width() * 0.6, geometry.height() * 0.6)
 
     def register(self, widget, name):
         self.m_pages[name] = widget
@@ -56,17 +54,20 @@ class Window(QMainWindow):
         if isinstance(widget, PageWindow):
             widget.gotoSignal.connect(self.goto)
 
-    @Slot(str, object, object)
-    def goto(self, name, dataloader):
-        # print(f"Dataloader : {dataloader}")  # DEBUG
-
+    @Slot(str, object, str)
+    def goto(self, name, dataloader, category):
+        print(self.__class__, "goto", name)
         if name in self.m_pages:
-            widget = self.m_pages[name]
+            window = self.m_pages[name]
             if name == "categories":
-                widget.set_dataloader(dataloader)
+                window.set_dataloader(dataloader)
 
-            self.stacked_widget.setCurrentWidget(widget)
-            self.setWindowTitle(widget.windowTitle())
+            if name == "explore_category":
+                window.set_dataloader(dataloader)
+                window.set_category(category)
+
+            self.stacked_widget.setCurrentWidget(window)
+            self.setWindowTitle(window.windowTitle())
 
             
 if __name__ == '__main__':

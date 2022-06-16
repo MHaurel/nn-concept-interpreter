@@ -21,6 +21,7 @@ class DataLoader:
         self.model = model
 
         self.df = pd.read_json(self.path)
+        self.df = self.formalize_outputs(self.df)
 
         #self.df = self.get_all_activations(self.model)
 
@@ -50,6 +51,23 @@ class DataLoader:
 
     def get_heatmaps(self):
         return self.heatmaps
+
+    def get_predictions(self):
+        inputs = [x for x in self.df.input]
+        y_pred = self.model.get_model().predict(inputs) #Try to replace with self.model.predict_inputs(inputs)
+        return [np.argmax(p) for p in y_pred]
+
+    def formalize_outputs(self, df):
+        output = np.zeros(df.output_low.shape)
+
+        temp_df = df.copy()
+        temp_df['true'] = output
+        temp_df.loc[(temp_df.output_medium == 1), 'true'] = 1
+        temp_df.loc[(temp_df.output_high == 1), 'true'] = 2
+
+        temp_df['pred'] = self.get_predictions()
+
+        return temp_df
 
     def get_heatmaps_for_layer_cat(self, layer, category):
         heatmaps = []
@@ -282,6 +300,29 @@ class DataLoader:
 
         return dheatmaps
 
+    def getTableData(self):
+        categories = self.get_popular_categories(thresh=500)
+        data_dict = {}
+        for cat, n in categories:
+            cdf = self.get_cat_df(cat, self.df)
+            data_dict[cat] = {
+                "max-diff": 1,
+                "min-pv": self.find_pv(cat, self.df).min(),
+                "mean-pred": cdf.pred.mean(),
+                "std-pred": cdf.pred.std(),
+                "mean-real": cdf.true.mean(),
+                "std-real": cdf.true.std(),
+                "mae": abs(cdf.pred - cdf.true).sum() / len(cdf),
+                "nbr": n
+            }
+
+        data = pd.DataFrame().from_dict(data_dict).T
+
+        headers = ['max-diff', 'min-pv', 'mean-pred', 'std-pred', 'mean-real', 'std-real', 'mae', 'nbr']
+        categories = [c[0] for c in categories]
+
+        return data, headers, categories
+
 
 if __name__ == '__main__':
 
@@ -291,8 +332,8 @@ if __name__ == '__main__':
     m = Model(path='../../models/bycountry_model')
     # dl = DataLoader('../../data/bycountry_ds.json', model=m, compute_data=False) # 3 seconds
     dl = DataLoader('../../data/bycountry_ds.json', model=m, compute_data=False)
-    #heatmaps = dl.get_heatmaps()
-    #print(heatmaps)
-    print(dl.get_heatmaps())
 
-    print(f"--- Overall: {time.time() - start_time} seconds ---")
+    cdf = dl.get_cat_df("France", dl.df)
+    print(cdf.pred.mean())
+
+    print(dl.getTableData())

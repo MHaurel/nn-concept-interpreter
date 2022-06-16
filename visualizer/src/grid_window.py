@@ -8,15 +8,16 @@ class GridWindow(PageWindow):
         QMainWindow.__init__(self)
         self.setWindowTitle("Grid Visualization")
         self.setCentralWidget(widget)
+        self.setFixedSize(800, 600)
 
     def set_dataloader(self, dataloader):
         self.widget.set_dataloader(dataloader)
 
 if __name__ == '__main__':
     import sys
-    from visualizer.src.widgets.grid_widget import GridWidget
+    from visualizer.src.widgets.table_categories_widget import TableCategoriesWidget
 
     app = QApplication(sys.argv)
-    w = GridWindow(GridWidget())
+    w = GridWindow(TableCategoriesWidget())
     w.show()
     sys.exit(app.exec())

@@ -16,6 +16,9 @@ class Model:
         elif model is not None and path is None:
             self.model = model
 
+    def get_model(self):
+        return self.model
+
     def get_layers(self):
         return self.model.layers
 

@@ -2,6 +2,7 @@ from PySide6.QtWidgets import \
     QWidget, QPushButton, QFileDialog, QHBoxLayout
 
 from visualizer.src.widgets.sidebar import Sidebar
+from visualizer.src.widgets.table_categories_widget import TableCategoriesWidget
 from visualizer.src.backend.dataloader import DataLoader
 from visualizer.src.backend.model import Model
 
@@ -30,8 +31,8 @@ class HomeWidget(QWidget):
         self.main_layout = QHBoxLayout()
 
         # Sidebar layout
-        self.sidebar = Sidebar()
-        self.main_layout.addWidget(self.sidebar)
+        #self.sidebar = Sidebar()
+        #self.main_layout.addWidget(self.sidebar)
 
         # Right Layout
         self.main_layout.addWidget(self.btn_load_model)
@@ -55,9 +56,8 @@ class HomeWidget(QWidget):
 
             if self.model is not None and self.data_path is not None:
                 self.dataloader = DataLoader(self.data_path[0], self.model, compute_data=False) #This is NOT for production.
-                self.sidebar.enableSampleButton()
-                self.sidebar.enableCategoriesButton()
-                self.sidebar.enableGridButton()
+                self.revealCategoryTable()
+
 
         except:
             #Show error through label
@@ -71,20 +71,22 @@ class HomeWidget(QWidget):
 
             if self.model is not None and self.data_path is not None:
                 self.dataloader = DataLoader(self.data_path[0], self.model, compute_data=False) #This is NOT for production
-                self.sidebar.enableSampleButton()
-                self.sidebar.enableCategoriesButton()
-                self.sidebar.enableGridButton()
+                self.revealCategoryTable()
+
+    def revealCategoryTable(self):
+        self.btn_load_model.setParent(None)
+        self.btn_load_data.setParent(None)
+
+        self.table_view_category = TableCategoriesWidget(dataloader=self.dataloader)
+        self.main_layout.addWidget(self.table_view_category)
 
     # These functions may need to be implemented in an abstract function
     # and pages window to override them
-    def goToHome(self):
+    def go_to_home(self):
         pass  # Because already on home page
 
-    def goToSample(self):
-        self.parent().goto("sample", self.dataloader)
+    def go_to_sample(self):
+        self.parent().goto("sample")
 
-    def goToCategories(self):
-        self.parent().goto("categories", self.dataloader)
-
-    def goToGrid(self):
-        self.parent().goto("grid", self.dataloader)
+    def go_to_explore_category(self, category):
+        self.parent().goto("explore_category", self.dataloader, category)

@@ -8,12 +8,3 @@ class HomeWindow(PageWindow):
         QMainWindow.__init__(self)
         self.setWindowTitle("Home")
         self.setCentralWidget(widget)
-
-    def make_handleButton(self, button):
-        def handleButton():
-            if button == "sampleButton":
-                self.goto("sample", None)  # Dataloader is None
-            elif button == "categoriesButton":
-                self.goto("categories", None)  # Dataloader is None
-
-        return handleButton
