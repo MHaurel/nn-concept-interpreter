@@ -50,8 +50,8 @@ class TableCategoriesWidget(QWidget):
     def clickedIndex(self, i):
         print(f"Index clicked is {self.categories[i]}")
         # Open associated categories window
-        #self.go_to_explore_category(self.categories[i])
-        self.go_to_sample()
+        self.go_to_explore_category(self.categories[i])
+        #self.go_to_sample()
 
     def clickedColumn(self, i):
         print(f"Column clicked is {self.header[i]}")

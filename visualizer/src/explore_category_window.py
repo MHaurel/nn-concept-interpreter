@@ -6,6 +6,8 @@ from visualizer.src.page_window import PageWindow
 class ExploreCategoryWindow(PageWindow):
     def __init__(self, widget):
         QMainWindow.__init__(self)
+        self.setWindowTitle("Explore category")
+
         self.widget = widget
 
         self.category = None
@@ -22,9 +24,6 @@ class ExploreCategoryWindow(PageWindow):
         self.dataloader = dataloader
         self.widget.set_dataloader(self.dataloader)
 
-    """def go_to_home(self):
-        print(self.__class__, "go_to_home")"""
-
 
 
 if __name__ == '__main__':
@@ -37,5 +36,8 @@ if __name__ == '__main__':
     widget = ExploreCategoryWidget()
 
     w = ExploreCategoryWindow(widget)
+
+    print(isinstance(w, PageWindow))
+
     w.show()
     sys.exit(app.exec())

@@ -6,6 +6,9 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import seaborn as sns
+import matplotlib.pyplot as plt
+import matplotlib.colors
+from matplotlib.colors import LinearSegmentedColormap
 
 from scipy import stats
 from keras.layers import Embedding
@@ -76,6 +79,15 @@ class DataLoader:
                 heatmaps.append(self.heatmaps[layer][category][heatmap]['path'])
 
         return heatmaps
+
+    def get_heatmaps_for_cat(self, category):
+        heatmaps_paths = []
+        for layer in self.heatmaps.keys():
+            if category in self.heatmaps[layer].keys():
+                for heatmap in self.heatmaps[layer][category].keys():
+                    heatmaps_paths.append(self.heatmaps[layer][category][heatmap]['path'])
+
+        return heatmaps_paths
 
     def get_unique_categories(self):
         unique_categories = []
@@ -149,6 +161,8 @@ class DataLoader:
                 mean_activations.append(pd.DataFrame(a).mean())
             activations = np.array(mean_activations)
 
+            print(activations)
+
             print(f"--- For taking mean for Embedding: {time.time() - mean_start_time} seconds ---")
 
         for neuron_index, value_list in enumerate(activations.T):
@@ -176,6 +190,9 @@ class DataLoader:
         :return: A DataFrame containing only those activations
         """
         return self.get_cat_df(category, df).iloc[:, 5:] #Must be more generic
+
+    def get_mean_activation_for_cat(self, category, df):
+        return pd.DataFrame(self.get_activation_for_cat(category, df).mean()).T
 
     def get_not_cat_df(self, category, df):
         """
@@ -220,6 +237,17 @@ class DataLoader:
         dheatmaps = {}
 
         heatmap_path = '../heatmaps/'
+        norm = matplotlib.colors.Normalize(-1, 1)
+        colors = [[norm(-1.0), "cyan"],
+                  [norm(-0.6), "lightblue"],
+                  [norm(0.0), "black"],
+                  [norm(0.6), "lightyellow"],
+                  [norm(1.0), "yellow"]]
+
+        custom_color_map = LinearSegmentedColormap.from_list(
+            "",
+            colors=colors,
+        )
 
         if not os.path.exists(heatmap_path):
             os.makedirs(heatmap_path)
@@ -237,27 +265,51 @@ class DataLoader:
 
                 r = self.find_pv(c, self.dfs[i])
 
+                plt.figure(figsize=(16,5))
+
                 # 1st heatmap
-                rdf = pd.DataFrame(r)
-                ax = sns.heatmap(rdf.T, cbar=False, cmap="Greys")
+                #rdf = pd.DataFrame(r)
+
+                data_1 = self.get_activation_for_not_cat(category=c, df=self.dfs[i])
+                data_1 = pd.DataFrame(data_1.mean()).T
+
+                rdf = self.get_mean_activation_for_cat(c, self.dfs[i])
+
+                ax = sns.heatmap(
+                    data=rdf,
+                    vmin=-1.0,
+                    vmax=1.0,
+                    cbar=False,
+                    cmap=custom_color_map
+                )
                 fig = ax.get_figure()
                 path = f"{current_path}/{c}-1.png"
                 fig.savefig(path)
 
                 for_cat['heatmap-1'] = {}
                 for_cat['heatmap-1']['path'] = path
-                for_cat['heatmap-1']['data'] = np.array(rdf[0]).T
+                for_cat['heatmap-1']['data'] = np.array(rdf)
 
                 # 2nd heatmap
-                rdf[0] = rdf[0].apply(lambda x: 0 if x > 0.01 else 1)
-                ax = sns.heatmap(rdf.T, cbar=False, cmap="Greys")
+                #rdf[0] = rdf[0].apply(lambda x: 0 if x > 0.01 else 1)
+
+                # Difference
+                diff = np.array(self.get_activation_for_cat(c, self.dfs[i]).mean()) - np.array(data_1.T[0])
+                diff = pd.DataFrame(diff).T
+                ax = sns.heatmap(
+                    data=diff,
+                    vmin=-1.0,
+                    vmax=1.0,
+                    cbar=False,
+                    cmap=custom_color_map
+                )
                 fig = ax.get_figure()
                 path = f"{current_path}/{c}-2.png"
                 fig.savefig(path)
 
                 for_cat['heatmap-2'] = {}
                 for_cat['heatmap-2']['path'] = path
-                for_cat['heatmap-2']['data'] = np.array(rdf[0]).T
+                #for_cat['heatmap-2']['data'] = np.array(rdf[0]).T
 
                 # Add paths to dict
                 ddf[c] = for_cat
@@ -331,9 +383,9 @@ if __name__ == '__main__':
 
     m = Model(path='../../models/bycountry_model')
     # dl = DataLoader('../../data/bycountry_ds.json', model=m, compute_data=False) # 3 seconds
-    dl = DataLoader('../../data/bycountry_ds.json', model=m, compute_data=False)
+    new_model = m.rebuild_model(0) # taking embedding  layer
 
-    cdf = dl.get_cat_df("France", dl.df)
-    print(cdf.pred.mean())
+    dl = DataLoader('../../data/bycountry_ds.json', model=m, compute_data=True)
 
-    print(dl.getTableData())
+
+

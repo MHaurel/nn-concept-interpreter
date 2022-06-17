@@ -13,10 +13,11 @@ class SampleWindow(PageWindow):
         self.setWindowTitle("Search for something")
         self.UiComponents()
 
-    def goToMain(self):
+    def go_to_home(self):
         self.goto("home", None)  # Dataloader is None
 
     def UiComponents(self):
         self.backButton = QPushButton("BackButton", self)
         self.backButton.setGeometry(QRect(5, 5, 100, 20))
-        self.backButton.clicked.connect(self.goToMain)
+        self.backButton.clicked.connect(self.go_to_home)
+

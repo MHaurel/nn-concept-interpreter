@@ -27,7 +27,9 @@ class Window(QMainWindow):
         self.m_pages = {}
 
         self.register(HomeWindow(HomeWidget()), "home")
-        self.register(ExploreCategoryWindow(ExploreCategoryWidget()), "explore_category")
+
+        explore_category_widget = ExploreCategoryWidget()
+        self.register(ExploreCategoryWindow(explore_category_widget), "explore_category")
         self.register(SampleWindow(), "sample")
 
         # Default page
@@ -48,15 +50,17 @@ class Window(QMainWindow):
         geometry = self.screen().availableGeometry()
         self.setFixedSize(geometry.width() * 0.6, geometry.height() * 0.6)
 
-    def register(self, widget, name):
-        self.m_pages[name] = widget
-        self.stacked_widget.addWidget(widget)
-        if isinstance(widget, PageWindow):
-            widget.gotoSignal.connect(self.goto)
+    def register(self, window, name):
+        self.m_pages[name] = window
+        self.stacked_widget.addWidget(window)
+
+        window.gotoSignal.connect(self.goto)
+        """if isinstance(window, PageWindow):
+            print(f"{window.__class__} is connected with signal")
+            window.gotoSignal.connect(self.goto)"""
 
     @Slot(str, object, str)
     def goto(self, name, dataloader, category):
-        print(self.__class__, "goto", name)
         if name in self.m_pages:
             window = self.m_pages[name]
             if name == "categories":

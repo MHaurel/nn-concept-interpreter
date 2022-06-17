@@ -7,5 +7,4 @@ class PageWindow(QMainWindow):
     layout = QHBoxLayout()
 
     def goto(self, name, dataloader=None, category=None):
-        print("goto", name)
         self.gotoSignal.emit(name, dataloader, category)

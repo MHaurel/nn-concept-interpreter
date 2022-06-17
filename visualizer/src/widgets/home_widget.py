@@ -55,7 +55,7 @@ class HomeWidget(QWidget):
             self.btn_load_model.setEnabled(False)
 
             if self.model is not None and self.data_path is not None:
-                self.dataloader = DataLoader(self.data_path[0], self.model, compute_data=False) #This is NOT for production.
+                self.dataloader = DataLoader(self.data_path[0], self.model, compute_data=True) #This is NOT for production.
                 self.revealCategoryTable()
 
 
@@ -70,7 +70,7 @@ class HomeWidget(QWidget):
             self.btn_load_data.setEnabled(False)
 
             if self.model is not None and self.data_path is not None:
-                self.dataloader = DataLoader(self.data_path[0], self.model, compute_data=False) #This is NOT for production
+                self.dataloader = DataLoader(self.data_path[0], self.model, compute_data=True) #This is NOT for production
                 self.revealCategoryTable()
 
     def revealCategoryTable(self):

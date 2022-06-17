@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget, QHBoxLayout
 
-from visualizer.src.widgets.heatmaps_bb_widget import HeatmapsBBWidget
+from visualizer.src.widgets.heatmaps_category_widget import HeatmapsCategoryWidget
 from visualizer.src.widgets.sample_category_widget import SampleCategoryWidget
 
 
@@ -14,8 +14,8 @@ class ExploreCategoryWidget(QWidget):
         self.dataloader = None
 
         # Widget Heatmaps and back button (Left layout)
-        self.heatmaps_back_button_widget = HeatmapsBBWidget()
-        self.main_layout.addWidget(self.heatmaps_back_button_widget)
+        self.heatmaps_category_widget = HeatmapsCategoryWidget()
+        self.main_layout.addWidget(self.heatmaps_category_widget)
 
         # Widget Sample (Right layout)
         self.sample_category_widget = SampleCategoryWidget()
@@ -25,11 +25,11 @@ class ExploreCategoryWidget(QWidget):
 
     def set_category(self, category):
         self.category = category
-        self.heatmaps_back_button_widget.set_category(self.category)
+        self.heatmaps_category_widget.set_category(self.category)
 
     def set_dataloader(self, dataloader):
         self.dataloader = dataloader
+        self.heatmaps_category_widget.set_dataloader(self.dataloader)
 
     def go_to_home(self):
-        print(self.__class__, "go_to_home")
         self.parent().goto("home", None, None)
