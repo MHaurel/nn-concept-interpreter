@@ -42,28 +42,29 @@ class HomeWidget(QWidget):
         self.setLayout(self.main_layout)
 
     def loadModel(self):
+        """
+        Show a dialog window and load the model from the folder selected by the user. And disabled the button if load
+        successful. If model and data are loaded, the category table is revealed.
+        :return: None
+        """
         path = QFileDialog.getExistingDirectory(self, "Select model source folder")
         try:
-            #model = keras.models.load_model(path)
-            #self.model = model
-
             self.model = Model(path)
-
-            #This line is comment because we want all the layers to be shown
-            #self.model = self.model.rebuild_model(1) #2nd layer by default... param will be chose by user
-
             self.btn_load_model.setEnabled(False)
 
             if self.model is not None and self.data_path is not None:
                 self.dataloader = DataLoader(self.data_path[0], self.model, compute_data=True) #This is NOT for production.
                 self.revealCategoryTable()
-
-
         except:
             #Show error through label
             print("This is not a model ! / data could not be load successfully")
 
     def loadData(self):
+        """
+        Show a dialog window and load the data from the file selected by the user. And disabled the button if load
+        successful. If model and data are loader, the category table is revealed.
+        :return: None
+        """
         path = QFileDialog.getOpenFileName(self, 'Select a data file', '', 'JSON files (*.json)')
         if path != ('', ''):
             self.data_path = path
@@ -74,19 +75,30 @@ class HomeWidget(QWidget):
                 self.revealCategoryTable()
 
     def revealCategoryTable(self):
+        """
+        Remove both of the load buttons and display the category table.
+        :return: None
+        """
         self.btn_load_model.setParent(None)
         self.btn_load_data.setParent(None)
 
         self.table_view_category = TableCategoriesWidget(dataloader=self.dataloader)
         self.main_layout.addWidget(self.table_view_category)
 
-    # These functions may need to be implemented in an abstract function
-    # and pages window to override them
     def go_to_home(self):
         pass  # Because already on home page
 
     def go_to_sample(self):
+        """
+        Change current window to sample window
+        :return: None
+        """
         self.parent().goto("sample")
 
     def go_to_explore_category(self, category):
+        """
+        Change current window to explore_category window
+        :param category: the category to pass to the new current window
+        :return: None
+        """
         self.parent().goto("explore_category", self.dataloader, category)

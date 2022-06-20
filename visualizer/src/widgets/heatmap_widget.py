@@ -25,7 +25,16 @@ class HeatmapWidget(QWidget):
         self.setLayout(self.main_layout)
 
     def update(self, paths):
+        """
+        Update the heatmap list
+        :param paths: The paths of the heatmaps with which we want to update the list
+        :return: None
+        """
         self.heatmap_list.update(paths)
 
     def get_selected_layer(self):
+        """
+        Return the name of the selected layer in the layer selector
+        :return: text of the selected item in the layer selector
+        """
         return self.layer_selector.currentText()

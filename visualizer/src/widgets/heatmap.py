@@ -27,5 +27,9 @@ class Heatmap(QWidget):
             fig.savefig(self.full_path)
 
     def get_pixmap(self):
+        """
+        Take the path of the image and transforms it into QPixmap object to be displayed in a list
+        :return: the new QPixmap object
+        """
         im = QImage(self.full_path)
         return QPixmap(im)

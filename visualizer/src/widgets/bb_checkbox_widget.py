@@ -18,7 +18,16 @@ class BBCheckBoxWidget(QWidget):
         self.setLayout(self.main_layout)
 
     def go_to_home(self):
+        """
+        Call the parent function go_to_home() to change the window and show the home window
+        :return: None
+        """
         self.parent().go_to_home()
 
     def filter_pvalue(self):
+        """
+        When checkbox checked, change the heatmaps to be the pvalue instead of the difference of activations.
+        On the opposite, when unchecked, show the heatmaps of the difference of activations
+        :return: None
+        """
         print(f"Filter p-value: {self.checkbox_pv.isChecked()}")

@@ -5,15 +5,10 @@ from PySide6.QtGui import QAction, QKeySequence
 import numpy as np
 
 from home_window import HomeWindow
-from page_window import PageWindow
 from sample_window import SampleWindow
-from categories_window import CategoriesWindow
-from grid_window import GridWindow
 from explore_category_window import ExploreCategoryWindow
 
-from widgets.categories_widget import CategoriesWidget
 from widgets.home_widget import HomeWidget
-from widgets.table_categories_widget import TableCategoriesWidget
 from widgets.explore_category_widget import ExploreCategoryWidget
 
 
@@ -51,16 +46,27 @@ class Window(QMainWindow):
         self.setFixedSize(geometry.width() * 0.6, geometry.height() * 0.6)
 
     def register(self, window, name):
+        """
+        Register the window and its name in QStackedWidget in order to associate both and change window when passing its
+        name in goto.
+        :param window: the window to register
+        :param name: the name to register
+        :return: None
+        """
         self.m_pages[name] = window
         self.stacked_widget.addWidget(window)
 
         window.gotoSignal.connect(self.goto)
-        """if isinstance(window, PageWindow):
-            print(f"{window.__class__} is connected with signal")
-            window.gotoSignal.connect(self.goto)"""
 
     @Slot(str, object, str)
     def goto(self, name, dataloader, category):
+        """
+        Change the QStackedWidget current window to display the one with the name in parameter
+        :param name: The name of the window to display
+        :param dataloader: The dataloader to pass into the new current window
+        :param category: The category to pass into the new current window
+        :return: None
+        """
         if name in self.m_pages:
             window = self.m_pages[name]
             if name == "categories":

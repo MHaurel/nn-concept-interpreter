@@ -24,12 +24,26 @@ class ExploreCategoryWidget(QWidget):
         self.setLayout(self.main_layout)
 
     def set_category(self, category):
+        """
+        Set the category variable to HeatmapCategoryWidget
+        :param category: The category to set to the widget
+        :return: None
+        """
         self.category = category
         self.heatmaps_category_widget.set_category(self.category)
 
     def set_dataloader(self, dataloader):
+        """
+        Set the dataloader variable to HeatmapCategoryWidget
+        :param dataloader: The dataloader to set to the widget
+        :return: None
+        """
         self.dataloader = dataloader
         self.heatmaps_category_widget.set_dataloader(self.dataloader)
 
     def go_to_home(self):
+        """
+        Back to home
+        :return: None
+        """
         self.parent().goto("home", None, None)

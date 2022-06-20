@@ -47,20 +47,41 @@ class DataLoader:
             self.heatmaps = self.get_heatmaps_from_files()
 
     def get_model(self):
+        """
+        Return the model
+        :return: the model
+        """
         return self.model
 
     def get_dfs(self):
+        """
+        Return the list of dataframes each containing activations for a layer
+        :return: list of dataframe
+        """
         return self.dfs
 
     def get_heatmaps(self):
+        """
+        Return a dict containing data and path of heatmap for each category and each layer
+        :return: dict of heatmaps
+        """
         return self.heatmaps
 
     def get_predictions(self):
+        """
+        Return a prediction
+        :return: a prediction
+        """
         inputs = [x for x in self.df.input]
         y_pred = self.model.get_model().predict(inputs) #Try to replace with self.model.predict_inputs(inputs)
         return [np.argmax(p) for p in y_pred]
 
     def formalize_outputs(self, df):
+        """
+        Transforms one-hot encoding into a single columns containing encoded output variable
+        :param df: the df for which we want to formalize the outputs
+        :return: the new df with formalized outputs
+        """
         output = np.zeros(df.output_low.shape)
 
         temp_df = df.copy()
@@ -73,6 +94,12 @@ class DataLoader:
         return temp_df
 
     def get_heatmaps_for_layer_cat(self, layer, category):
+        """
+        Return the path of the heatmaps for a specific layer and a specific category
+        :param layer: the layer for which we want the heatmaps
+        :param category: the category for which we want the heatmaps
+        :return: a list of the paths of heatmaps corresponding to the layer and the category
+        """
         heatmaps = []
         if category in self.heatmaps[layer].keys():
             for heatmap in self.heatmaps[layer][category].keys():
@@ -81,6 +108,11 @@ class DataLoader:
         return heatmaps
 
     def get_heatmaps_for_cat(self, category):
+        """
+        Return all the heatmaps for a category
+        :param category: the category for which we want the heatmaps
+        :return: a list of the paths of the heatmaps corresponding to the category
+        """
         heatmaps_paths = []
         for layer in self.heatmaps.keys():
             if category in self.heatmaps[layer].keys():
@@ -90,6 +122,10 @@ class DataLoader:
         return heatmaps_paths
 
     def get_unique_categories(self):
+        """
+        Return the unique categories of the dataset
+        :return: a list of the unique categories
+        """
         unique_categories = []
         for i in range(len(self.df.category)):
             for cat in self.df.category[i]:
@@ -99,6 +135,11 @@ class DataLoader:
         return unique_categories
 
     def get_popular_categories(self, thresh=500):
+        """
+        Return the popular categories (i.e. > to thresh) among the uniques ones
+        :param thresh: The threshold from which we define a category to be popular among the dataset
+        :return: a dictionary containing the category and the number of samples associated to
+        """
         categories = self.get_unique_categories()
 
         dic = {}
@@ -110,15 +151,23 @@ class DataLoader:
         return sorted(return_dic.items(), key=lambda x: x[1], reverse=True)  # Return sorted dictionary
 
     def get_inputs_for_cat(self, category):
+        """
+        Return the inputs for a specific category
+        :param category: The category for which we want to get the inputs
+        :return: A list of inputs
+        """
         raw_inputs = self.df[self.df.category.apply(lambda x: category in x)].input
-        inputs = []
-        for i in range(len(raw_inputs)):
-            inputs.append(raw_inputs[i])
+        inputs = [i for i in raw_inputs]
         return np.array(inputs)
 
-    def get_activations_for_cat(self, category, model):
+    def get_activations_for_cat(self, category):
+        """
+        Return activations for a specific category
+        :param category: the category for which we want the activations
+        :return: A list of activations
+        """
         inputs_cat = self.get_inputs_for_cat(category)
-        return model.predict(inputs_cat)
+        return self.model.get_model().predict(inputs_cat)
 
     def standardize(self, df):
         """
@@ -134,11 +183,12 @@ class DataLoader:
         return df_s
 
     def get_all_activations(self, df, model):
-        start_time = time.time()
         """
         Returns a DataFrame with all the information and activations associated
         :return: fully completed DataFrame
         """
+        start_time = time.time()
+
         new_df = pd.DataFrame()
 
         new_df['category'] = df.category
@@ -213,6 +263,12 @@ class DataLoader:
         return self.get_not_cat_df(category, df).iloc[:, 5:] #Must be more generic
 
     def find_pv(self, category, df):
+        """
+        Return the pvalue for a category
+        :param category: The category for which we want the pvalue
+        :param df: The dataframe to search among
+        :return: The pvalue for the category
+        """
         start_time = time.time()
 
         actc = self.get_activation_for_cat(category, df)
@@ -232,6 +288,12 @@ class DataLoader:
         return return_df
 
     def get_heatmaps_dict(self):
+        """
+        Generate heatmaps for each popular category for each layer and enter data and path for each heatmap in a
+        dictionary. Compute also the heatmap of the difference between the category and all categories except one.
+        Return the dict.
+        :return: a dictionary of paths and data for each heatmap for each category among the popular ones for each layer
+        """
         start_time = time.time()
 
         dheatmaps = {}
@@ -321,10 +383,18 @@ class DataLoader:
         return dheatmaps
 
     def get_category_from_path(self, path):
+        """
+        Return the category from path
+        :param path: the path from which we want to get the category's name
+        :return: the category's name
+        """
         return path.split('\\')[-1].split('.')[0].split('-')[0]
 
     def get_heatmaps_from_files(self):
-
+        """
+        Return the dict of heatmaps from already generated heatmaps (i.e. doesn't generate heatmaps)
+        :return: a dictionary of heatmaps for each layer for each category
+        """
         dheatmaps = {}
 
         heatmap_path = '../heatmaps/'
@@ -353,6 +423,10 @@ class DataLoader:
         return dheatmaps
 
     def getTableData(self):
+        """
+        Compute different parameters to visualize differences between categories in a table
+        :return: the computed data of these parameters, the name of these parameters and the categories we compare
+        """
         categories = self.get_popular_categories(thresh=500)
         data_dict = {}
         for cat, n in categories:

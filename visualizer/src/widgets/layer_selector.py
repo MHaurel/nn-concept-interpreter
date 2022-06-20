@@ -21,10 +21,14 @@ class LayerSelector(QComboBox):
         """
         Accessing CategoriesWidget to modify the heatmaps on screen
         :param value: The value of the element selected
-        :return: Nothing
+        :return: None
         """
         self.parent().parent().updateHeatmapList(qmodelindex=None)
 
     def populate_box(self):
+        """
+        Fill the selector with each layer name
+        :return: None
+        """
         for layer in self.layers:
             self.addItem(layer)

@@ -19,6 +19,11 @@ class HeatmapList(QListWidget):
             self.populate_list(self.paths)
 
     def populate_list(self, paths):
+        """
+        Fill the list with heatmaps got from paths
+        :param paths: The paths with which we want the heatmaps
+        :return: None
+        """
         for path in paths:
             try:
                 heatmap = Heatmap(path)
@@ -31,5 +36,10 @@ class HeatmapList(QListWidget):
                 print("Error encountered with heatmap loading")
 
     def update(self, paths):
+        """
+        Clear & Update the list of heatmaps
+        :param paths: the paths of the new heatmaps to display in the updated list
+        :return: None
+        """
         self.clear()
         self.populate_list(paths)

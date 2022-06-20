@@ -43,22 +43,50 @@ class Sidebar(QWidget):
         self.setLayout(self.main_layout)
 
     def enableSampleButton(self):
+        """
+        Enable the button to go to the sample window
+        :return: None
+        """
         self.btn_sample.setEnabled(True)
 
     def enableCategoriesButton(self):
+        """
+        Enable the button to go to the categories window
+        :return: None
+        """
         self.btn_categories.setEnabled(True)
 
     def enableGridButton(self):
+        """
+        Enable the button to go to the grid window
+        :return: None
+        """
         self.btn_grid.setEnabled(True)
 
     def goToHome(self):
+        """
+        Go to the home window
+        :return: None
+        """
         self.parent().goToHome()
 
     def goToSample(self):
+        """
+        Go to the sample window
+        :return: None
+        """
         self.parent().goToSample()
 
     def goToCategories(self):
+        """
+        Go to the categories window
+        :return: None
+        """
         self.parent().goToCategories()
 
     def goToGrid(self):
+        """
+        Go to the grid window
+        :return: None
+        """
         self.parent().goToGrid()

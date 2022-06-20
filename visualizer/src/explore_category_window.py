@@ -16,28 +16,20 @@ class ExploreCategoryWindow(PageWindow):
         self.setCentralWidget(self.widget)
 
     def set_category(self, category):
+        """
+        Set the category in parameter to this class
+        :param category: The category to set to this class
+        :return: None
+        """
         self.category = category
         self.setWindowTitle(self.category)
         self.widget.set_category(self.category)
 
     def set_dataloader(self, dataloader):
+        """
+        Set the dataloader in parameter to this class
+        :param dataloader: The dataloader to set to this class
+        :return: None
+        """
         self.dataloader = dataloader
         self.widget.set_dataloader(self.dataloader)
-
-
-
-if __name__ == '__main__':
-    import sys
-
-    app = QApplication(sys.argv)
-
-    from widgets.explore_category_widget import ExploreCategoryWidget
-
-    widget = ExploreCategoryWidget()
-
-    w = ExploreCategoryWindow(widget)
-
-    print(isinstance(w, PageWindow))
-
-    w.show()
-    sys.exit(app.exec())
