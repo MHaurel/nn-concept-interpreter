@@ -1,18 +1,15 @@
 # **TODO**
 
-## Visualizer
+**Heatmaps Categories UI**
+![image](./ui-categories.jpg)
 
-* Add a menu action to fetch other data / other model
-* Build the home page <<
-* Develop a loading animation (Look on Internet to see how it's done)
-* Improve UI/UX (following Figma link)
+## HEATMAPS CATEGORIES
 
+* Add comments to functions/methods (docstring)
+* Variable names check-up / Clean code
+* Reformat files
+* Check heatmap difference (may not be computing the actual differences)
+* Add label of layer's name above heatmaps on the left side
+* Develop the right side of the UI
 
-## GRAPHS-UI
-
-* Add filters to the heatmap list view
-https://askcodez.com/comment-creer-des-filtres-pour-qtableview-en-pyqt.html
-
-## BACKEND & IN GENERAL
-
-* Add comments to functions
+## HEATMAPS SAMPLE
