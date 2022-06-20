@@ -113,11 +113,13 @@ class DataLoader:
         :param category: the category for which we want the heatmaps
         :return: a list of the paths of the heatmaps corresponding to the category
         """
-        heatmaps_paths = []
+        heatmaps_paths = {}
         for layer in self.heatmaps.keys():
             if category in self.heatmaps[layer].keys():
+                heatmaps_category = []
                 for heatmap in self.heatmaps[layer][category].keys():
-                    heatmaps_paths.append(self.heatmaps[layer][category][heatmap]['path'])
+                    heatmaps_category.append(self.heatmaps[layer][category][heatmap]['path'])
+                heatmaps_paths[layer] = heatmaps_category
 
         return heatmaps_paths
 

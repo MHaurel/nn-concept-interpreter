@@ -43,7 +43,8 @@ class Window(QMainWindow):
 
         # Window dimensions
         geometry = self.screen().availableGeometry()
-        self.setFixedSize(geometry.width() * 0.6, geometry.height() * 0.6)
+        self.setMinimumSize(geometry.width() * 0.6, geometry.height() * 0.6)
+        #self.setFixedSize(geometry.width() * 0.6, geometry.height() * 0.6)
 
     def register(self, window, name):
         """

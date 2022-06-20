@@ -53,7 +53,7 @@ class TableCategoriesWidget(QWidget):
         :param i: the index of the index
         :return: None
         """
-        self.go_to_explore_category(self.categories[i])
+        self.go_to_explore_category(self.data.index.values[i])
 
     def clickedColumn(self, i):
         """
@@ -66,6 +66,8 @@ class TableCategoriesWidget(QWidget):
         indexes = [ind for ind in sorted_df.index]
         new_model = TableCategoriesModel(self, sorted_df.values.tolist(), self.header, indexes)
         self.table_view.setModel(new_model)
+
+        self.data = sorted_df
 
     def clickedCell(self):
         """

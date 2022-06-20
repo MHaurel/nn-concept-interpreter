@@ -19,7 +19,7 @@ class HeatmapsCategoryWidget(QWidget):
 
         # Heatmaps
         size.setVerticalStretch(4)
-        self.heatmap_list = HeatmapList(paths=None)
+        self.heatmap_list = HeatmapList(paths_dict=None)
 
         # Layout
         self.main_layout = QVBoxLayout()
