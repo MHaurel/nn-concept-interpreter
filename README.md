@@ -5,7 +5,6 @@
 
 ## HEATMAPS CATEGORIES
 
-* Flatten Embedding activations (stop taking mean)
 * Add max-diff into table
 * Filter p-value
 * Loading window

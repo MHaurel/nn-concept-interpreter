@@ -1,2 +1,4 @@
 ./spyproject
 /visualizer/venv
+/visualizer/models
+/visualizer/data

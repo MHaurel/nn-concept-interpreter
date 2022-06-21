@@ -198,6 +198,7 @@ class DataLoader:
         new_df['output_low'] = df.output_low
         new_df['output_medium'] = df.output_medium
         new_df['output_high'] = df.output_high
+        #new_df['output'] = df.output
 
         inputs = [x for x in df.input]
 
@@ -207,21 +208,30 @@ class DataLoader:
         if isinstance(model.get_layers()[-1], Embedding):
             mean_start_time = time.time()
 
-            print("Taking mean for Embedding")
-            mean_activations = []
-            for a in activations:
-                mean_activations.append(pd.DataFrame(a).mean())
-            activations = np.array(mean_activations)
+            print("Taking Embedding activations")
 
-            print(activations)
+            emb_activations_arr = [a.flatten() for a in activations]
+            emb_activations_arr = np.array(emb_activations_arr)
 
-            print(f"--- For taking mean for Embedding: {time.time() - mean_start_time} seconds ---")
+            acts = []
+            for i in range(len(emb_activations_arr)):
+                acts.append(pd.DataFrame(pd.DataFrame(emb_activations_arr[i].reshape(-1, 64)).mean()).T)
 
-        for neuron_index, value_list in enumerate(activations.T):
-            index = f"neuron_{neuron_index + 1}"
-            new_df[index] = value_list
+            activations = np.array(acts).reshape(-1, 64)
+
+            for neuron_index, value_list in enumerate(activations.T):
+                index = f"neuron_{neuron_index}"
+                new_df[index] = value_list
+
+            print(f"--- For taking Embedding activations: {time.time() - mean_start_time} seconds ---")
+
+        else:
+            for neuron_index, value_list in enumerate(activations.T):
+                index = f"neuron_{neuron_index + 1}"
+                new_df[index] = value_list
 
         return_df = self.standardize(new_df)
+
         print(f"--- For get_all_activations with layer {model.get_layers()[-1]}: {time.time() - start_time} seconds ---")
         return return_df
 
@@ -337,7 +347,7 @@ class DataLoader:
                 data_1 = self.get_activation_for_not_cat(category=c, df=self.dfs[i])
                 data_1 = pd.DataFrame(data_1.mean()).T
 
-                rdf = self.get_mean_activation_for_cat(c, self.dfs[i])
+                """rdf = self.get_mean_activation_for_cat(c, self.dfs[i])
 
                 ax = sns.heatmap(
                     data=rdf,
@@ -352,7 +362,7 @@ class DataLoader:
 
                 for_cat['heatmap-1'] = {}
                 for_cat['heatmap-1']['path'] = path
-                for_cat['heatmap-1']['data'] = np.array(rdf)
+                for_cat['heatmap-1']['data'] = np.array(rdf)"""
 
                 # 2nd heatmap
                 #rdf[0] = rdf[0].apply(lambda x: 0 if x > 0.01 else 1)
@@ -368,11 +378,12 @@ class DataLoader:
                     cmap=custom_color_map
                 )
                 fig = ax.get_figure()
-                path = f"{current_path}/{c}-2.png"
+                path = f"{current_path}/{c}-1.png"
                 fig.savefig(path)
 
-                for_cat['heatmap-2'] = {}
-                for_cat['heatmap-2']['path'] = path
+                # Initially 'heatmap-2'
+                for_cat['heatmap-1'] = {}
+                for_cat['heatmap-1']['path'] = path
                 #for_cat['heatmap-2']['data'] = np.array(rdf[0]).T
 
                 # Add paths to dict
@@ -414,9 +425,9 @@ class DataLoader:
                 for_cat["heatmap-1"] = {}
                 for_cat["heatmap-1"]['path'] = h1
 
-                h2 = os.path.join('..', 'heatmaps', dir, f"{p}-2.png")
+                """h2 = os.path.join('..', 'heatmaps', dir, f"{p}-2.png")
                 for_cat["heatmap-2"] = {}
-                for_cat["heatmap-2"]['path'] = h2
+                for_cat["heatmap-2"]['path'] = h2"""
 
                 ddf[p] = for_cat
 
@@ -454,12 +465,7 @@ class DataLoader:
 
 if __name__ == '__main__':
 
-    import time
-    start_time = time.time()
-
     m = Model(path='../../models/bycountry_model')
-    # dl = DataLoader('../../data/bycountry_ds.json', model=m, compute_data=False) # 3 seconds
-    new_model = m.rebuild_model(0) # taking embedding  layer
 
     dl = DataLoader('../../data/bycountry_ds.json', model=m, compute_data=True)
 
