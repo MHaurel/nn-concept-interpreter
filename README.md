@@ -5,6 +5,7 @@
 
 ## HEATMAPS CATEGORIES
 
+* Manage size of the widgets in *explore_category_widget.py*
 * Store activations & other stuff
 * Make CNN analysis working
 * Solve issue (reshape(-1, 64) 64 must be not static)
