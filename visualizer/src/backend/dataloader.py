@@ -82,12 +82,16 @@ class DataLoader:
         :param df: the df for which we want to formalize the outputs
         :return: the new df with formalized outputs
         """
-        output = np.zeros(df.output_low.shape)
-
         temp_df = df.copy()
-        temp_df['true'] = output
-        temp_df.loc[(temp_df.output_medium == 1), 'true'] = 1
-        temp_df.loc[(temp_df.output_high == 1), 'true'] = 2
+        if 'output' not in df.columns:
+            output = np.zeros(df.output_low.shape)
+
+            temp_df['true'] = output
+            temp_df.loc[(temp_df.output_medium == 1), 'true'] = 1
+            temp_df.loc[(temp_df.output_high == 1), 'true'] = 2
+
+        else:
+            temp_df['true'] = temp_df['output']
 
         temp_df['pred'] = self.get_predictions()
 
@@ -135,6 +139,9 @@ class DataLoader:
                     unique_categories.append(cat)
 
         return unique_categories
+
+    def clean_category(self, category):
+        return category.split('/')[-1]
 
     def get_popular_categories(self, thresh=500):
         """
@@ -195,10 +202,10 @@ class DataLoader:
 
         new_df['category'] = df.category
         new_df['input'] = df.input
-        new_df['output_low'] = df.output_low
+        """new_df['output_low'] = df.output_low
         new_df['output_medium'] = df.output_medium
-        new_df['output_high'] = df.output_high
-        #new_df['output'] = df.output
+        new_df['output_high'] = df.output_high"""
+        new_df['output'] = df.output
 
         inputs = [x for x in df.input]
 
@@ -220,7 +227,7 @@ class DataLoader:
             activations = np.array(acts).reshape(-1, 64)
 
             for neuron_index, value_list in enumerate(activations.T):
-                index = f"neuron_{neuron_index}"
+                index = f"neuron_{neuron_index + 1}"
                 new_df[index] = value_list
 
             print(f"--- For taking Embedding activations: {time.time() - mean_start_time} seconds ---")
@@ -334,7 +341,7 @@ class DataLoader:
             if not os.path.exists(current_path):
                 os.makedirs(current_path)
 
-            for c, n in self.get_popular_categories(thresh=500):
+            for c, n in self.get_popular_categories(thresh=200):
                 for_cat = {}
 
                 r = self.find_pv(c, self.dfs[i])
@@ -378,7 +385,7 @@ class DataLoader:
                     cmap=custom_color_map
                 )
                 fig = ax.get_figure()
-                path = f"{current_path}/{c}-1.png"
+                path = f"{current_path}/{self.clean_category(c)}-1.png"
                 fig.savefig(path)
 
                 # Initially 'heatmap-2'
@@ -418,10 +425,10 @@ class DataLoader:
         for dir in os.listdir(os.path.join('..', 'heatmaps')):
             ddf = {}
 
-            for p, n in self.get_popular_categories(thresh=500):
+            for p, n in self.get_popular_categories(thresh=200):
                 for_cat = {}
 
-                h1 = os.path.join('..', 'heatmaps', dir, f"{p}-1.png")
+                h1 = os.path.join('..', 'heatmaps', dir, f"{self.clean_category(p)}-1.png")
                 for_cat["heatmap-1"] = {}
                 for_cat["heatmap-1"]['path'] = h1
 
@@ -440,7 +447,7 @@ class DataLoader:
         Compute different parameters to visualize differences between categories in a table
         :return: the computed data of these parameters, the name of these parameters and the categories we compare
         """
-        categories = self.get_popular_categories(thresh=500)
+        categories = self.get_popular_categories(thresh=200)
         data_dict = {}
         for cat, n in categories:
             cdf = self.get_cat_df(cat, self.df)
@@ -465,9 +472,8 @@ class DataLoader:
 
 if __name__ == '__main__':
 
-    m = Model(path='../../models/bycountry_model')
+    m = Model(path='../../models/painter_model')
 
-    dl = DataLoader('../../data/bycountry_ds.json', model=m, compute_data=True)
-
-
+    dl = DataLoader('../../data/painters_ds.json', model=m, compute_data=True)
+    print(dl.get_popular_categories(thresh=200))
 

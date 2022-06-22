@@ -5,9 +5,13 @@
 
 ## HEATMAPS CATEGORIES
 
+* Store activations & other stuff
+* Make CNN analysis working
+* Solve issue (reshape(-1, 64) 64 must be not static)
+* Build as many dirs as there is a new dataset to store the heatmaps of
 * Add max-diff into table
 * Filter p-value
 * Loading window
-* Develop the right side of the UI
+
 
 ## HEATMAPS SAMPLE

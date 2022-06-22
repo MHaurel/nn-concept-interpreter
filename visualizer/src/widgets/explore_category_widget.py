@@ -1,7 +1,7 @@
-from PySide6.QtWidgets import QWidget, QHBoxLayout
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QSizePolicy
 
 from visualizer.src.widgets.heatmaps_category_widget import HeatmapsCategoryWidget
-from visualizer.src.widgets.sample_category_widget import SampleCategoryWidget
+from visualizer.src.widgets.comparison_category_widget import ComparisonCategoryWidget
 
 
 class ExploreCategoryWidget(QWidget):
@@ -18,8 +18,8 @@ class ExploreCategoryWidget(QWidget):
         self.main_layout.addWidget(self.heatmaps_category_widget)
 
         # Widget Sample (Right layout)
-        self.sample_category_widget = SampleCategoryWidget()
-        self.main_layout.addWidget(self.sample_category_widget)
+        self.comparison_category_widget = ComparisonCategoryWidget()
+        self.main_layout.addWidget(self.comparison_category_widget)
 
         self.setLayout(self.main_layout)
 
@@ -40,6 +40,7 @@ class ExploreCategoryWidget(QWidget):
         """
         self.dataloader = dataloader
         self.heatmaps_category_widget.set_dataloader(self.dataloader)
+        self.comparison_category_widget.set_dataloader(self.dataloader)
 
     def go_to_home(self):
         """
