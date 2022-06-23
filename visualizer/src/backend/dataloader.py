@@ -3,6 +3,7 @@ import time
 
 import pandas as pd
 import numpy as np
+import glob as glob
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.colors
@@ -25,6 +26,7 @@ class DataLoader:
 
         self.df = pd.read_json(self.path)
         self.df = self.formalize_outputs(self.df)
+        print(list(self.df.columns))
 
         #self.df = self.get_all_activations(self.model)
 
@@ -33,7 +35,7 @@ class DataLoader:
 
         self.heatmaps = None
 
-        if not os.path.exists(os.path.join('../heatmaps', self.dirname)):
+        if not os.path.exists(os.path.join('../heatmaps', self.dirname)) or not os.path.exists(os.path.join('../activations', self.dirname)):
             print(f"There are no files in {os.path.join('../heatmaps', self.dirname)}")
             for i in range(len(self.model.get_layers())):
                 #if i != 0:#Excluding embedding layer because idk how to deal with 3D data right now
@@ -42,10 +44,21 @@ class DataLoader:
                 df = self.get_all_activations(self.df, new_model)
                 self.dfs.append(df)
 
+            if not os.path.exists(os.path.join('../activations', self.dirname)):
+                os.makedirs(os.path.join('../activations', self.dirname))
+
+            for i in range(len(self.dfs)):
+                pd.to_pickle(self.dfs[i], os.path.join('../activations', self.dirname, f"{i} - {self.model.get_layers()[i].name}.pkl"))
+
             self.heatmaps = self.get_heatmaps_dict()
         else:
             print(f"YAAAAYY ! There ARE files in {os.path.join('../heatmaps', self.dirname)}")
             # Doesn't compute data, only returns heatmaps
+            for filename in os.listdir(os.path.join('../activations', self.dirname)):
+                if filename.split('.')[-1] == 'pkl':
+                    df = pd.read_pickle(os.path.join('../activations', self.dirname, filename))
+                    self.dfs.append(df)
+
             self.heatmaps = self.get_heatmaps_from_files()
 
     def get_model(self):
@@ -76,7 +89,8 @@ class DataLoader:
         """
         inputs = [x for x in self.df.input]
         y_pred = self.model.get_model().predict(inputs) #Try to replace with self.model.predict_inputs(inputs)
-        return [np.argmax(p) for p in y_pred]
+        #return [np.argmax(p) for p in y_pred]
+        return [1 if p >= 0.5 else 0 for p in y_pred]
 
     def formalize_outputs(self, df):
         """
@@ -208,6 +222,8 @@ class DataLoader:
         new_df['output_medium'] = df.output_medium
         new_df['output_high'] = df.output_high"""
         new_df['output'] = df.output
+        new_df['true'] = df.true
+        new_df['pred'] = df.pred
 
         inputs = [x for x in df.input]
 
@@ -377,7 +393,7 @@ class DataLoader:
                 #rdf[0] = rdf[0].apply(lambda x: 0 if x > 0.01 else 1)
 
                 # Difference
-                diff = np.array(self.get_activation_for_cat(c, self.dfs[i]).mean()) - np.array(data_1.T[0])
+                diff = np.array(self.get_activation_for_cat(c, self.dfs[i]).mean()) - np.array(data_1.T[0]) #Need to store activations (self.dfs)
                 diff = pd.DataFrame(diff).T
                 ax = sns.heatmap(
                     data=diff,
@@ -453,12 +469,13 @@ class DataLoader:
         data_dict = {}
         for cat, n in categories:
             cdf = self.get_cat_df(cat, self.df)
+            print(f"Category is: {cat}")
             data_dict[cat] = {
                 "max-diff": 1,
-                "min-pv": self.find_pv(cat, self.df).min(),
+                "min-pv": 1, #self.find_pv(cat, self.df).min(), # Not working because dfs are not saved and then don't contains the activations if heatmaps already computed
                 "mean-pred": cdf.pred.mean(),
-                "std-pred": cdf.pred.std(),
                 "mean-real": cdf.true.mean(),
+                "std-pred": cdf.pred.std(),
                 "std-real": cdf.true.std(),
                 "mae": abs(cdf.pred - cdf.true).sum() / len(cdf),
                 "nbr": n
@@ -466,16 +483,42 @@ class DataLoader:
 
         data = pd.DataFrame().from_dict(data_dict).T
 
-        headers = ['max-diff', 'min-pv', 'mean-pred', 'std-pred', 'mean-real', 'std-real', 'mae', 'nbr']
+        headers = ['max-diff', 'min-pv', 'mean-pred', 'mean-real', 'std-pred', 'std-real', 'mae', 'nbr']
         categories = [c[0] for c in categories]
 
         return data, headers, categories
+
+    def get_min_pv(self, cat):
+        min_pv = 0
+        for i in range(len(self.dfs)):
+            pv = self.find_pv(cat, self.dfs[i])
+
 
 
 if __name__ == '__main__':
 
     m = Model(path='../../models/painter_model')
 
-    dl = DataLoader('../../data/painters_ds.json', model=m, compute_data=False)
-    print(dl.get_heatmaps())
+    dl = DataLoader('../../data/painters_ds.json', model=m)
+    print(dl.getTableData())
 
+    df = dl.dfs[0]
+    print(df.shape)
+
+    cat = "http://dbpedia.org/resource/France"
+
+    data_dict = {}
+    cdf = dl.get_cat_df(cat, df)
+    print(cdf.shape)
+    data_dict[cat] = {
+        "max-diff": 1,
+        "min-pv": 1, # self.find_pv(cat, self.df).min(), # Not working because dfs are not saved and then don't contains the activations if heatmaps already computed
+        "mean-pred": cdf.pred.mean(),
+        "mean-real": cdf.true.mean(),
+        "std-pred": cdf.pred.std(),
+        "std-real": cdf.true.std(),
+        "mae": abs(cdf.pred - cdf.true).sum() / len(cdf),
+        "nbr": 200
+    }
+
+    print(data_dict)
