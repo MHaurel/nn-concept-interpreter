@@ -5,14 +5,15 @@
 
 ## HEATMAPS CATEGORIES
 
-* Manage size of the widgets in *explore_category_widget.py*
+* Fix issue of getting computed heatmaps in a specific dataset dir
+* More generic way to get neurons from dataset
 * Store activations & other stuff
-* Make CNN analysis working
+  * Not compute data if dirs exists already
+* Make CNN analysis working (churches)
 * Solve issue (reshape(-1, 64) 64 must be not static)
-* Build as many dirs as there is a new dataset to store the heatmaps of
 * Add max-diff into table
 * Filter p-value
-* Loading window
+* Loading pop-up
 
 
 ## HEATMAPS SAMPLE

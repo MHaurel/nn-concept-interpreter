@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QSizePolicy
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QSizePolicy, QApplication
 
 from visualizer.src.widgets.heatmaps_category_widget import HeatmapsCategoryWidget
 from visualizer.src.widgets.comparison_category_widget import ComparisonCategoryWidget
@@ -9,17 +9,23 @@ class ExploreCategoryWidget(QWidget):
         QWidget.__init__(self)
 
         self.main_layout = QHBoxLayout()
+        #size = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
 
         self.category = None
         self.dataloader = None
 
         # Widget Heatmaps and back button (Left layout)
         self.heatmaps_category_widget = HeatmapsCategoryWidget()
+        #self.heatmaps_category_widget.setSizePolicy(size)
         self.main_layout.addWidget(self.heatmaps_category_widget)
 
         # Widget Sample (Right layout)
         self.comparison_category_widget = ComparisonCategoryWidget()
+        #self.heatmaps_category_widget.setSizePolicy(size)
         self.main_layout.addWidget(self.comparison_category_widget)
+
+
+        #self.sizePolicy().setHeightForWidth(True)
 
         self.setLayout(self.main_layout)
 
@@ -48,3 +54,4 @@ class ExploreCategoryWidget(QWidget):
         :return: None
         """
         self.parent().goto("home", None, None)
+

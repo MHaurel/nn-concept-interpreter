@@ -33,3 +33,15 @@ class ExploreCategoryWindow(PageWindow):
         """
         self.dataloader = dataloader
         self.widget.set_dataloader(self.dataloader)
+
+if __name__ == '__main__':
+    import sys
+    from visualizer.src.widgets.explore_category_widget import ExploreCategoryWidget
+
+    app = QApplication(sys.argv)
+
+    widget = ExploreCategoryWidget()
+
+    w = ExploreCategoryWindow(widget)
+    w.show()
+    sys.exit(app.exec())

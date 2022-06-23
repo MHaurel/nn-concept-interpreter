@@ -20,6 +20,8 @@ class ComparisonCategoryWidget(QWidget):
         self.heatmap_list.setSizePolicy(size)
         self.main_layout.addWidget(self.heatmap_list)
 
+        self.setMaximumWidth(self.screen().geometry().width() * 0.5)
+
         self.setLayout(self.main_layout)
 
     def set_dataloader(self, dataloader):

@@ -3,45 +3,43 @@ import time
 
 from PySide6.QtCore import QThread
 from PySide6.QtWidgets import QDialog, QTextBrowser, QVBoxLayout, \
-    QWidget, QPushButton, QApplication
+    QWidget, QPushButton, QApplication, QSizePolicy, QMainWindow
+from PySide6.QtGui import QPalette
 
 
-def print_every_3_seconds():
-    print(0)
-    for i in range(1, 4):
-        time.sleep(1)
-        print(i)
+class TestWidget(QWidget):
+    def __init__(self):
+        QWidget.__init__(self)
+        self.leftMargin = 30
+        self.chartWidth = 250
+        self.chartHeight = 250
+        self.minDisplayValue = 0
+        self.maxDisplayValue = 100
 
-class WorkerThread(QThread):
-    def run(self):
-        print_every_3_seconds()
+        self.minValue = -1
+        self.maxValue = 1
+        self.span = 1
 
-
-class RunFunctionDialog(QDialog):
-    def __init__(self, function, parent=None):
-        super(RunFunctionDialog, self).__init__(parent)
-        self.layout = QVBoxLayout(self)
-        self.textBrowser = QTextBrowser()
-        self.textBrowser.setText("Wait 3 seconds")
-        self.layout.addWidget(self.textBrowser)
-        self.function = function
-
-        self.thread = WorkerThread()
-        self.thread.finished.connect(self.close)
-        self.thread.start()
+        self.setMinimumSize(self.chartWidth + self.rightMargin + self.leftMargin,
+                            self.chartHeight + self.topMargin + self.bottomMargin)
+        self.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding))
+        pal = QPalette()
+        pal.setColor(QPalette.Background, self.backgroundColor)
+        self.setPalette(pal)
+        self.setAutoFillBackground(True)
 
 
-def show_dialog():
-    dialog = RunFunctionDialog(print_every_3_seconds)
-    dialog.exec()
+class TestWindow(QMainWindow):
+    def __init__(self):
+        QMainWindow.__init__(self)
+        self.w = TestWidget()
+        self.setCentralWidget(self.w)
 
 
-app = QApplication(sys.argv)
+if __name__ == '__main__':
+    import sys
 
-widget = QWidget(None)
-button = QPushButton("Show Dialog", widget)
-button.clicked.connect(show_dialog)
-
-widget.show()
-
-app.exec()
+    app = QApplication(sys.argv)
+    w = TestWindow()
+    w.show()
+    sys.exit(app.exec())

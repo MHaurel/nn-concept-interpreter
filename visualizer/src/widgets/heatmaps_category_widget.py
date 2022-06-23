@@ -12,19 +12,21 @@ class HeatmapsCategoryWidget(QWidget):
         self.dataloader = None
 
         # Size
-        size = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        #size = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
 
         # Back to Home button and checkbox for p-value filter
         self.bb_checkbox_widget = BBCheckBoxWidget()
 
         # Heatmaps
-        size.setVerticalStretch(4)
+        #size.setVerticalStretch(4)
         self.heatmap_list = HeatmapList(paths_dict=None)
 
         # Layout
         self.main_layout = QVBoxLayout()
         self.main_layout.addWidget(self.bb_checkbox_widget)
         self.main_layout.addWidget(self.heatmap_list)
+
+        self.setMaximumWidth(self.screen().geometry().width()*0.5)
 
         self.setLayout(self.main_layout)
 

@@ -1,10 +1,8 @@
 import os.path
-import glob
 import time
 
 import pandas as pd
 import numpy as np
-import plotly.graph_objects as go
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.colors
@@ -22,6 +20,8 @@ class DataLoader:
 
         self.path = path
         self.model = model
+
+        self.dirname = self.path.split('/')[-1].split('.')[0]
 
         self.df = pd.read_json(self.path)
         self.df = self.formalize_outputs(self.df)
@@ -337,7 +337,7 @@ class DataLoader:
         for i in range(len(self.dfs)):
             ddf = {}
 
-            current_path = os.path.join(heatmap_path, self.model.get_layers()[i].name)
+            current_path = os.path.join(heatmap_path, self.dirname, f"{i+1} - {self.model.get_layers()[i].name}")
             if not os.path.exists(current_path):
                 os.makedirs(current_path)
 
@@ -438,7 +438,7 @@ class DataLoader:
 
                 ddf[p] = for_cat
 
-            dheatmaps[dir] = ddf
+            dheatmaps[f"{os.listdir(os.path.join('..', 'heatmaps')).index(dir)} - {dir}"] = ddf
 
         return dheatmaps
 
@@ -475,5 +475,4 @@ if __name__ == '__main__':
     m = Model(path='../../models/painter_model')
 
     dl = DataLoader('../../data/painters_ds.json', model=m, compute_data=True)
-    print(dl.get_popular_categories(thresh=200))
 
