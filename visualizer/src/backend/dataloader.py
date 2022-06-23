@@ -15,7 +15,7 @@ from visualizer.src.backend.model import Model
 
 
 class DataLoader:
-    def __init__(self, path, model, compute_data=True):
+    def __init__(self, path, model):
         super().__init__()
 
         self.path = path
@@ -33,7 +33,8 @@ class DataLoader:
 
         self.heatmaps = None
 
-        if compute_data:
+        if not os.path.exists(os.path.join('../heatmaps', self.dirname)):
+            print(f"There are no files in {os.path.join('../heatmaps', self.dirname)}")
             for i in range(len(self.model.get_layers())):
                 #if i != 0:#Excluding embedding layer because idk how to deal with 3D data right now
                 new_model = self.model.rebuild_model(i)
@@ -43,6 +44,7 @@ class DataLoader:
 
             self.heatmaps = self.get_heatmaps_dict()
         else:
+            print(f"YAAAAYY ! There ARE files in {os.path.join('../heatmaps', self.dirname)}")
             # Doesn't compute data, only returns heatmaps
             self.heatmaps = self.get_heatmaps_from_files()
 
@@ -422,13 +424,13 @@ class DataLoader:
         if not os.path.exists(heatmap_path):
             return {}
 
-        for dir in os.listdir(os.path.join('..', 'heatmaps')):
+        for dir in os.listdir(os.path.join('..', 'heatmaps', self.dirname)):
             ddf = {}
 
             for p, n in self.get_popular_categories(thresh=200):
                 for_cat = {}
 
-                h1 = os.path.join('..', 'heatmaps', dir, f"{self.clean_category(p)}-1.png")
+                h1 = os.path.join('..', 'heatmaps', self.dirname, dir, f"{self.clean_category(p)}-1.png")
                 for_cat["heatmap-1"] = {}
                 for_cat["heatmap-1"]['path'] = h1
 
@@ -438,7 +440,7 @@ class DataLoader:
 
                 ddf[p] = for_cat
 
-            dheatmaps[f"{os.listdir(os.path.join('..', 'heatmaps')).index(dir)} - {dir}"] = ddf
+            dheatmaps[dir] = ddf
 
         return dheatmaps
 
@@ -474,5 +476,6 @@ if __name__ == '__main__':
 
     m = Model(path='../../models/painter_model')
 
-    dl = DataLoader('../../data/painters_ds.json', model=m, compute_data=True)
+    dl = DataLoader('../../data/painters_ds.json', model=m, compute_data=False)
+    print(dl.get_heatmaps())
 
