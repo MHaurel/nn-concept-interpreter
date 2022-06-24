@@ -13,16 +13,9 @@ class BBCheckBoxWidget(QWidget):
         self.checkbox_pv = QCheckBox("P-values")
         self.checkbox_pv.stateChanged.connect(self.filter_pvalue)
 
-        self.thresh_selector = QLineEdit()
-
-        self.btn_validate_thresh = QPushButton("OK")
-        self.btn_validate_thresh.clicked.connect(self.change_thresh)
-
         self.main_layout = QHBoxLayout()
         self.main_layout.addWidget(self.btn_home)
         self.main_layout.addWidget(self.checkbox_pv)
-        self.main_layout.addWidget(self.thresh_selector)
-        self.main_layout.addWidget(self.btn_validate_thresh)
 
         self.setLayout(self.main_layout)
 
@@ -43,5 +36,3 @@ class BBCheckBoxWidget(QWidget):
         self.parent().update_heatmap_list_with_pv(self.checkbox_pv.isChecked())
         print(f"Filter p-value: {self.checkbox_pv.isChecked()}")
 
-    def change_thresh(self):
-        print(f"Current thresh: {self.thresh} - new: {self.thresh_selector.text()}")

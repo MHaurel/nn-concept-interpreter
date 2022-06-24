@@ -1,5 +1,4 @@
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QSizePolicy, \
-    QTableView, QCheckBox
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QSizePolicy, QTableView, QCheckBox, QVBoxLayout
 from PySide6.QtCore import Qt
 from PySide6.QtCore import SIGNAL
 
@@ -7,6 +6,7 @@ from visualizer.src.widgets.models.table_categories_model import TableCategories
 from visualizer.src.widgets.delegates.align_center_delegate import AlignCenterDelegate
 from visualizer.src.backend.dataloader import DataLoader
 from visualizer.src.backend.model import Model
+from visualizer.src.widgets.thresh_selector import ThreshSelector
 
 import numpy as np
 
@@ -18,13 +18,16 @@ class TableCategoriesWidget(QWidget):
         self.dataloader = dataloader
 
         # QWidget Layout
-        self.main_layout = QHBoxLayout()
-        size = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.main_layout = QVBoxLayout()
 
+        # Thresh selector
+        self.thresh_selector = ThreshSelector()
+        self.thresh_selector.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
+
+        # Table View
         self.data, self.header, self.categories = self.dataloader.getTableData()
         self.data_list = self.data.values.tolist()
 
-        # Table View
         self.table_model = TableCategoriesModel(self, self.data_list, self.header, self.categories)
         self.table_view = QTableView()
 
@@ -35,7 +38,7 @@ class TableCategoriesWidget(QWidget):
             self.table_view.setItemDelegateForColumn(i, align_center_delegate)
 
         # Center Layout
-        self.table_view.setSizePolicy(size)
+        self.main_layout.addWidget(self.thresh_selector)
         self.main_layout.addWidget(self.table_view)
 
         # Connections
@@ -100,3 +103,5 @@ class TableCategoriesWidget(QWidget):
         :return: None
         """
         self.parent().go_to_explore_category(category)
+
+
