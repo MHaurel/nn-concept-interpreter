@@ -276,7 +276,11 @@ class DataLoader:
         :param category: The category to seek the activations for
         :return: A DataFrame containing only those activations
         """
-        return self.get_cat_df(category, df).iloc[:, 5:] #Must be more generic
+        activations_cols = []
+        for col in df.columns:
+            if "neuron" in col:
+                activations_cols.append(col)
+        return self.get_cat_df(category, df).loc[:, df.columns.isin(activations_cols)] #Must be more generic
 
     def get_mean_activation_for_cat(self, category, df):
         return pd.DataFrame(self.get_activation_for_cat(category, df).mean()).T
@@ -297,7 +301,11 @@ class DataLoader:
         :param category: The category not to seek the activations for
         :return: A DataFrame containing all activations except the ones for category
         """
-        return self.get_not_cat_df(category, df).iloc[:, 5:] #Must be more generic
+        activations_cols = []
+        for col in df.columns:
+            if "neuron" in col:
+                activations_cols.append(col)
+        return self.get_not_cat_df(category, df).loc[:, df.columns.isin(activations_cols)] #Must be more generic
 
     def find_pv(self, category, df):
         """
@@ -472,7 +480,7 @@ class DataLoader:
             print(f"Category is: {cat}")
             data_dict[cat] = {
                 "max-diff": 1,
-                "min-pv": 1, #self.find_pv(cat, self.df).min(), # Not working because dfs are not saved and then don't contains the activations if heatmaps already computed
+                "min-pv": self.get_min_pv(cat), # Was not working because dfs are not saved and then don't contains the activations if heatmaps already computed
                 "mean-pred": cdf.pred.mean(),
                 "mean-real": cdf.true.mean(),
                 "std-pred": cdf.pred.std(),
@@ -489,9 +497,12 @@ class DataLoader:
         return data, headers, categories
 
     def get_min_pv(self, cat):
-        min_pv = 0
+        min_pv = 1
         for i in range(len(self.dfs)):
-            pv = self.find_pv(cat, self.dfs[i])
+            pv = self.find_pv(cat, self.dfs[i]).min()
+            if pv < min_pv:
+                min_pv = pv
+        return min_pv
 
 
 
@@ -500,19 +511,19 @@ if __name__ == '__main__':
     m = Model(path='../../models/painter_model')
 
     dl = DataLoader('../../data/painters_ds.json', model=m)
-    print(dl.getTableData())
+    """print(dl.getTableData())
 
     df = dl.dfs[0]
     print(df.shape)
 
-    cat = "http://dbpedia.org/resource/France"
+    
 
     data_dict = {}
     cdf = dl.get_cat_df(cat, df)
     print(cdf.shape)
     data_dict[cat] = {
         "max-diff": 1,
-        "min-pv": 1, # self.find_pv(cat, self.df).min(), # Not working because dfs are not saved and then don't contains the activations if heatmaps already computed
+        "min-pv": 1, # self.find_pv(cat, self.df).min(), # Not working because we want the min pvalue among the activations
         "mean-pred": cdf.pred.mean(),
         "mean-real": cdf.true.mean(),
         "std-pred": cdf.pred.std(),
@@ -521,4 +532,8 @@ if __name__ == '__main__':
         "nbr": 200
     }
 
-    print(data_dict)
+    print(data_dict)"""
+
+    cat = "http://dbpedia.org/resource/France"
+
+    print(dl.get_min_pv(cat))
