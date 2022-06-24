@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QMainWindow, QStackedWidget, QApplication
 from PySide6.QtCore import Slot
-from PySide6.QtGui import QAction, QKeySequence
+from PySide6.QtGui import QAction, QKeySequence, QIcon
 
 import numpy as np
 
@@ -18,6 +18,8 @@ class Window(QMainWindow):
 
         self.stacked_widget = QStackedWidget()
         self.setCentralWidget(self.stacked_widget)
+
+        self.setWindowIcon(QIcon('icon.png'))
 
         self.m_pages = {}
 
