@@ -5,6 +5,8 @@
 
 ## HEATMAPS CATEGORIES
 
+* Size of layer labels above heatmaps
+* Thresh selector
 * Make CNN analysis working (churches)
 * Solve issue (reshape(-1, 64) 64 must be not static)
 * Add max-diff into table

@@ -1,6 +1,5 @@
-from PySide6.QtWidgets import \
-    (QListView, QListWidget, QListWidgetItem, QLabel)
-from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QListView, QListWidget, QListWidgetItem, QSizePolicy
+from PySide6.QtGui import QIcon, QFont
 from PySide6.QtCore import QSize
 
 from visualizer.src.widgets.heatmap import Heatmap
@@ -27,7 +26,8 @@ class HeatmapList(QListWidget):
         for layer in paths_dict.keys():
             item_layer_name = QListWidgetItem()
             item_layer_name.setText(layer)
-            self.addItem(item_layer_name)#Attach QSS, define model object name and edit font-size to make it bigger
+            item_layer_name.setFont(QFont("Sans Serif", 20))
+            self.addItem(item_layer_name)
 
             for path in paths_dict[layer]:
                 try:
