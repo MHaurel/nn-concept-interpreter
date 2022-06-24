@@ -47,4 +47,5 @@ class HeatmapList(QListWidget):
         :return: None
         """
         self.clear()
+        print(paths_dict)
         self.populate_list(paths_dict)

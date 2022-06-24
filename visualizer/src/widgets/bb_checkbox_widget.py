@@ -30,4 +30,6 @@ class BBCheckBoxWidget(QWidget):
         On the opposite, when unchecked, show the heatmaps of the difference of activations
         :return: None
         """
+        print(self.parent())
+        self.parent().update_heatmap_list_with_pv(self.checkbox_pv.isChecked())
         print(f"Filter p-value: {self.checkbox_pv.isChecked()}")

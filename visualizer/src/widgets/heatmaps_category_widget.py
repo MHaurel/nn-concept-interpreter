@@ -11,6 +11,8 @@ class HeatmapsCategoryWidget(QWidget):
         self.category = None
         self.dataloader = None
 
+        self.is_filtered_pvalue = False
+
         # Size
         #size = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
 
@@ -30,6 +32,9 @@ class HeatmapsCategoryWidget(QWidget):
 
         self.setLayout(self.main_layout)
 
+    def get_category(self):
+        return self.category
+
     def set_category(self, category):
         """
         Set the category in parameter to this class
@@ -37,7 +42,7 @@ class HeatmapsCategoryWidget(QWidget):
         :return: None
         """
         self.category = category
-        self.fetch_heatmaps()
+        self.init_heatmaps()
 
     def set_dataloader(self, dataloader):
         """
@@ -46,18 +51,24 @@ class HeatmapsCategoryWidget(QWidget):
         :return: None
         """
         self.dataloader = dataloader
-        self.fetch_heatmaps()
+        self.init_heatmaps()
 
-    def fetch_heatmaps(self):
+    def init_heatmaps(self):
         """
         Get the dict of heatmaps if self.category and self.dataloader are not equal to None
         :return: None
         """
         if self.category is not None and self.dataloader is not None:
             # Fetch heatmaps for this category through dataloader
-            paths = self.dataloader.get_heatmaps_for_cat(self.category)
-            print(paths)
+            if self.is_filtered_pvalue:
+                paths = self.dataloader.get_pv_heatmaps_for_cat(self.category)
+            else:
+                paths = self.dataloader.get_diff_heatmaps_for_cat(self.category)
             self.heatmap_list.update(paths)
+
+    def update_heatmap_list(self, paths):
+        print(paths)
+        self.heatmap_list.update(paths)
 
     def go_to_home(self):
         """
@@ -65,3 +76,15 @@ class HeatmapsCategoryWidget(QWidget):
         :return: None
         """
         self.parent().go_to_home()
+
+    def update_heatmap_list_with_pv(self, with_pv):
+        """
+
+        :param with_pv:
+        :return:
+        """
+        self.parent().update_both_lists(with_pv)
+
+    def set_filtered_pvalue(self, is_filtered_pvalue):
+        self.is_filtered_pvalue = is_filtered_pvalue
+

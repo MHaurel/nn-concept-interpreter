@@ -127,9 +127,9 @@ class DataLoader:
 
         return heatmaps
 
-    def get_heatmaps_for_cat(self, category):
+    def get_diff_heatmaps_for_cat(self, category):
         """
-        Return all the heatmaps for a category
+        Return all the heatmaps for the difference between in a category and out of this category.
         :param category: the category for which we want the heatmaps
         :return: a list of the paths of the heatmaps corresponding to the category
         """
@@ -137,8 +137,24 @@ class DataLoader:
         for layer in self.heatmaps.keys():
             if category in self.heatmaps[layer].keys():
                 heatmaps_category = []
-                for heatmap in self.heatmaps[layer][category].keys():
-                    heatmaps_category.append(self.heatmaps[layer][category][heatmap]['path'])
+                for heatmap in self.heatmaps[layer][category]['diff'].keys():
+                    heatmaps_category.append(self.heatmaps[layer][category]['diff']['path'])
+                heatmaps_paths[layer] = heatmaps_category
+
+        return heatmaps_paths
+
+    def get_pv_heatmaps_for_cat(self, category):
+        """
+        Return all the heatmaps of the pvalues for a category.
+        :param category: the category for which we want the heatmaps
+        :return: a list of the paths of the heatmaps corresponding to the category
+        """
+        heatmaps_paths = {}
+        for layer in self.heatmaps.keys():
+            if category in self.heatmaps[layer].keys():
+                heatmaps_category = []
+                for heatmap in self.heatmaps[layer][category]['pvalue'].keys():
+                    heatmaps_category.append(self.heatmaps[layer][category]['pvalue']['path'])
                 heatmaps_paths[layer] = heatmaps_category
 
         return heatmaps_paths
@@ -276,10 +292,7 @@ class DataLoader:
         :param category: The category to seek the activations for
         :return: A DataFrame containing only those activations
         """
-        activations_cols = []
-        for col in df.columns:
-            if "neuron" in col:
-                activations_cols.append(col)
+        activations_cols = [col for col in df.columns if "neuron" in col]
         return self.get_cat_df(category, df).loc[:, df.columns.isin(activations_cols)] #Must be more generic
 
     def get_mean_activation_for_cat(self, category, df):
@@ -301,10 +314,7 @@ class DataLoader:
         :param category: The category not to seek the activations for
         :return: A DataFrame containing all activations except the ones for category
         """
-        activations_cols = []
-        for col in df.columns:
-            if "neuron" in col:
-                activations_cols.append(col)
+        activations_cols = [col for col in df.columns if "neuron" in col]
         return self.get_not_cat_df(category, df).loc[:, df.columns.isin(activations_cols)] #Must be more generic
 
     def find_pv(self, category, df):
@@ -314,7 +324,7 @@ class DataLoader:
         :param df: The dataframe to search among
         :return: The pvalue for the category
         """
-        start_time = time.time()
+        #start_time = time.time()
 
         actc = self.get_activation_for_cat(category, df)
         actnc = self.get_activation_for_not_cat(category, df)
@@ -329,7 +339,7 @@ class DataLoader:
 
         return_df = pd.DataFrame(np.array(reses)).mean()
 
-        print(f"--- for find_pv with category: {category}: {time.time() - start_time} seconds ---")
+        #print(f"--- for find_pv with category: {category}: {time.time() - start_time} seconds ---")
         return return_df
 
     def get_heatmaps_dict(self):
@@ -368,39 +378,14 @@ class DataLoader:
                 os.makedirs(current_path)
 
             for c, n in self.get_popular_categories(thresh=200):
-                for_cat = {}
+                heatmap_dic = {}
 
-                r = self.find_pv(c, self.dfs[i])
-
+                # Difference between in and out of category
                 plt.figure(figsize=(16,5))
-
-                # 1st heatmap
-                #rdf = pd.DataFrame(r)
 
                 data_1 = self.get_activation_for_not_cat(category=c, df=self.dfs[i])
                 data_1 = pd.DataFrame(data_1.mean()).T
 
-                """rdf = self.get_mean_activation_for_cat(c, self.dfs[i])
-
-                ax = sns.heatmap(
-                    data=rdf,
-                    vmin=-1.0,
-                    vmax=1.0,
-                    cbar=False,
-                    cmap=custom_color_map
-                )
-                fig = ax.get_figure()
-                path = f"{current_path}/{c}-1.png"
-                fig.savefig(path)
-
-                for_cat['heatmap-1'] = {}
-                for_cat['heatmap-1']['path'] = path
-                for_cat['heatmap-1']['data'] = np.array(rdf)"""
-
-                # 2nd heatmap
-                #rdf[0] = rdf[0].apply(lambda x: 0 if x > 0.01 else 1)
-
-                # Difference
                 diff = np.array(self.get_activation_for_cat(c, self.dfs[i]).mean()) - np.array(data_1.T[0]) #Need to store activations (self.dfs)
                 diff = pd.DataFrame(diff).T
                 ax = sns.heatmap(
@@ -411,16 +396,30 @@ class DataLoader:
                     cmap=custom_color_map
                 )
                 fig = ax.get_figure()
-                path = f"{current_path}/{self.clean_category(c)}-1.png"
+                path = f"{current_path}/{self.clean_category(c)}-diff.png"
                 fig.savefig(path)
+                heatmap_dic['diff'] = {}
+                heatmap_dic['diff']['path'] = path
 
-                # Initially 'heatmap-2'
-                for_cat['heatmap-1'] = {}
-                for_cat['heatmap-1']['path'] = path
-                #for_cat['heatmap-2']['data'] = np.array(rdf[0]).T
+                # P-values heatmaps
+                r = self.find_pv(c, self.dfs[i]) #TO CHECK
+                rdf = pd.DataFrame(r)
+                rdf[0] = rdf[0].apply(lambda x: 0 if x > 0.01 else 1)
+                ax = sns.heatmap(
+                    data=rdf.T,
+                    vmin=0,
+                    vmax=1.0,
+                    cbar=False,
+                    cmap=custom_color_map
+                )
+                fig = ax.get_figure()
+                path = f"{current_path}/{self.clean_category(c)}-pvalue.png"
+                fig.savefig(path)
+                heatmap_dic['pvalue'] = {}
+                heatmap_dic['pvalue']['path'] = path
 
                 # Add paths to dict
-                ddf[c] = for_cat
+                ddf[c] = heatmap_dic
 
             dheatmaps[self.model.get_layers()[i].name] = ddf
 
@@ -452,17 +451,17 @@ class DataLoader:
             ddf = {}
 
             for p, n in self.get_popular_categories(thresh=200):
-                for_cat = {}
+                heatmaps_dict = {}
 
-                h1 = os.path.join('..', 'heatmaps', self.dirname, dir, f"{self.clean_category(p)}-1.png")
-                for_cat["heatmap-1"] = {}
-                for_cat["heatmap-1"]['path'] = h1
+                hdiff = os.path.join('..', 'heatmaps', self.dirname, dir, f"{self.clean_category(p)}-diff.png")
+                heatmaps_dict["diff"] = {}
+                heatmaps_dict["diff"]['path'] = hdiff
 
-                """h2 = os.path.join('..', 'heatmaps', dir, f"{p}-2.png")
-                for_cat["heatmap-2"] = {}
-                for_cat["heatmap-2"]['path'] = h2"""
+                hpv = os.path.join('..', 'heatmaps', self.dirname, dir, f"{self.clean_category(p)}-pvalue.png")
+                heatmaps_dict["pvalue"] = {}
+                heatmaps_dict["pvalue"]['path'] = hpv
 
-                ddf[p] = for_cat
+                ddf[p] = heatmaps_dict
 
             dheatmaps[dir] = ddf
 
@@ -474,22 +473,31 @@ class DataLoader:
         :return: the computed data of these parameters, the name of these parameters and the categories we compare
         """
         categories = self.get_popular_categories(thresh=200)
-        data_dict = {}
-        for cat, n in categories:
-            cdf = self.get_cat_df(cat, self.df)
-            print(f"Category is: {cat}")
-            data_dict[cat] = {
-                "max-diff": 1,
-                "min-pv": self.get_min_pv(cat), # Was not working because dfs are not saved and then don't contains the activations if heatmaps already computed
-                "mean-pred": cdf.pred.mean(),
-                "mean-real": cdf.true.mean(),
-                "std-pred": cdf.pred.std(),
-                "std-real": cdf.true.std(),
-                "mae": abs(cdf.pred - cdf.true).sum() / len(cdf),
-                "nbr": n
-            }
 
-        data = pd.DataFrame().from_dict(data_dict).T
+        table_data_path = os.path.join('../activations', self.dirname, 'table_data.pkl')
+        if not os.path.exists(table_data_path):
+            print("Table data not existing. Creating it...")
+
+            data_dict = {}
+            for cat, n in categories:
+                cdf = self.get_cat_df(cat, self.df)
+                print(f"Category is: {cat}")
+                data_dict[cat] = {
+                    "max-diff": 1,
+                    "min-pv": self.get_min_pv(cat), # Was not working because dfs are not saved and then don't contains the activations if heatmaps already computed
+                    "mean-pred": cdf.pred.mean(),
+                    "mean-real": cdf.true.mean(),
+                    "std-pred": cdf.pred.std(),
+                    "std-real": cdf.true.std(),
+                    "mae": abs(cdf.pred - cdf.true).sum() / len(cdf),
+                    "nbr": n
+                }
+
+            data = pd.DataFrame().from_dict(data_dict).T
+            data.to_pickle(table_data_path)
+
+        else:
+            data = pd.read_pickle(table_data_path)
 
         headers = ['max-diff', 'min-pv', 'mean-pred', 'mean-real', 'std-pred', 'std-real', 'mae', 'nbr']
         categories = [c[0] for c in categories]
@@ -511,29 +519,7 @@ if __name__ == '__main__':
     m = Model(path='../../models/painter_model')
 
     dl = DataLoader('../../data/painters_ds.json', model=m)
-    """print(dl.getTableData())
 
-    df = dl.dfs[0]
-    print(df.shape)
-
-    
-
-    data_dict = {}
-    cdf = dl.get_cat_df(cat, df)
-    print(cdf.shape)
-    data_dict[cat] = {
-        "max-diff": 1,
-        "min-pv": 1, # self.find_pv(cat, self.df).min(), # Not working because we want the min pvalue among the activations
-        "mean-pred": cdf.pred.mean(),
-        "mean-real": cdf.true.mean(),
-        "std-pred": cdf.pred.std(),
-        "std-real": cdf.true.std(),
-        "mae": abs(cdf.pred - cdf.true).sum() / len(cdf),
-        "nbr": 200
-    }
-
-    print(data_dict)"""
-
-    cat = "http://dbpedia.org/resource/France"
-
-    print(dl.get_min_pv(cat))
+    print(dl.get_heatmaps())
+    print(dl.get_pv_heatmaps_for_cat('http://dbpedia.org/resource/United_States'))
+    print(dl.get_diff_heatmaps_for_cat('http://dbpedia.org/resource/United_States'))

@@ -21,7 +21,7 @@ class CategorySelector(QComboBox):
         :param value: The value of the element selected
         :return: None
         """
-        self.parent().update_heatmap_list(self.categories_tuple[value][0])
+        self.parent().update_heatmap_list_with_category(self.categories_tuple[value][0])
 
     def populate_selector(self):
         """
