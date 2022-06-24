@@ -201,15 +201,6 @@ class DataLoader:
         inputs = [i for i in raw_inputs]
         return np.array(inputs)
 
-    def get_activations_for_cat(self, category):
-        """
-        Return activations for a specific category
-        :param category: the category for which we want the activations
-        :return: A list of activations
-        """
-        inputs_cat = self.get_inputs_for_cat(category)
-        return self.model.get_model().predict(inputs_cat)
-
     def standardize(self, df):
         """
         Standardize a DataFrame which will replace self.df
@@ -483,7 +474,7 @@ class DataLoader:
                 cdf = self.get_cat_df(cat, self.df)
                 print(f"Category is: {cat}")
                 data_dict[cat] = {
-                    "max-diff": 1,
+                    "max-diff": self.get_max_diff(cat),
                     "min-pv": self.get_min_pv(cat), # Was not working because dfs are not saved and then don't contains the activations if heatmaps already computed
                     "mean-pred": cdf.pred.mean(),
                     "mean-real": cdf.true.mean(),
@@ -512,6 +503,22 @@ class DataLoader:
                 min_pv = pv
         return min_pv
 
+    def get_max_diff(self, cat):
+        max_diff = 0
+        for i in range(len(self.dfs)):
+            df_cat = self.get_activation_for_cat(cat, self.dfs[i])
+            df_ncat = self.get_activation_for_not_cat(cat, self.dfs[i])
+
+            if i == 0:
+                df_cat.to_json('df_cat.json')
+                df_ncat.to_json('df_ncat.json')
+
+            temp_max = abs((df_cat.mean() - df_ncat.mean()).max())
+            if temp_max > max_diff:
+                max_diff = temp_max
+
+        return max_diff
+
 
 
 if __name__ == '__main__':
@@ -520,6 +527,4 @@ if __name__ == '__main__':
 
     dl = DataLoader('../../data/painters_ds.json', model=m)
 
-    print(dl.get_heatmaps())
-    print(dl.get_pv_heatmaps_for_cat('http://dbpedia.org/resource/United_States'))
-    print(dl.get_diff_heatmaps_for_cat('http://dbpedia.org/resource/United_States'))
+    print(dl.get_max_diff('http://dbpedia.org/resource/United_States'))
