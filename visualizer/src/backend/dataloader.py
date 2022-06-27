@@ -89,8 +89,12 @@ class DataLoader:
         """
         inputs = [x for x in self.df.input]
         y_pred = self.model.get_model().predict(inputs) #Try to replace with self.model.predict_inputs(inputs)
-        #return [np.argmax(p) for p in y_pred]
-        return [1 if p >= 0.5 else 0 for p in y_pred]
+
+        if self.dirname == "painters_ds":
+            return [1 if p >= 0.5 else 0 for p in y_pred] # Because we're facing a regression problem
+
+        else: # if self.dirname == "bycountry_ds":
+            return [np.argmax(p) for p in y_pred] # Because we're facing a classification problem
 
     def formalize_outputs(self, df):
         """
@@ -228,7 +232,7 @@ class DataLoader:
         """new_df['output_low'] = df.output_low
         new_df['output_medium'] = df.output_medium
         new_df['output_high'] = df.output_high"""
-        new_df['output'] = df.output
+        #new_df['output'] = df.output
         new_df['true'] = df.true
         new_df['pred'] = df.pred
 
@@ -523,8 +527,8 @@ class DataLoader:
 
 if __name__ == '__main__':
 
-    m = Model(path='../../models/painter_model')
+    m = Model(path='../../models/bycountry_model')
 
-    dl = DataLoader('../../data/painters_ds.json', model=m)
+    dl = DataLoader('../../data/bycountry_ds.json', model=m)
 
-    print(dl.get_max_diff('http://dbpedia.org/resource/United_States'))
+

@@ -28,13 +28,13 @@ class CategorySelector(QComboBox):
         Fill the selector with each layer name
         :return: None
         """
+        self.clear()
         if self.categories_tuple is not None:
             for c, n in self.categories_tuple:
                 self.addItem(f"{c} - {n}")
 
     def set_categories(self, categories):
         self.categories = categories
-        self.clear()
         self.populate_selector()
 
     def set_dataloader(self, dataloader):

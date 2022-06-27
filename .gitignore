@@ -2,3 +2,7 @@
 /visualizer/venv
 /visualizer/models
 /visualizer/data
+/visualizer/heatmaps
+/visualizer/activations
+/visualizer/src/heatmaps
+/visualizer/src/activations
