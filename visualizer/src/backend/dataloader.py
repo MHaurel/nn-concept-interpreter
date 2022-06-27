@@ -10,7 +10,7 @@ import matplotlib.colors
 from matplotlib.colors import LinearSegmentedColormap
 
 from scipy import stats
-from keras.layers import Embedding
+from keras.layers import Embedding, Conv2D, MaxPooling2D, Flatten
 
 from visualizer.src.backend.model import Model
 
@@ -87,7 +87,7 @@ class DataLoader:
         Return a prediction
         :return: a prediction
         """
-        inputs = [x for x in self.df.input]
+        inputs = np.array([np.array(x) for x in self.df.input])
         y_pred = self.model.get_model().predict(inputs) #Try to replace with self.model.predict_inputs(inputs)
 
         if self.dirname == "painters_ds":
@@ -236,12 +236,14 @@ class DataLoader:
         new_df['true'] = df.true
         new_df['pred'] = df.pred
 
-        inputs = [x for x in df.input]
+        inputs = np.array([np.array(x) for x in df.input])
 
         activations = model.predict_input(inputs)
 
         # If the layer is an embedding layer, we take the mean of activations
-        if isinstance(model.get_layers()[-1], Embedding):
+        if isinstance(model.get_layers()[-1], Embedding) or \
+                isinstance(model.get_layers()[-1], Conv2D) or \
+                isinstance(model.get_layers()[-1], MaxPooling2D):
             mean_start_time = time.time()
 
             print("Taking Embedding activations")
@@ -263,9 +265,10 @@ class DataLoader:
 
             print(f"--- For taking Embedding activations: {time.time() - mean_start_time} seconds ---")
 
-        else:
+        elif not isinstance(model.get_layers()[-1], Flatten): # Excepting Flatten layer
             for neuron_index, value_list in enumerate(activations.T):
                 index = f"neuron_{neuron_index + 1}"
+                #print(np.array(value_list).shape)
                 new_df[index] = value_list
 
         return_df = self.standardize(new_df)
