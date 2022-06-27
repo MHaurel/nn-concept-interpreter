@@ -10,6 +10,7 @@ from explore_category_window import ExploreCategoryWindow
 
 from widgets.home_widget import HomeWidget
 from widgets.explore_category_widget import ExploreCategoryWidget
+from widgets.sample_widget import SampleWidget
 
 
 class Window(QMainWindow):
@@ -27,7 +28,9 @@ class Window(QMainWindow):
 
         explore_category_widget = ExploreCategoryWidget()
         self.register(ExploreCategoryWindow(explore_category_widget), "explore_category")
-        self.register(SampleWindow(), "sample")
+
+        sample_widget = SampleWidget()
+        self.register(SampleWindow(sample_widget), "sample")
 
         # Default page
         self.goto("home", None, None)  # Dataloader is None

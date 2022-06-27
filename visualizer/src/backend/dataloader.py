@@ -525,8 +525,8 @@ class DataLoader:
 
 if __name__ == '__main__':
 
-    m = Model(path='../../models/bycountry_model')
+    m = Model(path='../../models/church_model')
 
-    dl = DataLoader('../../data/bycountry_ds.json', model=m)
+    dl = DataLoader('../../data/church_ds.json', model=m)
 
 

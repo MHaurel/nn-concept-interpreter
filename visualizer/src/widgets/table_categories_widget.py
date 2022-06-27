@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QSizePolicy, QTableView, QCheckBox, QVBoxLayout
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QSizePolicy, QTableView, QCheckBox, QVBoxLayout, QPushButton
 from PySide6.QtCore import Qt
 from PySide6.QtCore import SIGNAL
 
@@ -37,9 +37,14 @@ class TableCategoriesWidget(QWidget):
         for i in range(len(self.data_list[0])):
             self.table_view.setItemDelegateForColumn(i, align_center_delegate)
 
+        # Button goto sample window
+        self.btn_sample = QPushButton("Explore samples")
+        self.btn_sample.clicked.connect(self.go_to_sample)
+
         # Center Layout
         self.main_layout.addWidget(self.thresh_selector)
         self.main_layout.addWidget(self.table_view)
+        self.main_layout.addWidget(self.btn_sample)
 
         # Connections
         #self.table_view.clicked.connect(self.clickedCell) #Keep it for now

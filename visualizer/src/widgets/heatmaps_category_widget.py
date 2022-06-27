@@ -13,14 +13,10 @@ class HeatmapsCategoryWidget(QWidget):
 
         self.is_filtered_pvalue = False
 
-        # Size
-        #size = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-
         # Back to Home button and checkbox for p-value filter
         self.bb_checkbox_widget = BBCheckBoxWidget()
 
         # Heatmaps
-        #size.setVerticalStretch(4)
         self.heatmap_list = HeatmapList(paths_dict=None)
 
         # Layout
