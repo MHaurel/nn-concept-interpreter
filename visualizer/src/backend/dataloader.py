@@ -249,11 +249,13 @@ class DataLoader:
             emb_activations_arr = [a.flatten() for a in activations]
             emb_activations_arr = np.array(emb_activations_arr)
 
+            output_dim = model.get_layers()[-1].output_dim
+
             acts = []
             for i in range(len(emb_activations_arr)):
-                acts.append(pd.DataFrame(pd.DataFrame(emb_activations_arr[i].reshape(-1, 64)).mean()).T)
+                acts.append(pd.DataFrame(pd.DataFrame(emb_activations_arr[i].reshape(-1, output_dim)).mean()).T)
 
-            activations = np.array(acts).reshape(-1, 64)
+            activations = np.array(acts).reshape(-1, output_dim)
 
             for neuron_index, value_list in enumerate(activations.T):
                 index = f"neuron_{neuron_index + 1}"
@@ -512,10 +514,6 @@ class DataLoader:
         for i in range(len(self.dfs)):
             df_cat = self.get_activation_for_cat(cat, self.dfs[i])
             df_ncat = self.get_activation_for_not_cat(cat, self.dfs[i])
-
-            if i == 0:
-                df_cat.to_json('df_cat.json')
-                df_ncat.to_json('df_ncat.json')
 
             temp_max = abs((df_cat.mean() - df_ncat.mean()).max())
             if temp_max > max_diff:
