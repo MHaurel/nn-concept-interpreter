@@ -1,30 +1,51 @@
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QTextBrowser, QWidget, QPushButton, QLabel
+import sys
+from PySide6.QtWidgets import QApplication, QWidget, QLabel
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QMovie
 
-from visualizer.src.widgets.threads.dataloader_init_thread import DataloaderInitThread
-from visualizer.src.widgets.threads.dataloader_init_thread import RunFunctionDialog
-from visualizer.src.backend.model import Model
-from visualizer.src.backend.dataloader import DataLoader
 
-class TestWidget(QWidget):
+class LoadingScreen(QWidget):
     def __init__(self):
-        QWidget.__init__(self)
+        super().__init__()
+        self.setFixedSize(800, 800)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.CustomizeWindowHint)
 
-        self.main_layout = QVBoxLayout()
+        self.label_animation = QLabel(self)
 
-        self.btn = QPushButton('Show dialog')
-        self.btn.clicked.connect(self.show_dialog)
+        self.movie = QMovie('loading.gif')
+        self.label_animation.setMovie(self.movie)
 
-        self.main_layout.addWidget(self.btn)
+        timer = QTimer(self)
 
-        self.setLayout(self.main_layout)
+        self.startAnimation()
+        timer.singleShot(3000, self.stopAnimation)
 
-    def show_dialog(self):
-        dialog = RunFunctionDialog(self.init_dataloader)
-        dialog.show()
+        self.show()
 
-    def init_dataloader(self):
-        model = Model('../../../models/bycountry_model')
-        print(model.model.summary())
-        data_path = ('../../../data/bycountry_ds.json')
-        dataloader = DataLoader(data_path, model, compute_data=False)
-        print(dataloader.path)
+    def startAnimation(self):
+        self.movie.start()
+
+    def stopAnimation(self):
+        self.movie.stop()
+        self.close()
+
+
+class AppDemo(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        label = QLabel('<font size=12> This is main app window </font>', self)
+        label.setGeometry(150, 150, 300, 50)
+
+        self.loading_screen = LoadingScreen()
+
+        self.show()
+
+
+if __name__ == '__main__':
+
+    app = QApplication(sys.argv)
+
+    demo = AppDemo()
+
+    app.exit(app.exec())
