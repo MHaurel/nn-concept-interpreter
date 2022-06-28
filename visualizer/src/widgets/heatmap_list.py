@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QListView, QListWidget, QListWidgetItem, QSizePolicy
+from PySide6.QtWidgets import QListView, QListWidget, QListWidgetItem, QLabel
 from PySide6.QtGui import QIcon, QFont
 from PySide6.QtCore import QSize
 

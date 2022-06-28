@@ -1,5 +1,6 @@
 import os.path
 import time
+import json
 
 import pandas as pd
 import numpy as np
@@ -193,7 +194,10 @@ class DataLoader:
 
         return_dic = {c: n for c, n in dic.items() if n >= thresh}
 
-        return sorted(return_dic.items(), key=lambda x: x[1], reverse=True)  # Return sorted dictionary
+        with open(os.path.join('../activations', self.dirname, 'popular_categories.json'), 'w') as f:
+            json.dump(return_dic, f)
+
+        return sorted(return_dic.items(), key=lambda x: x[1], reverse=True) # Return sorted dictionary
 
     def get_inputs_for_cat(self, category):
         """
@@ -251,7 +255,7 @@ class DataLoader:
             emb_activations_arr = [a.flatten() for a in activations]
             emb_activations_arr = np.array(emb_activations_arr)
 
-            output_dim = model.get_layers()[-1].output_dim
+            output_dim = model.get_layers()[-1].output_shape[-1]
 
             acts = []
             for i in range(len(emb_activations_arr)):
@@ -325,9 +329,11 @@ class DataLoader:
         :return: The pvalue for the category
         """
         #start_time = time.time()
-
+        print(f"=== FIND PV for {category} ===")
         actc = self.get_activation_for_cat(category, df)
+        print(actc)
         actnc = self.get_activation_for_not_cat(category, df)
+        print(actnc)
         reses = []
         for i in range(100): #1000 by default
             actncs = actnc.sample(len(actc), replace=True)
@@ -377,7 +383,7 @@ class DataLoader:
             if not os.path.exists(current_path):
                 os.makedirs(current_path)
 
-            for c, n in self.get_popular_categories(thresh=200):
+            for c, n in self.get_popular_categories(thresh=20):
                 heatmap_dic = {}
 
                 # Difference between in and out of category
@@ -450,7 +456,7 @@ class DataLoader:
         for dir in os.listdir(os.path.join('..', 'heatmaps', self.dirname)):
             ddf = {}
 
-            for p, n in self.get_popular_categories(thresh=200):
+            for p, n in self.get_popular_categories(thresh=20):
                 heatmaps_dict = {}
 
                 hdiff = os.path.join('..', 'heatmaps', self.dirname, dir, f"{self.clean_category(p)}-diff.png")
@@ -472,7 +478,7 @@ class DataLoader:
         Compute different parameters to visualize differences between categories in a table
         :return: the computed data of these parameters, the name of these parameters and the categories we compare
         """
-        categories = self.get_popular_categories(thresh=200)
+        categories = self.get_popular_categories(thresh=20)
 
         table_data_path = os.path.join('../activations', self.dirname, 'table_data.pkl')
         if not os.path.exists(table_data_path):

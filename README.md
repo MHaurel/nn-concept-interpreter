@@ -5,11 +5,12 @@
 
 ## HEATMAPS CATEGORIES
 
+* Generate barplot to show the amount of samples in each category
 * Thresh selector
-* Make CNN analysis working (churches)
+* Make CNN analysis working (churches
+  * ==> to check
 * Check on min-pv and mean-pred and std-pred (calcul of pred may not be good)
 * Loading pop-up
-* Generate barplot to show the amount of samples in each category
 
 
 ## HEATMAPS SAMPLE

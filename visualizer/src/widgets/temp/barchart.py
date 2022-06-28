@@ -1,6 +1,9 @@
 """PySide6 port of the linechart example from Qt v6.x"""
 
 import sys
+import json
+
+import pandas as pd
 
 from PySide6.QtCharts import (QBarCategoryAxis, QBarSeries, QBarSet, QChart,
                               QChartView, QValueAxis)
@@ -13,17 +16,31 @@ class TestChart(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.set_0 = QBarSet("Jane")
-        self.set_1 = QBarSet("John")
-        self.set_2 = QBarSet("Axel")
-        self.set_3 = QBarSet("Mary")
-        self.set_4 = QBarSet("Samantha")
+        with open('../../activations/painters_ds/popular_categories.json', 'r') as f:
+            data = json.load(f)
 
-        self.set_0.append([1, 2, 3, 4, 5, 6])
-        self.set_1.append([5, 0, 0, 4, 0, 7])
-        self.set_2.append([3, 5, 8, 13, 8, 5])
-        self.set_3.append([5, 6, 7, 3, 4, 5])
-        self.set_4.append([9, 7, 5, 3, 1, 2])
+        df = pd.DataFrame({
+            'number': data,
+        })
+        print(df)
+
+        self.sets = [QBarSet(x) for x in df.index]
+
+        self.set_0 = QBarSet("France")
+        self.set_1 = QBarSet("Italy")
+        self.set_2 = QBarSet("Netherlands")
+        self.set_3 = QBarSet("Russia")
+        self.set_4 = QBarSet("United_Kingdom")
+        self.set_5 = QBarSet("United_States")
+        self.set_6 = QBarSet("Germany")
+
+        self.set_0.append([512, 0, 0, 0, 0, 0, 0])
+        self.set_1.append([0, 493, 0, 0, 0, 0, 0])
+        self.set_2.append([0, 0, 306, 0, 0, 0, 0])
+        self.set_3.append([0, 0, 0, 298, 0, 0, 0])
+        self.set_4.append([0, 0, 0, 0, 607, 0, 0])
+        self.set_5.append([0, 0, 0, 0, 0, 980, 0])
+        self.set_6.append([0, 0, 0, 0, 0, 0, 289])
 
         self.series = QBarSeries()
         self.series.append(self.set_0)
@@ -31,20 +48,24 @@ class TestChart(QMainWindow):
         self.series.append(self.set_2)
         self.series.append(self.set_3)
         self.series.append(self.set_4)
+        self.series.append(self.set_5)
+        self.series.append(self.set_6)
 
         self.chart = QChart()
         self.chart.addSeries(self.series)
         self.chart.setTitle("Simple barchart example")
         self.chart.setAnimationOptions(QChart.SeriesAnimations)
 
-        self.categories = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+        self.categories = [self.clean_category(x) for x in df.index]  #["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+        print(self.categories)
         self.axis_x = QBarCategoryAxis()
         self.axis_x.append(self.categories)
         self.chart.addAxis(self.axis_x, Qt.AlignBottom)
         self.series.attachAxis(self.axis_x)
 
+        self.number = df.number
         self.axis_y = QValueAxis()
-        self.axis_y.setRange(0, 15)
+        self.axis_y.setRange(0, self.number.max() + 5)
         self.chart.addAxis(self.axis_y, Qt.AlignLeft)
         self.series.attachAxis(self.axis_y)
 
@@ -55,6 +76,9 @@ class TestChart(QMainWindow):
         self._chart_view.setRenderHint(QPainter.Antialiasing)
 
         self.setCentralWidget(self._chart_view)
+
+    def clean_category(self, category):
+        return category.split('/')[-1]
 
 
 if __name__ == "__main__":
