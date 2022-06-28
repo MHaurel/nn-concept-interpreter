@@ -91,6 +91,10 @@ class TableCategoriesWidget(QWidget):
         value = index.sibling(index.row(), index.column()).data()
         print(value)
 
+    def update_thresh(self, value):
+        self.parent().update_thresh(value)
+
+
     def set_dataloader(self, dataloader):
         """
         Set the dataloader parameter to this class

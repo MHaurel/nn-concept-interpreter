@@ -85,6 +85,14 @@ class HomeWidget(QWidget):
         self.table_view_category = TableCategoriesWidget(dataloader=self.dataloader)
         self.main_layout.addWidget(self.table_view_category)
 
+    def update_thresh(self, value):
+        if value != self.dataloader.thresh:
+            print(f"New thresh will be: {value}")
+            self.table_view_category.setParent(None)
+            self.dataloader = DataLoader(self.data_path[0], self.model, thresh=value)
+            self.table_view_category = TableCategoriesWidget(dataloader=self.dataloader)
+            self.main_layout.addWidget(self.table_view_category)
+
     def go_to_home(self):
         pass  # Because already on home page
 

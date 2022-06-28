@@ -15,13 +15,17 @@ from keras.layers import Embedding, Conv2D, MaxPooling2D, Flatten
 
 from visualizer.src.backend.model import Model
 
+DEFAULT_THRESH = 200
+
 
 class DataLoader:
-    def __init__(self, path, model):
+    def __init__(self, path, model, thresh=DEFAULT_THRESH):
         super().__init__()
 
         self.path = path
         self.model = model
+
+        self.thresh = thresh
 
         self.dirname = self.path.split('/')[-1].split('.')[0]
 
@@ -36,8 +40,8 @@ class DataLoader:
 
         self.heatmaps = None
 
-        if not os.path.exists(os.path.join('../heatmaps', self.dirname)) or not os.path.exists(os.path.join('../activations', self.dirname)):
-            print(f"There are no files in {os.path.join('../heatmaps', self.dirname)}")
+        if not os.path.exists(os.path.join('../heatmaps', self.dirname)) or not os.path.exists(os.path.join('../activations', self.dirname)) or self.thresh != DEFAULT_THRESH:
+            print(f"Writing in {os.path.join('../heatmaps', self.dirname)}")
             for i in range(len(self.model.get_layers())):
                 #if i != 0:#Excluding embedding layer because idk how to deal with 3D data right now
                 new_model = self.model.rebuild_model(i)
@@ -53,7 +57,7 @@ class DataLoader:
 
             self.heatmaps = self.get_heatmaps_dict()
         else:
-            print(f"YAAAAYY ! There ARE files in {os.path.join('../heatmaps', self.dirname)}")
+            print(f"Using files in {os.path.join('../heatmaps', self.dirname)}")
             # Doesn't compute data, only returns heatmaps
             for filename in os.listdir(os.path.join('../activations', self.dirname)):
                 if filename.split('.')[-1] == 'pkl':
@@ -192,7 +196,7 @@ class DataLoader:
         for category in categories:
             dic[category] = len(self.df[self.df.category.apply(lambda x: category in x)])
 
-        return_dic = {c: n for c, n in dic.items() if n >= thresh}
+        return_dic = {c: n for c, n in dic.items() if n >= self.thresh}
 
         with open(os.path.join('../activations', self.dirname, 'popular_categories.json'), 'w') as f:
             json.dump(return_dic, f)
@@ -383,7 +387,7 @@ class DataLoader:
             if not os.path.exists(current_path):
                 os.makedirs(current_path)
 
-            for c, n in self.get_popular_categories(thresh=200):
+            for c, n in self.get_popular_categories(self.thresh): #200
                 heatmap_dic = {}
 
                 # Difference between in and out of category
@@ -456,7 +460,7 @@ class DataLoader:
         for dir in os.listdir(os.path.join('..', 'heatmaps', self.dirname)):
             ddf = {}
 
-            for p, n in self.get_popular_categories(thresh=200):
+            for p, n in self.get_popular_categories(self.thresh): #200
                 heatmaps_dict = {}
 
                 hdiff = os.path.join('..', 'heatmaps', self.dirname, dir, f"{self.clean_category(p)}-diff.png")
@@ -478,16 +482,20 @@ class DataLoader:
         Compute different parameters to visualize differences between categories in a table
         :return: the computed data of these parameters, the name of these parameters and the categories we compare
         """
-        categories = self.get_popular_categories(thresh=200)
-
+        categories = self.get_popular_categories(self.thresh) #200
+        print(categories)
         table_data_path = os.path.join('../activations', self.dirname, 'table_data.pkl')
-        if not os.path.exists(table_data_path):
-            print("Table data not existing. Creating it...")
+        if not os.path.exists(table_data_path) or self.thresh != 200:
+            print("Table data not existing. Creating it... (or refreshing it)")
+
+            print(list(self.df.columns))
 
             data_dict = {}
             for cat, n in categories:
-                cdf = self.get_cat_df(cat, self.df)
                 print(f"Category is: {cat}")
+                print(self.df.shape)
+                cdf = self.get_cat_df(cat, self.df)
+
                 data_dict[cat] = {
                     "max-diff": self.get_max_diff(cat),
                     "min-pv": self.get_min_pv(cat), # Was not working because dfs are not saved and then don't contains the activations if heatmaps already computed
@@ -534,8 +542,10 @@ class DataLoader:
 
 if __name__ == '__main__':
 
-    m = Model(path='../../models/church_model')
+    m = Model(path='../../models/painter_model')
 
-    dl = DataLoader('../../data/church_ds.json', model=m)
+    dl = DataLoader('../../data/painters_ds.json', model=m, thresh=450)
+
+    print(dl.getTableData())
 
 
