@@ -1,22 +1,21 @@
-"""PySide6 port of the linechart example from Qt v6.x"""
-
-import sys
 import json
+import os
 
 import pandas as pd
 
+from PySide6.QtWidgets import QWidget, QVBoxLayout
 from PySide6.QtCharts import (QBarCategoryAxis, QBarSeries, QBarSet, QChart,
                               QChartView, QValueAxis)
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QPainter, QFont
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtGui import QFont
 
 
-class TestChart(QMainWindow):
-    def __init__(self):
+class OverallChartWidget(QWidget):
+    def __init__(self, dataloader):
         super().__init__()
 
-        with open('../../activations/painters_ds/popular_categories.json', 'r') as f:
+        self.dataloader = dataloader
+
+        with open(os.path.join('../activations', dataloader.dirname, 'popular_categories.json'), 'r') as f:
             data = json.load(f)
 
         df = pd.DataFrame({
@@ -33,12 +32,12 @@ class TestChart(QMainWindow):
 
         self.chart = QChart()
         self.chart.setAnimationOptions(QChart.SeriesAnimations)
-        self.chart.setTheme(QChart.ChartThemeLight)
+        self.chart.setTheme(QChart.ChartThemeBlueIcy)
 
         font = QFont()
         font.setPixelSize(20)
         self.chart.setTitleFont(font)
-        self.chart.setTitle("Categories repartition")
+        self.chart.setTitle(f"Categories repartition for dataset {self.dataloader.dirname}")
 
         # data to series and put to chart
         cases_max = []
@@ -79,17 +78,12 @@ class TestChart(QMainWindow):
         # create view
         self.chartview = QChartView(self.chart)
 
-        # put view to qt grid layout
-        self.setCentralWidget(self.chartview)
+        # main layout
+        self.main_layout = QVBoxLayout()
+        self.main_layout.addWidget(self.chartview)
+
+        # Setting layout to qwidget
+        self.setLayout(self.main_layout)
 
     def clean_category(self, category):
         return category.split('/')[-1]
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
-    window = TestChart()
-    window.show()
-    window.resize(420, 300)
-    sys.exit(app.exec())

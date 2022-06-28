@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QPushButton, QLineEdit, QHBoxLayout, QSizePolicy, QMessageBox
+from PySide6.QtWidgets import QWidget, QPushButton, QLineEdit, QHBoxLayout, QSizePolicy, QMessageBox, QLabel
 
 from visualizer.src.widgets.dialogs.error_dialog import ErrorDialog
 from visualizer.src.widgets.dialogs.warning_continue_dialog import WarningContinueDialog
@@ -12,6 +12,8 @@ class ThreshSelector(QWidget):
 
         self.main_layout = QHBoxLayout()
 
+        self.label_enter_thresh = QLabel("Edit the threshold to define a category as popular")
+
         self.entry_thresh = QLineEdit()
         self.entry_thresh.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
 
@@ -19,6 +21,7 @@ class ThreshSelector(QWidget):
         self.btn_validate_thresh.clicked.connect(self.change_thresh)
         self.btn_validate_thresh.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
 
+        self.main_layout.addWidget(self.label_enter_thresh)
         self.main_layout.addWidget(self.entry_thresh)
         self.main_layout.addWidget(self.btn_validate_thresh)
 
