@@ -11,6 +11,7 @@
   * ==> to check
 * Check on min-pv and mean-pred and std-pred (calcul of pred may not be good)
 * Loading pop-up
+* Develop sample comparison category window
 
 
 ## HEATMAPS SAMPLE
