@@ -4,6 +4,19 @@ from page_window import PageWindow
 class SampleWindow(PageWindow):
     def __init__(self, widget):
         super().__init__()
-        self.setWindowTitle("Explore samples")
-        self.setCentralWidget(widget)
+        self.widget = widget
 
+        self.dataloader = None
+
+        self.setWindowTitle("Explore samples")
+        self.setCentralWidget(self.widget)
+
+    def set_dataloader(self, dataloader):
+        """
+        Set the dataloader in parameter to this class
+        :param dataloader: The dataloader to set to this class
+        :return: None
+        """
+        print(f"dataloader is none ? {dataloader is None}")
+        self.dataloader = dataloader
+        self.widget.set_dataloader(self.dataloader)

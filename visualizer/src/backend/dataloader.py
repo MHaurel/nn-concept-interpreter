@@ -325,6 +325,26 @@ class DataLoader:
         activations_cols = [col for col in df.columns if "neuron" in col]
         return self.get_not_cat_df(category, df).loc[:, df.columns.isin(activations_cols)] #Must be more generic
 
+    def get_sample_for_cat(self, category):
+        """
+
+        :param category:
+        :return: a dict of the paths of the 2 heatmaps
+        """
+        current_path = os.path.join('../heatmaps', self.dirname, 'sample')
+        print(self.model.get_layers())
+        dheatmaps = {}
+        for i in range(len(self.dfs)):
+            #print(list(self.dfs[i].columns))
+            sampledf = self.get_cat_df(category, self.dfs[i]).sample(n=1)
+
+            dlayer = {}
+
+
+
+            dheatmaps[self.model.get_layers()[i].name] = dlayer
+
+
     def find_pv(self, category, df):
         """
         Return the pvalue for a category
@@ -483,12 +503,9 @@ class DataLoader:
         :return: the computed data of these parameters, the name of these parameters and the categories we compare
         """
         categories = self.get_popular_categories(self.thresh) #200
-        print(categories)
         table_data_path = os.path.join('../activations', self.dirname, 'table_data.pkl')
         if not os.path.exists(table_data_path) or self.thresh != 200:
             print("Table data not existing. Creating it... (or refreshing it)")
-
-            print(list(self.df.columns))
 
             data_dict = {}
             for cat, n in categories:
@@ -544,8 +561,8 @@ if __name__ == '__main__':
 
     m = Model(path='../../models/painter_model')
 
-    dl = DataLoader('../../data/painters_ds.json', model=m, thresh=450)
+    dl = DataLoader('../../data/painters_ds.json', model=m)
 
-    print(dl.getTableData())
+    dl.get_sample_for_cat("http://dbpedia.org/resource/United_States")
 
 

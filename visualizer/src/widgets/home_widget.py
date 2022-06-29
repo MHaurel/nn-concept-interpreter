@@ -101,7 +101,7 @@ class HomeWidget(QWidget):
         Change current window to sample window
         :return: None
         """
-        self.parent().goto("sample")
+        self.parent().goto("sample", self.dataloader)
 
     def go_to_explore_category(self, category):
         """

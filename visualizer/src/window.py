@@ -75,7 +75,8 @@ class Window(QMainWindow):
         """
         if name in self.m_pages:
             window = self.m_pages[name]
-            if name == "categories":
+            print(f"name is {name}")
+            if name == "sample":
                 window.set_dataloader(dataloader)
 
             if name == "explore_category":
