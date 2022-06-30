@@ -8,6 +8,7 @@ from visualizer.src.backend.dataloader import DataLoader
 from visualizer.src.backend.model import Model
 from visualizer.src.widgets.thresh_selector import ThreshSelector
 from visualizer.src.widgets.overall_chart_widget import OverallChartWidget
+from visualizer.src.widgets.sample_similarity_buttons import SampleSimilarityButtons
 
 import numpy as np
 
@@ -39,8 +40,7 @@ class TableCategoriesWidget(QWidget):
             self.table_view.setItemDelegateForColumn(i, align_center_delegate)
 
         # Button goto sample window
-        self.btn_sample = QPushButton("Explore samples")
-        self.btn_sample.clicked.connect(self.go_to_sample)
+        self.sample_similarity_buttons = SampleSimilarityButtons()
 
         # Charts
         self.overall_chart = OverallChartWidget(dataloader=self.dataloader)
@@ -48,7 +48,7 @@ class TableCategoriesWidget(QWidget):
         # Center Layout
         self.main_layout.addWidget(self.thresh_selector)
         self.main_layout.addWidget(self.overall_chart)
-        self.main_layout.addWidget(self.btn_sample)
+        self.main_layout.addWidget(self.sample_similarity_buttons)
         self.main_layout.addWidget(self.table_view)
 
         # Connections

@@ -434,9 +434,20 @@ class DataLoader:
                 # P-values heatmaps
                 r = self.find_pv(c, self.dfs[i]) #TO CHECK
                 rdf = pd.DataFrame(r)
-                rdf[0] = rdf[0].apply(lambda x: 0 if x > 0.01 else 1)
+
+                #rdf[0] = rdf[0].apply(lambda x: 0 if x > 0.01 else 1)
+
+                diff.to_csv('./diff.csv')
+
+                diff_pv = diff.copy().T
+
+                # Must exist a easier way to do this
+                for j in range(len(diff_pv.iloc[:, 0])):
+                    if rdf.iloc[j, 0] > 0.01:
+                        diff_pv.iloc[j, 0] = 0.5 # We want it black ?
+
                 ax = sns.heatmap(
-                    data=rdf.T,
+                    data=diff_pv.T, # rdf.T
                     vmin=0,
                     vmax=1.0,
                     cbar=False,
@@ -563,6 +574,6 @@ if __name__ == '__main__':
 
     dl = DataLoader('../../data/painters_ds.json', model=m)
 
-    dl.get_sample_for_cat("http://dbpedia.org/resource/United_States")
+    #dl.get_sample_for_cat("http://dbpedia.org/resource/United_States")
 
 
