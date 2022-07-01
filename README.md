@@ -5,6 +5,8 @@
 
 ## HEATMAPS CATEGORIES
 
+* Develop sample comparison category window
+  * When selecting a sample, self.dfs is appending the table data ?????
 * Thresh selector
   * ==> config file to update thresh
 * Need to update the selector of ExploreCategoryWidget
@@ -13,7 +15,6 @@
   * ==> to check
 * Check on min-pv and mean-pred and std-pred (calcul of pred may not be good)
 * Loading pop-up
-* Develop sample comparison category window
 * Similarity between categories / a sample and a category
   * Euclidean distance
 * Store p-values

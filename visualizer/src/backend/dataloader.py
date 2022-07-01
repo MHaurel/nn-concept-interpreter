@@ -293,6 +293,16 @@ class DataLoader:
         """
         return df[df.category.apply(lambda x: category in x)]
 
+    def get_cat_df_with_index(self, category, df, index):
+        """
+        Seek for all the samples including category
+        :param df:
+        :param category: The category to seek for
+        :return: A DataFrame only containing the samples including the category
+        """
+        data = df[df.category.apply(lambda x: category in x)]
+
+
     def get_activation_for_cat(self, category, df):
         """
         Fetch activations related to a specific category
@@ -331,19 +341,103 @@ class DataLoader:
         :param category:
         :return: a dict of the paths of the 2 heatmaps
         """
-        current_path = os.path.join('../heatmaps', self.dirname, 'sample')
-        print(self.model.get_layers())
+        current_path = os.path.join('../heatmaps', self.dirname, 'sample', self.clean_category(category))
+
+        if not os.path.exists(current_path):
+            os.makedirs(current_path)
+
         dheatmaps = {}
-        for i in range(len(self.dfs)):
-            #print(list(self.dfs[i].columns))
-            sampledf = self.get_cat_df(category, self.dfs[i]).sample(n=1)
+
+        norm = matplotlib.colors.Normalize(-1, 1)
+        colors = [[norm(-1.0), "cyan"],
+                  [norm(-0.6), "lightblue"],
+                  [norm(0.0), "black"],
+                  [norm(0.6), "lightyellow"],
+                  [norm(1.0), "yellow"]]
+
+        custom_color_map = LinearSegmentedColormap.from_list(
+            "",
+            colors=colors,
+        )
+
+        sample_index = self.df.sample(n=1).index
+        print(f"Original index: {sample_index}")
+
+        for i in range(len(self.model.get_layers())):
+            #sample = self.get_cat_df(category, self.dfs[i]).sample(n=1)
+            sample = self.get_cat_df(category, self.dfs[i]) #https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sample.html
+            #sample = self.get_cat_df_with_index(category, self.dfs[i], sample_index)
+            #sample = sample[sample.index == sample_index]
+            print(f"Index of each df: {sample}")
 
             dlayer = {}
 
+            plt.figure(figsize=(16, 5))
 
+            data_1 = self.get_activation_for_not_cat(category=category, df=self.dfs[i])
+            data_1 = pd.DataFrame(data_1.mean()).T
+
+            sample_activations_cols = [col for col in sample.columns if "neuron" in col]
+            sample_act = sample.loc[:, sample.columns.isin(sample_activations_cols)]
+            diff_sample = np.array(sample_act) - np.array(data_1.T[0])
+            #diff = pd.DataFrame(diff).T
+
+            if i == 1:
+                sample.to_csv('sample.csv')
+                data_1.to_csv("data_1.csv")
+                diff.to_csv("diff.csv")
+
+            ax = sns.heatmap(
+                data=diff_sample,
+                vmin=-1.0,
+                vmax=1.0,
+                cbar=False,
+                cmap=custom_color_map
+            )
+            fig = ax.get_figure()
+            path = f"{current_path}/{self.model.get_layers()[i].name}-diff.png"
+            fig.savefig(path)
+            dlayer['diff'] = {}
+            dlayer['diff']['path'] = path
+
+
+            # We reproduce the same /!\ we will need to check how to calculate
+            # the pvalue soon
+            diff = np.array(self.get_activation_for_cat(category, self.dfs[i]).mean()) - np.array(data_1.T[0])
+            diff = pd.DataFrame(diff).T
+
+            ax = sns.heatmap(
+                data=diff,
+                vmin=-1.0,
+                vmax=1.0,
+                cbar=False,
+                cmap=custom_color_map
+            )
+            fig = ax.get_figure()
+            path = f"{current_path}/{self.model.get_layers()[i].name}-pvalue.png"
+            fig.savefig(path)
+            dlayer['pvalue'] = {}
+            dlayer['pvalue']['path'] = path
 
             dheatmaps[self.model.get_layers()[i].name] = dlayer
 
+        return dheatmaps
+
+    def get_diff_heatmaps_sample_for_cat(self, category):
+        sample_dict = self.get_sample_for_cat(category)
+
+        paths = {}
+        for layer in sample_dict.keys():
+            paths[layer] = [sample_dict[layer]['diff']['path']]
+        return paths
+
+    def get_pv_heatmaps_sample_for_cat(self, category):
+        sample_dict = self.get_sample_for_cat(category)
+
+        paths = {}
+        for layer in sample_dict.keys():
+            paths[layer] = [sample_dict[layer]['pvalue']['path']]
+        return paths
 
     def find_pv(self, category, df):
         """
@@ -436,8 +530,6 @@ class DataLoader:
                 rdf = pd.DataFrame(r)
 
                 #rdf[0] = rdf[0].apply(lambda x: 0 if x > 0.01 else 1)
-
-                diff.to_csv('./diff.csv')
 
                 diff_pv = diff.copy().T
 
@@ -574,6 +666,10 @@ if __name__ == '__main__':
 
     dl = DataLoader('../../data/painters_ds.json', model=m)
 
-    #dl.get_sample_for_cat("http://dbpedia.org/resource/United_States")
+    cat = "http://dbpedia.org/resource/United_States"
+
+    print(dl.get_sample_for_cat(cat))
+
+
 
 

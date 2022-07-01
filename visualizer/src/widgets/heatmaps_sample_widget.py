@@ -50,15 +50,14 @@ class HeatmapsSampleWidget(QWidget):
         print(f"{category}")
         self.category = category
         if self.dataloader is not None:
-            sample = self.dataloader.get_sample_for_cat(category)
+
             if self.is_filtered_pvalue:
                 # Get a sample from category with pvalue filter
-                pass
-                #self.heatmap_list.update(self.dataloader.get_pv_heatmaps_for_cat(category))
+                self.heatmap_list.update(self.dataloader.get_pv_heatmaps_sample_for_cat(category))
+
             else:
                 # Get a sample from category without pvalue filter
-                pass
-                #self.heatmap_list.update(self.dataloader.get_diff_heatmaps_for_cat(category))
+                self.heatmap_list.update(self.dataloader.get_diff_heatmaps_sample_for_cat(category))
 
     def update_heatmap_list_with_pv(self, with_pv):
         """
