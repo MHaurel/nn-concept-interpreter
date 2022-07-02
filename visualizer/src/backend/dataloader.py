@@ -22,6 +22,8 @@ class DataLoader:
     def __init__(self, path, model, thresh=DEFAULT_THRESH):
         super().__init__()
 
+        #self.loading_screen = LoadingDialog()  # Initializing loading popup
+
         self.path = path
         self.model = model
 
@@ -65,6 +67,8 @@ class DataLoader:
                     self.dfs.append(df)
 
             self.heatmaps = self.get_heatmaps_from_files()
+
+        #self.loading_screen.end()  # Ending loading screen animation and close the popup
 
     def get_model(self):
         """
