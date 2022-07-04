@@ -7,7 +7,8 @@
 
 * Develop sample comparison category window
   * When selecting a sample, self.dfs is appending the table data ?????
-  * 
+  * Need to select the same sample between pv and diff when called from the heatmap list
+    * i.e. save heatmaps of a sample in a folder with the name of the sample (index)
 * Thresh selector
   * ==> config file to update thresh
 * Need to update the selector of ExploreCategoryWidget
