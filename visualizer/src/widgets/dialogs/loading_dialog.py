@@ -5,6 +5,9 @@ from PySide6.QtWidgets import QDialog, QApplication, QWidget, QPushButton, QLabe
 from PySide6.QtCore import QThread, Qt
 from PySide6.QtGui import QMovie
 
+from visualizer.src.backend.model import Model
+from visualizer.src.backend.dataloader import DataLoader
+
 
 def print_every_3_seconds():
     print(0)
@@ -13,13 +16,15 @@ def print_every_3_seconds():
         print(i)
 
 
-class WorkerThread(QThread):
+class DataLoaderIntializingThread(QThread):
     def run(self) -> None:
-        print_every_3_seconds()
+        # print every 3 seconds
+        model = Model('../../../models/painter_model')
+        dataloader = DataLoader('../../../data/painters_ds.json', model=model)
 
 
 class RunFunctionDialog(QDialog):
-    def __init__(self, function, parent=None):
+    def __init__(self, parent=None):
         super().__init__()
 
         #self.function = function
@@ -36,7 +41,7 @@ class RunFunctionDialog(QDialog):
 
         self.startAnimation()
 
-        self.thread = WorkerThread()
+        self.thread = DataLoaderIntializingThread()
         self.thread.finished.connect(self.end)
         self.thread.start()
 
@@ -50,7 +55,7 @@ class RunFunctionDialog(QDialog):
 
 
 def show_dialog():
-    dialog = RunFunctionDialog(print_every_3_seconds)
+    dialog = RunFunctionDialog()
     dialog.exec()
 
 

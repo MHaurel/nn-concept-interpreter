@@ -15,6 +15,8 @@ class ChangeSampleFooterWidget(QWidget):
         self.btn_previous_sample = QPushButton("<")
         self.btn_previous_sample.clicked.connect(self.display_previous_sample)
 
+        self.label_sample_index = QLabel("")
+
         self.label_true = QLabel("true:")
         self.label_true_value = QLabel("")
 
@@ -25,6 +27,7 @@ class ChangeSampleFooterWidget(QWidget):
         self.btn_next_sample.clicked.connect(self.display_next_sample)
 
         self.main_layout.addWidget(self.btn_previous_sample)
+        self.main_layout.addWidget(self.label_sample_index)
         self.main_layout.addWidget(self.label_true)
         self.main_layout.addWidget(self.label_true_value)
         self.main_layout.addWidget(self.label_pred)
@@ -38,3 +41,7 @@ class ChangeSampleFooterWidget(QWidget):
 
     def display_next_sample(self):
         print("Asking to display next sample")
+
+    def set_sample_index(self, sample_index):
+        self.label_sample_index.setText(sample_index)
+        #self.label_sample_index.setText(sample_index.split('/')[-1])

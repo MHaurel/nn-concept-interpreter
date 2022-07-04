@@ -364,15 +364,14 @@ class DataLoader:
             colors=colors,
         )
 
-        sample_index = self.df.sample(n=1).index
-        print(f"Original index: {sample_index}")
+        df_cat = self.get_cat_df(category, self.df)
+
+        sample_index = df_cat.sample(n=1).index[0]
+        print(f"Name of the sample: {sample_index}")
 
         for i in range(len(self.model.get_layers())):
-            #sample = self.get_cat_df(category, self.dfs[i]).sample(n=1)
-            sample = self.get_cat_df(category, self.dfs[i]) #https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sample.html
-            #sample = self.get_cat_df_with_index(category, self.dfs[i], sample_index)
-            #sample = sample[sample.index == sample_index]
-            print(f"Index of each df: {sample}")
+
+            sample = self.dfs[i][self.dfs[i].index == sample_index]
 
             dlayer = {}
 
@@ -384,12 +383,6 @@ class DataLoader:
             sample_activations_cols = [col for col in sample.columns if "neuron" in col]
             sample_act = sample.loc[:, sample.columns.isin(sample_activations_cols)]
             diff_sample = np.array(sample_act) - np.array(data_1.T[0])
-            #diff = pd.DataFrame(diff).T
-
-            if i == 1:
-                sample.to_csv('sample.csv')
-                data_1.to_csv("data_1.csv")
-                diff.to_csv("diff.csv")
 
             ax = sns.heatmap(
                 data=diff_sample,
@@ -404,15 +397,20 @@ class DataLoader:
             dlayer['diff'] = {}
             dlayer['diff']['path'] = path
 
+            # P-value heatmaps
+            r = self.find_pv(category, self.dfs[i])
+            rdf = pd.DataFrame(r)
 
-            # We reproduce the same /!\ we will need to check how to calculate
-            # the pvalue soon
-            diff = np.array(self.get_activation_for_cat(category, self.dfs[i]).mean()) - np.array(data_1.T[0])
-            diff = pd.DataFrame(diff).T
+            diff_pv = pd.DataFrame(diff_sample.copy().T)
+
+            # Must exist an easier way to do this
+            for j in range(len(diff_pv.iloc[:, 0])):
+                if rdf.iloc[j, 0] > 0.01:
+                    diff_pv.iloc[j, 0] = 0 # Do we want it black ?
 
             ax = sns.heatmap(
-                data=diff,
-                vmin=-1.0,
+                data=diff_pv.T,
+                vmin=-1.0, #0,
                 vmax=1.0,
                 cbar=False,
                 cmap=custom_color_map
@@ -425,23 +423,23 @@ class DataLoader:
 
             dheatmaps[self.model.get_layers()[i].name] = dlayer
 
-        return dheatmaps
+        return sample_index, dheatmaps
 
     def get_diff_heatmaps_sample_for_cat(self, category):
-        sample_dict = self.get_sample_for_cat(category)
+        sample_index, sample_dict = self.get_sample_for_cat(category)
 
         paths = {}
         for layer in sample_dict.keys():
             paths[layer] = [sample_dict[layer]['diff']['path']]
-        return paths
+        return sample_index, paths
 
     def get_pv_heatmaps_sample_for_cat(self, category):
-        sample_dict = self.get_sample_for_cat(category)
+        sample_index, sample_dict = self.get_sample_for_cat(category)
 
         paths = {}
         for layer in sample_dict.keys():
             paths[layer] = [sample_dict[layer]['pvalue']['path']]
-        return paths
+        return sample_index, paths
 
     def find_pv(self, category, df):
         """
@@ -670,7 +668,7 @@ if __name__ == '__main__':
 
     dl = DataLoader('../../data/painters_ds.json', model=m)
 
-    cat = "http://dbpedia.org/resource/United_States"
+    cat = "http://dbpedia.org/resource/France"
 
     print(dl.get_sample_for_cat(cat))
 

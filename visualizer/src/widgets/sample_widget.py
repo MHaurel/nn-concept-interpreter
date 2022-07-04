@@ -41,17 +41,17 @@ class SampleWidget(QWidget):
         print(f"Category of comparison_category is {comparison_category}")
 
         if with_pv:
-            paths_heatmaps_category = self.dataloader.get_pv_heatmaps_for_cat(heatmaps_category)
+            sample_index, paths_heatmaps_sample = self.dataloader.get_pv_heatmaps_sample_for_cat(heatmaps_category)
             paths_comparison_category = self.dataloader.get_pv_heatmaps_for_cat(comparison_category)
             self.heatmaps_sample.set_filtered_pvalue(True)
             self.comparison_category_widget.set_filtered_pvalue(True)
         else:
-            paths_heatmaps_category = self.dataloader.get_diff_heatmaps_for_cat(heatmaps_category)
+            sample_index, paths_heatmaps_sample = self.dataloader.get_diff_heatmaps_sample_for_cat(heatmaps_category)
             paths_comparison_category = self.dataloader.get_diff_heatmaps_for_cat(comparison_category)
             self.heatmaps_sample.set_filtered_pvalue(False)
             self.comparison_category_widget.set_filtered_pvalue(False)
 
-        self.heatmaps_sample.update_heatmap_list(paths_heatmaps_category)
+        self.heatmaps_sample.update_heatmap_list(paths_heatmaps_sample)
         self.comparison_category_widget.update_heatmap_list(paths_comparison_category)
 
     def go_to_home(self):

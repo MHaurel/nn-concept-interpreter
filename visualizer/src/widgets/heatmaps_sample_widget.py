@@ -10,6 +10,7 @@ class HeatmapsSampleWidget(QWidget):
     def __init__(self):
         super().__init__()
 
+        self.sample_index = None
         self.category = None
         self.dataloader = None
 
@@ -53,11 +54,15 @@ class HeatmapsSampleWidget(QWidget):
 
             if self.is_filtered_pvalue:
                 # Get a sample from category with pvalue filter
-                self.heatmap_list.update(self.dataloader.get_pv_heatmaps_sample_for_cat(category))
+                sample_index, paths = self.dataloader.get_pv_heatmaps_sample_for_cat(category)
+                self.heatmap_list.update(paths)
+                self.change_sample_footer_widget.set_sample_index(self.sample_index)
 
             else:
                 # Get a sample from category without pvalue filter
-                self.heatmap_list.update(self.dataloader.get_diff_heatmaps_sample_for_cat(category))
+                sample_index, paths = self.dataloader.get_diff_heatmaps_sample_for_cat(category)
+                self.heatmap_list.update(paths)
+                self.change_sample_footer_widget.set_sample_index(self.sample_index)
 
     def update_heatmap_list_with_pv(self, with_pv):
         """

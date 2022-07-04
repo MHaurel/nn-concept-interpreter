@@ -7,6 +7,7 @@
 
 * Develop sample comparison category window
   * When selecting a sample, self.dfs is appending the table data ?????
+  * 
 * Thresh selector
   * ==> config file to update thresh
 * Need to update the selector of ExploreCategoryWidget
