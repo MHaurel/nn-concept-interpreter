@@ -75,7 +75,6 @@ class Window(QMainWindow):
         """
         if name in self.m_pages:
             window = self.m_pages[name]
-            print(f"name is {name}")
             if name == "sample":
                 window.set_dataloader(dataloader)
 

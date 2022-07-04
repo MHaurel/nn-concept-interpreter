@@ -33,7 +33,6 @@ class DataLoader:
 
         self.df = pd.read_json(self.path)
         self.df = self.formalize_outputs(self.df)
-        print(list(self.df.columns))
 
         #self.df = self.get_all_activations(self.model)
 
@@ -185,8 +184,8 @@ class DataLoader:
 
         return unique_categories
 
-    def clean_category(self, category):
-        return category.split('/')[-1]
+    def clean_s(self, s):
+        return s.split('/')[-1]
 
     def get_popular_categories(self, thresh=500):
         """
@@ -339,17 +338,12 @@ class DataLoader:
         activations_cols = [col for col in df.columns if "neuron" in col]
         return self.get_not_cat_df(category, df).loc[:, df.columns.isin(activations_cols)] #Must be more generic
 
-    def get_sample_for_cat(self, category):
+    def get_sample_for_cat(self, category, index=None):
         """
 
         :param category:
         :return: a dict of the paths of the 2 heatmaps
         """
-        current_path = os.path.join('../heatmaps', self.dirname, 'sample', self.clean_category(category))
-
-        if not os.path.exists(current_path):
-            os.makedirs(current_path)
-
         dheatmaps = {}
 
         norm = matplotlib.colors.Normalize(-1, 1)
@@ -366,80 +360,119 @@ class DataLoader:
 
         df_cat = self.get_cat_df(category, self.df)
 
-        sample_index = df_cat.sample(n=1).index[0]
-        print(f"Name of the sample: {sample_index}")
+        if index is None:
+            sample_index = df_cat.sample(n=1).index[0]
+        else:
+            sample_index = index
 
-        for i in range(len(self.model.get_layers())):
+        current_path = os.path.join('../heatmaps', self.dirname, 'sample',
+                                    self.clean_s(category), self.clean_s(sample_index))
+        if not os.path.exists(current_path):
+            os.makedirs(current_path)
 
-            sample = self.dfs[i][self.dfs[i].index == sample_index]
+            print("Calculating heatmaps...")
 
-            dlayer = {}
+            for i in range(len(self.model.get_layers())):
 
-            plt.figure(figsize=(16, 5))
+                sample = self.dfs[i][self.dfs[i].index == sample_index]
 
-            data_1 = self.get_activation_for_not_cat(category=category, df=self.dfs[i])
-            data_1 = pd.DataFrame(data_1.mean()).T
+                dlayer = {}
 
-            sample_activations_cols = [col for col in sample.columns if "neuron" in col]
-            sample_act = sample.loc[:, sample.columns.isin(sample_activations_cols)]
-            diff_sample = np.array(sample_act) - np.array(data_1.T[0])
+                plt.figure(figsize=(16, 5))
 
-            ax = sns.heatmap(
-                data=diff_sample,
-                vmin=-1.0,
-                vmax=1.0,
-                cbar=False,
-                cmap=custom_color_map
-            )
-            fig = ax.get_figure()
-            path = f"{current_path}/{self.model.get_layers()[i].name}-diff.png"
-            fig.savefig(path)
-            dlayer['diff'] = {}
-            dlayer['diff']['path'] = path
+                data_1 = self.get_activation_for_not_cat(category=category, df=self.dfs[i])
+                data_1 = pd.DataFrame(data_1.mean()).T
 
-            # P-value heatmaps
-            r = self.find_pv(category, self.dfs[i])
-            rdf = pd.DataFrame(r)
+                sample_activations_cols = [col for col in sample.columns if "neuron" in col]
+                sample_act = sample.loc[:, sample.columns.isin(sample_activations_cols)]
+                diff_sample = np.array(sample_act) - np.array(data_1.T[0])
 
-            diff_pv = pd.DataFrame(diff_sample.copy().T)
+                ax = sns.heatmap(
+                    data=diff_sample,
+                    vmin=-1.0,
+                    vmax=1.0,
+                    cbar=False,
+                    cmap=custom_color_map
+                )
+                fig = ax.get_figure()
+                path = f"{current_path}/{i}-{self.model.get_layers()[i].name}-diff.png"
+                fig.savefig(path)
+                dlayer['diff'] = {}
+                dlayer['diff']['path'] = path
 
-            # Must exist an easier way to do this
-            for j in range(len(diff_pv.iloc[:, 0])):
-                if rdf.iloc[j, 0] > 0.01:
-                    diff_pv.iloc[j, 0] = 0 # Do we want it black ?
+                # P-value heatmaps
+                r = self.find_pv(category, self.dfs[i])
+                rdf = pd.DataFrame(r)
 
-            ax = sns.heatmap(
-                data=diff_pv.T,
-                vmin=-1.0, #0,
-                vmax=1.0,
-                cbar=False,
-                cmap=custom_color_map
-            )
-            fig = ax.get_figure()
-            path = f"{current_path}/{self.model.get_layers()[i].name}-pvalue.png"
-            fig.savefig(path)
-            dlayer['pvalue'] = {}
-            dlayer['pvalue']['path'] = path
+                diff_pv = pd.DataFrame(diff_sample.copy().T)
 
-            dheatmaps[self.model.get_layers()[i].name] = dlayer
+                # Must exist an easier way to do this
+                for j in range(len(diff_pv.iloc[:, 0])):
+                    if rdf.iloc[j, 0] > 0.01:
+                        diff_pv.iloc[j, 0] = 0 # Do we want it black ?
 
-        return sample_index, dheatmaps
+                ax = sns.heatmap(
+                    data=diff_pv.T,
+                    vmin=-1.0, #0,
+                    vmax=1.0,
+                    cbar=False,
+                    cmap=custom_color_map
+                )
+                fig = ax.get_figure()
+                path = f"{current_path}/{i}-{self.model.get_layers()[i].name}-pvalue.png"
+                fig.savefig(path)
+                dlayer['pvalue'] = {}
+                dlayer['pvalue']['path'] = path
 
-    def get_diff_heatmaps_sample_for_cat(self, category):
-        sample_index, sample_dict = self.get_sample_for_cat(category)
+                dheatmaps[self.model.get_layers()[i].name] = dlayer
+
+        else:
+            dheatmaps = self.get_sample_heatmaps_from_files(category, sample_index)
+
+        return self.df[self.df.index == sample_index], dheatmaps
+
+    def get_diff_heatmaps_sample_for_cat(self, category, index=None):
+        sample_index, sample_dict = self.get_sample_for_cat(category, index)
 
         paths = {}
         for layer in sample_dict.keys():
             paths[layer] = [sample_dict[layer]['diff']['path']]
         return sample_index, paths
 
-    def get_pv_heatmaps_sample_for_cat(self, category):
-        sample_index, sample_dict = self.get_sample_for_cat(category)
+    def get_pv_heatmaps_sample_for_cat(self, category, index=None):
+        sample_index, sample_dict = self.get_sample_for_cat(category, index)
 
         paths = {}
         for layer in sample_dict.keys():
             paths[layer] = [sample_dict[layer]['pvalue']['path']]
         return sample_index, paths
+
+    def get_sample_heatmaps_from_files(self, category, index):
+        dheatmaps = {}
+
+        heatmap_path = '../heatmaps/'
+
+        if not os.path.exists(heatmap_path):
+            return {}
+
+        for i in range(len(self.model.get_layers())):
+            dlayer = {}
+
+            hdiff = os.path.join('..', 'heatmaps', self.dirname, 'sample',
+                                self.clean_s(category), self.clean_s(index),
+                                f"{i}-{self.model.get_layers()[i].name}-diff.png")
+            dlayer['diff'] = {}
+            dlayer['diff']['path'] = {hdiff}
+
+            hpv = os.path.join('..', 'heatmaps', self.dirname, 'sample',
+                                self.clean_s(category), self.clean_s(index),
+                                f"{i}-{self.model.get_layers()[i].name}-pvalue.png")
+            dlayer['pvalue'] = {}
+            dlayer['pvalue']['path'] = {hpv}
+
+            dheatmaps[self.model.get_layers()[i].name] = dlayer
+
+        return dheatmaps
 
     def find_pv(self, category, df):
         """
@@ -522,7 +555,7 @@ class DataLoader:
                     cmap=custom_color_map
                 )
                 fig = ax.get_figure()
-                path = f"{current_path}/{self.clean_category(c)}-diff.png"
+                path = f"{current_path}/{self.clean_s(c)}-diff.png"
                 fig.savefig(path)
                 heatmap_dic['diff'] = {}
                 heatmap_dic['diff']['path'] = path
@@ -548,7 +581,7 @@ class DataLoader:
                     cmap=custom_color_map
                 )
                 fig = ax.get_figure()
-                path = f"{current_path}/{self.clean_category(c)}-pvalue.png"
+                path = f"{current_path}/{self.clean_s(c)}-pvalue.png"
                 fig.savefig(path)
                 heatmap_dic['pvalue'] = {}
                 heatmap_dic['pvalue']['path'] = path
@@ -588,11 +621,11 @@ class DataLoader:
             for p, n in self.get_popular_categories(self.thresh): #200
                 heatmaps_dict = {}
 
-                hdiff = os.path.join('..', 'heatmaps', self.dirname, dir, f"{self.clean_category(p)}-diff.png")
+                hdiff = os.path.join('..', 'heatmaps', self.dirname, dir, f"{self.clean_s(p)}-diff.png")
                 heatmaps_dict["diff"] = {}
                 heatmaps_dict["diff"]['path'] = hdiff
 
-                hpv = os.path.join('..', 'heatmaps', self.dirname, dir, f"{self.clean_category(p)}-pvalue.png")
+                hpv = os.path.join('..', 'heatmaps', self.dirname, dir, f"{self.clean_s(p)}-pvalue.png")
                 heatmaps_dict["pvalue"] = {}
                 heatmaps_dict["pvalue"]['path'] = hpv
 
@@ -614,8 +647,6 @@ class DataLoader:
 
             data_dict = {}
             for cat, n in categories:
-                print(f"Category is: {cat}")
-                print(self.df.shape)
                 cdf = self.get_cat_df(cat, self.df)
 
                 data_dict[cat] = {
@@ -669,8 +700,10 @@ if __name__ == '__main__':
     dl = DataLoader('../../data/painters_ds.json', model=m)
 
     cat = "http://dbpedia.org/resource/France"
+    index = 'http://dbpedia.org/resource/Antoine_Roux'
 
-    print(dl.get_sample_for_cat(cat))
+    print(dl.get_sample_for_cat(cat, index=index))
+    #print(dl.get_sample_heatmaps_from_files(cat,'http://dbpedia.org/resource/Antoine_Roux'))
 
 
 
