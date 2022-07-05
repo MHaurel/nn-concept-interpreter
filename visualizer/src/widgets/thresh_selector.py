@@ -9,9 +9,14 @@ class ThreshSelector(QWidget):
     def __init__(self):
         QWidget.__init__(self)
 
+        self.thresh = None
+        self.dataloader = None
+
+        print(f"dataloader in thresh selector is {self.dataloader}")
+
         self.main_layout = QHBoxLayout()
 
-        self.label_enter_thresh = QLabel("Edit the threshold to define a category as popular")
+        self.label_enter_thresh = QLabel(f"Edit the threshold to define a category as popular (current is {self.thresh})")
         self.label_enter_thresh.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
         self.entry_thresh = QLineEdit()
@@ -48,7 +53,14 @@ class ThreshSelector(QWidget):
                 text="This could take a while, would you like to continue ?"
             )
             button = dlg.exec()
+            self.thresh = int(self.entry_thresh.text())
 
             if button == QMessageBox.Yes:
                 # Query dataloader to return more or less heatmaps depending on the new thresh
-                self.parent().update_thresh(int(self.entry_thresh.text()))
+                self.parent().update_thresh(self.thresh)
+
+    def set_dataloader(self, dataloader):
+        print("Setting dataloader to thresh selector")
+        self.dataloader = dataloader
+        self.thresh = self.dataloader.thresh
+        self.label_enter_thresh.setText(f"Edit the threshold to define a category as popular (current is {self.thresh})")

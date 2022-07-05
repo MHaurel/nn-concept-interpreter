@@ -25,9 +25,11 @@ class TableCategoriesWidget(QWidget):
         # Thresh selector
         self.thresh_selector = ThreshSelector()
         self.thresh_selector.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
+        self.thresh_selector.set_dataloader(self.dataloader)
 
         # Table View
         self.data, self.header, self.categories = self.dataloader.getTableData()
+
         self.data_list = self.data.values.tolist()
 
         self.table_model = TableCategoriesModel(self, self.data_list, self.header, self.categories)
@@ -102,6 +104,7 @@ class TableCategoriesWidget(QWidget):
         :return: None
         """
         self.dataloader = dataloader
+        self.thresh_selector.set_dataloader(dataloader)
 
     def go_to_sample(self):
         """
