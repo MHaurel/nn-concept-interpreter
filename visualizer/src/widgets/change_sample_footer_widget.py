@@ -17,19 +17,17 @@ class ChangeSampleFooterWidget(QWidget):
         self.btn_previous_sample.clicked.connect(self.display_previous_sample)
 
         self.label_true = QLabel("true:")
-        self.label_true_value = QLabel("")
-
         self.label_pred = QLabel("pred:")
-        self.label_pred_value = QLabel("")
+
+        self.label_similarity = QLabel("similarity:")
 
         self.btn_next_sample = QPushButton(">")
         self.btn_next_sample.clicked.connect(self.display_next_sample)
 
         self.main_layout.addWidget(self.btn_previous_sample)
         self.main_layout.addWidget(self.label_true)
-        self.main_layout.addWidget(self.label_true_value)
         self.main_layout.addWidget(self.label_pred)
-        self.main_layout.addWidget(self.label_pred_value)
+        self.main_layout.addWidget(self.label_similarity)
         self.main_layout.addWidget(self.btn_next_sample)
 
         self.setLayout(self.main_layout)
@@ -48,11 +46,11 @@ class ChangeSampleFooterWidget(QWidget):
         """
         self.sample = sample
 
-        self.label_true_value.setText(str(sample.true[0]))
-        self.label_pred_value.setText(str(sample.pred[0]))
-        if self.label_true_value.text() == self.label_pred_value.text():
-            self.label_pred_value.setObjectName('good_pred_label')
-            self.label_pred_value.setStyleSheet('QLabel#good_pred_label {color: green}')
+        self.label_true.setText(f"true : {str(sample.true[0])}")
+        self.label_pred.setText(f"pred : {str(sample.pred[0])}")
+        if self.label_true.text().split(':')[-1] == self.label_pred.text().split(':')[-1]:
+            self.label_pred.setObjectName('good_pred_label')
+            self.label_pred.setStyleSheet('QLabel#good_pred_label {color: green}')
         else:
-            self.label_pred_value.setObjectName('bad_pred_label')
-            self.label_pred_value.setStyleSheet('QLabel#bad_pred_label {color: red}')
+            self.label_pred.setObjectName('bad_pred_label')
+            self.label_pred.setStyleSheet('QLabel#bad_pred_label {color: red}')

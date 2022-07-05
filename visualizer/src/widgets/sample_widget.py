@@ -9,6 +9,7 @@ class SampleWidget(QWidget):
         super().__init__()
 
         self.dataloader = None
+        self.sample_index = None
 
         # Left widget (sample)
         self.heatmaps_sample = HeatmapsSampleWidget()
@@ -28,7 +29,7 @@ class SampleWidget(QWidget):
         self.heatmaps_sample.set_dataloader(self.dataloader)
         self.comparison_category_widget.set_dataloader(self.dataloader)
 
-    def update_both_lists(self, with_pv=False):
+    def update_both_lists(self, index, with_pv=False):
         """
         Update both lists with pvalue heatmaps if checked, differences heatmaps else.
         :param with_pv: If true will pass pvalue heatmaps paths to lists
@@ -37,16 +38,19 @@ class SampleWidget(QWidget):
         heatmaps_category = self.heatmaps_sample.get_category()
         comparison_category = self.comparison_category_widget.get_category()
 
-        print(f"Category of heatmaps_category is {heatmaps_category}")
-        print(f"Category of comparison_category is {comparison_category}")
+        print(f"index: {index} {self.__class__}")
 
         if with_pv:
-            sample_index, paths_heatmaps_sample = self.dataloader.get_pv_heatmaps_sample_for_cat(heatmaps_category)
+            self.sample_index, paths_heatmaps_sample = self.dataloader\
+                .get_pv_heatmaps_sample_for_cat(heatmaps_category, index)
+
             paths_comparison_category = self.dataloader.get_pv_heatmaps_for_cat(comparison_category)
             self.heatmaps_sample.set_filtered_pvalue(True)
             self.comparison_category_widget.set_filtered_pvalue(True)
         else:
-            sample_index, paths_heatmaps_sample = self.dataloader.get_diff_heatmaps_sample_for_cat(heatmaps_category)
+            self.sample_index, paths_heatmaps_sample = self.dataloader\
+                .get_diff_heatmaps_sample_for_cat(heatmaps_category, index)
+
             paths_comparison_category = self.dataloader.get_diff_heatmaps_for_cat(comparison_category)
             self.heatmaps_sample.set_filtered_pvalue(False)
             self.comparison_category_widget.set_filtered_pvalue(False)

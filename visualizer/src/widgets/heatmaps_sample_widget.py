@@ -52,14 +52,10 @@ class HeatmapsSampleWidget(QWidget):
         self.heatmap_list.update(paths)
 
     def update_heatmap_list_with_category(self, category):
-        print(f"{category}")
         if category != self.category:
             self.sample_index, self.sample = None, None
         self.category = category
         if self.dataloader is not None:
-
-            print(f"filter : {self.is_filtered_pvalue}")
-
             if self.is_filtered_pvalue:
 
                 # Get a sample from category with pvalue filter
@@ -81,7 +77,7 @@ class HeatmapsSampleWidget(QWidget):
         :param with_pv:
         :return:
         """
-        self.parent().update_both_lists(with_pv)
+        self.parent().update_both_lists(self.sample_index, with_pv)
 
     def go_to_home(self):
         self.sample_index = None

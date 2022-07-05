@@ -40,7 +40,6 @@ class ComparisonCategoryWidget(QWidget):
         self.is_filtered_pvalue = is_filtered_pvalue
 
     def update_heatmap_list(self, paths):
-        print(paths)
         self.heatmap_list.update(paths)
 
     def update_heatmap_list_with_category(self, category):

@@ -44,9 +44,6 @@ class DataLoader:
         else:
             self.thresh = DEFAULT_THRESH
 
-        print(f"self.thresh: {self.thresh}")
-        print(f"self.new_thresh: {self.new_thresh}")
-
 
         if not os.path.exists(os.path.join('../heatmaps', self.dirname)) or not os.path.exists(os.path.join('../activations', self.dirname)) or \
                 (self.new_thresh is not None and self.new_thresh != self.thresh):
@@ -385,7 +382,7 @@ class DataLoader:
         if not os.path.exists(current_path):
             os.makedirs(current_path)
 
-            print("Calculating heatmaps...")
+            print(f"Calculating heatmaps for sample_index: {self.clean_s(sample_index)}")
 
             for i in range(len(self.model.get_layers())):
 
@@ -410,7 +407,8 @@ class DataLoader:
                     cmap=custom_color_map
                 )
                 fig = ax.get_figure()
-                path = f"{current_path}/{i}-{self.model.get_layers()[i].name}-diff.png"
+                #path = f"{current_path}/{i}-{self.model.get_layers()[i].name}-diff.png"
+                path = os.path.join(current_path, f"{i}-{self.model.get_layers()[i].name}-diff.png")
                 fig.savefig(path)
                 dlayer['diff'] = {}
                 dlayer['diff']['path'] = path
@@ -434,7 +432,8 @@ class DataLoader:
                     cmap=custom_color_map
                 )
                 fig = ax.get_figure()
-                path = f"{current_path}/{i}-{self.model.get_layers()[i].name}-pvalue.png"
+                #path = f"{current_path}/{i}-{self.model.get_layers()[i].name}-pvalue.png"
+                path = os.path.join(current_path, f"{i}-{self.model.get_layers()[i].name}-pvalue.png")
                 fig.savefig(path)
                 dlayer['pvalue'] = {}
                 dlayer['pvalue']['path'] = path
@@ -447,20 +446,22 @@ class DataLoader:
         return self.df[self.df.index == sample_index], dheatmaps
 
     def get_diff_heatmaps_sample_for_cat(self, category, index=None):
-        sample_index, sample_dict = self.get_sample_for_cat(category, index)
+        sample, sample_dict = self.get_sample_for_cat(category, index)
 
         paths = {}
         for layer in sample_dict.keys():
             paths[layer] = [sample_dict[layer]['diff']['path']]
-        return sample_index, paths
+
+        return sample, paths
 
     def get_pv_heatmaps_sample_for_cat(self, category, index=None):
-        sample_index, sample_dict = self.get_sample_for_cat(category, index)
+        sample, sample_dict = self.get_sample_for_cat(category, index)
 
         paths = {}
         for layer in sample_dict.keys():
             paths[layer] = [sample_dict[layer]['pvalue']['path']]
-        return sample_index, paths
+
+        return sample, paths
 
     def get_sample_heatmaps_from_files(self, category, index):
         dheatmaps = {}
@@ -477,13 +478,13 @@ class DataLoader:
                                 self.clean_s(category), self.clean_s(index),
                                 f"{i}-{self.model.get_layers()[i].name}-diff.png")
             dlayer['diff'] = {}
-            dlayer['diff']['path'] = {hdiff}
+            dlayer['diff']['path'] = hdiff
 
             hpv = os.path.join('..', 'heatmaps', self.dirname, 'sample',
                                 self.clean_s(category), self.clean_s(index),
                                 f"{i}-{self.model.get_layers()[i].name}-pvalue.png")
             dlayer['pvalue'] = {}
-            dlayer['pvalue']['path'] = {hpv}
+            dlayer['pvalue']['path'] = hpv
 
             dheatmaps[self.model.get_layers()[i].name] = dlayer
 
@@ -497,7 +498,7 @@ class DataLoader:
         :return: The pvalue for the category
         """
         #start_time = time.time()
-        print(f"=== FIND PV for {category} ===")
+        #print(f"=== FIND PV for {category} ===")
         actc = self.get_activation_for_cat(category, df)
         #print(actc)
         actnc = self.get_activation_for_not_cat(category, df)
@@ -586,11 +587,11 @@ class DataLoader:
                 # Must exist a easier way to do this
                 for j in range(len(diff_pv.iloc[:, 0])):
                     if rdf.iloc[j, 0] > 0.01:
-                        diff_pv.iloc[j, 0] = 0.5 # We want it black ?
+                        diff_pv.iloc[j, 0] = 0 # We want it black ?
 
                 ax = sns.heatmap(
                     data=diff_pv.T, # rdf.T
-                    vmin=0,
+                    vmin=-1.0, #0,
                     vmax=1.0,
                     cbar=False,
                     cmap=custom_color_map
@@ -712,14 +713,12 @@ if __name__ == '__main__':
 
     dl = DataLoader('../../data/painters_ds.json', model=m, thresh=500)
 
-    dl.getTableData()
-
-    """cat = "http://dbpedia.org/resource/France"
+    cat = "http://dbpedia.org/resource/France"
     index = 'http://dbpedia.org/resource/Antoine_Roux'
 
-    print(dl.get_sample_for_cat(cat, index=index))"""
-    #print(dl.get_sample_heatmaps_from_files(cat,'http://dbpedia.org/resource/Antoine_Roux'))
-
+    print(dl.get_sample_for_cat(cat, index=index))
+    print(dl.get_pv_heatmaps_sample_for_cat(cat, index))
+    print(dl.get_diff_heatmaps_sample_for_cat(cat, index))
 
 
 
