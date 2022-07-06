@@ -55,8 +55,14 @@ class HeatmapsSampleWidget(QWidget):
     def update_heatmap_list(self, paths):
         self.heatmap_list.update(paths)
 
-    def update_heatmap_list_with_category(self, category):
-        if category != self.category:
+    def update_heatmap_list_with_category(self, category, same=False):
+        """
+
+        :param category:
+        :param same:
+        :return:
+        """
+        if category != self.category or same:
             self.sample_index, self.sample = None, None
         self.category = category
         if self.dataloader is not None:
@@ -74,6 +80,11 @@ class HeatmapsSampleWidget(QWidget):
             self.sample_index = self.sample.index[0]
             self.label_sample_index.setText(self.sample_index)
             self.change_sample_footer_widget.set_sample(self.sample)
+
+    def display_next_sample(self):
+        print("Asking to display next sample")
+        self.update_heatmap_list_with_category(self.category, same=True)
+        #self.parent().update_both_lists(index=None, with_pv=self.is_filtered_pvalue)
 
     def update_heatmap_list_with_pv(self, with_pv):
         """

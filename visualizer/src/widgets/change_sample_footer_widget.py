@@ -13,18 +13,14 @@ class ChangeSampleFooterWidget(QWidget):
 
         self.main_layout = QHBoxLayout()
 
-        self.btn_previous_sample = QPushButton("<")
-        self.btn_previous_sample.clicked.connect(self.display_previous_sample)
-
         self.label_true = QLabel("true:")
         self.label_pred = QLabel("pred:")
 
         self.label_similarity = QLabel("avg similarity:")
 
-        self.btn_next_sample = QPushButton(">")
+        self.btn_next_sample = QPushButton("Next")
         self.btn_next_sample.clicked.connect(self.display_next_sample)
 
-        self.main_layout.addWidget(self.btn_previous_sample)
         self.main_layout.addWidget(self.label_true)
         self.main_layout.addWidget(self.label_pred)
         self.main_layout.addWidget(self.label_similarity)
@@ -32,11 +28,8 @@ class ChangeSampleFooterWidget(QWidget):
 
         self.setLayout(self.main_layout)
 
-    def display_previous_sample(self):
-        print("Asking to display previous sample")
-
     def display_next_sample(self):
-        print("Asking to display next sample")
+        self.parent().display_next_sample()
 
     def set_sample(self, sample):
         """

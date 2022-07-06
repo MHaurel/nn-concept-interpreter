@@ -62,6 +62,7 @@ class SampleWidget(QWidget):
             self.comparison_category_widget.set_filtered_pvalue(False)
 
         self.heatmaps_sample.update_heatmap_list(paths_heatmaps_sample)
+
         self.comparison_category_widget.update_heatmap_list(paths_comparison_category)
 
     def get_avg_similarity(self):

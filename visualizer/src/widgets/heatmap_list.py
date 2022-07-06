@@ -12,6 +12,8 @@ class HeatmapList(QListWidget):
         self.setViewMode(QListView.IconMode)
         self.setIconSize(QSize(600, 600))
 
+        #self.set
+
         self.paths_dict = paths_dict
 
         if self.paths_dict is not None:
