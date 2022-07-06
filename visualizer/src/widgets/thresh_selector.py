@@ -12,8 +12,6 @@ class ThreshSelector(QWidget):
         self.thresh = None
         self.dataloader = None
 
-        print(f"dataloader in thresh selector is {self.dataloader}")
-
         self.main_layout = QHBoxLayout()
 
         self.label_enter_thresh = QLabel(f"Edit the threshold to define a category as popular (current is {self.thresh})")
@@ -60,7 +58,6 @@ class ThreshSelector(QWidget):
                 self.parent().update_thresh(self.thresh)
 
     def set_dataloader(self, dataloader):
-        print("Setting dataloader to thresh selector")
         self.dataloader = dataloader
         self.thresh = self.dataloader.thresh
         self.label_enter_thresh.setText(f"Edit the threshold to define a category as popular (current is {self.thresh})")

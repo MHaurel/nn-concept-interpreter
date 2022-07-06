@@ -17,6 +17,5 @@ class SampleWindow(PageWindow):
         :param dataloader: The dataloader to set to this class
         :return: None
         """
-        print(f"dataloader is none ? {dataloader is None}")
         self.dataloader = dataloader
         self.widget.set_dataloader(self.dataloader)

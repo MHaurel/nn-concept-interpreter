@@ -19,7 +19,7 @@ class ChangeSampleFooterWidget(QWidget):
         self.label_true = QLabel("true:")
         self.label_pred = QLabel("pred:")
 
-        self.label_similarity = QLabel("similarity:")
+        self.label_similarity = QLabel("avg similarity:")
 
         self.btn_next_sample = QPushButton(">")
         self.btn_next_sample.clicked.connect(self.display_next_sample)
@@ -45,6 +45,7 @@ class ChangeSampleFooterWidget(QWidget):
         :return: None
         """
         self.sample = sample
+        self.parent().set_sample(self.sample)
 
         self.label_true.setText(f"true : {str(sample.true[0])}")
         self.label_pred.setText(f"pred : {str(sample.pred[0])}")
@@ -54,3 +55,6 @@ class ChangeSampleFooterWidget(QWidget):
         else:
             self.label_pred.setObjectName('bad_pred_label')
             self.label_pred.setStyleSheet('QLabel#bad_pred_label {color: red}')
+
+        avg_similarity = self.parent().get_avg_similarity()
+        self.label_similarity.setText(f"avg similarity: {str(round(avg_similarity, 2))}")

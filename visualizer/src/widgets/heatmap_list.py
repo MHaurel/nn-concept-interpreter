@@ -14,7 +14,6 @@ class HeatmapList(QListWidget):
 
         self.paths_dict = paths_dict
 
-
         if self.paths_dict is not None:
             self.populate_list(self.paths_dict)
 
@@ -24,7 +23,6 @@ class HeatmapList(QListWidget):
         :param paths_dict: A dict containing paths as value for each layer as key
         :return: None
         """
-        print(self.__class__, paths_dict)
         for layer in paths_dict.keys():
             item_layer_name = QListWidgetItem()
             item_layer_name.setText(layer)

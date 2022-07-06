@@ -49,3 +49,5 @@ class ComparisonCategoryWidget(QWidget):
                 self.heatmap_list.update(self.dataloader.get_pv_heatmaps_for_cat(category))
             else:
                 self.heatmap_list.update(self.dataloader.get_diff_heatmaps_for_cat(category))
+
+            self.parent().update_avg_similarity()

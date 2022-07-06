@@ -308,16 +308,6 @@ class DataLoader:
         """
         return df[df.category.apply(lambda x: category in x)]
 
-    def get_cat_df_with_index(self, category, df, index):
-        """
-        Seek for all the samples including category
-        :param df:
-        :param category: The category to seek for
-        :return: A DataFrame only containing the samples including the category
-        """
-        data = df[df.category.apply(lambda x: category in x)]
-
-
     def get_activation_for_cat(self, category, df):
         """
         Fetch activations related to a specific category
@@ -326,7 +316,7 @@ class DataLoader:
         :return: A DataFrame containing only those activations
         """
         activations_cols = [col for col in df.columns if "neuron" in col]
-        return self.get_cat_df(category, df).loc[:, df.columns.isin(activations_cols)] #Must be more generic
+        return self.get_cat_df(category, df).loc[:, df.columns.isin(activations_cols)]
 
     def get_mean_activation_for_cat(self, category, df):
         return pd.DataFrame(self.get_activation_for_cat(category, df).mean()).T
@@ -489,6 +479,31 @@ class DataLoader:
             dheatmaps[self.model.get_layers()[i].name] = dlayer
 
         return dheatmaps
+
+    def get_activation_for_sample(self, sample, df):
+        activations_cols = [col for col in df.columns if "neuron" in col]
+        sample_act = df[df.index == sample.index[0]].loc[:, df.columns.isin(activations_cols)]
+        return sample_act
+
+    def get_similarities_sample_cat(self, sample, category):
+        """
+
+        :param sample:
+        :param category:
+        :return:
+        """
+
+        sims = []
+
+        for i in range(len(self.model.get_layers())):
+            a = self.get_activation_for_sample(sample, self.dfs[i])
+            b = self.get_mean_activation_for_cat(category, self.dfs[i])
+
+            sim = np.linalg.norm(np.array(a) - np.array(b))
+
+            sims.append((self.model.get_layers()[i].name, sim))
+
+        return sims
 
     def find_pv(self, category, df):
         """
@@ -713,12 +728,20 @@ if __name__ == '__main__':
 
     dl = DataLoader('../../data/painters_ds.json', model=m, thresh=500)
 
-    cat = "http://dbpedia.org/resource/France"
+    cat = "http://dbpedia.org/resource/United_States"
     index = 'http://dbpedia.org/resource/Antoine_Roux'
 
-    print(dl.get_sample_for_cat(cat, index=index))
+    """print(dl.get_sample_for_cat(cat, index=index))
     print(dl.get_pv_heatmaps_sample_for_cat(cat, index))
-    print(dl.get_diff_heatmaps_sample_for_cat(cat, index))
+    print(dl.get_diff_heatmaps_sample_for_cat(cat, index))"""
 
+    sample, h = dl.get_sample_for_cat(cat)
+    sample_index = sample.index[0]
 
+    sims = dl.get_similarities_sample_cat(sample=sample, category=cat)
+    sumsim = []
+    for layer, sim in sims:
+        sumsim.append(np.array(sim))
 
+    avg_sim = np.mean(np.array(sumsim))
+    print(avg_sim)

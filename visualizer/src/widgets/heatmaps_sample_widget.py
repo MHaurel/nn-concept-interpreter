@@ -48,6 +48,10 @@ class HeatmapsSampleWidget(QWidget):
     def set_filtered_pvalue(self, is_filtered_pvalue):
         self.is_filtered_pvalue = is_filtered_pvalue
 
+    def set_sample(self, sample):
+        self.sample = sample
+        self.parent().set_sample(self.sample)
+
     def update_heatmap_list(self, paths):
         self.heatmap_list.update(paths)
 
@@ -78,6 +82,12 @@ class HeatmapsSampleWidget(QWidget):
         :return:
         """
         self.parent().update_both_lists(self.sample_index, with_pv)
+
+    def get_avg_similarity(self):
+        return self.parent().get_avg_similarity()
+
+    def update_avg_similarity(self):
+        self.change_sample_footer_widget.set_sample(self.sample)
 
     def go_to_home(self):
         self.sample_index = None

@@ -58,9 +58,6 @@ class ExploreCategoryWidget(QWidget):
         heatmaps_category = self.heatmaps_category_widget.get_category()
         comparison_category = self.comparison_category_widget.get_category()
 
-        print(f"Category of heatmaps_category is {heatmaps_category}")
-        print(f"Category of comparison_category is {comparison_category}")
-
         if with_pv:
             paths_heatmaps_category = self.dataloader.get_pv_heatmaps_for_cat(heatmaps_category)
             paths_comparison_category = self.dataloader.get_pv_heatmaps_for_cat(comparison_category)
