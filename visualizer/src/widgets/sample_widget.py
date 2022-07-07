@@ -65,16 +65,13 @@ class SampleWidget(QWidget):
 
         self.comparison_category_widget.update_heatmap_list(paths_comparison_category)
 
-    def get_avg_similarity(self):
+    def get_similarities(self):
         category = self.comparison_category_widget.get_category()
 
         sims = self.dataloader.get_similarities_sample_cat(self.sample, category)
-        sumsim = []
-        for layer, sim in sims:
-            sumsim.append(np.array(sim))
+        print(sims, self.__class__)
 
-        avg_sim = np.mean(np.array(sumsim))
-        return avg_sim
+        return sims
 
     def update_avg_similarity(self):
         self.heatmaps_sample.update_avg_similarity()

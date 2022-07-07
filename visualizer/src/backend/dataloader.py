@@ -433,7 +433,13 @@ class DataLoader:
         else:
             dheatmaps = self.get_sample_heatmaps_from_files(category, sample_index)
 
-        return self.df[self.df.index == sample_index], dheatmaps
+        sample = self.df[self.df.index == sample_index]
+        sims = self.get_similarities_sample_cat(sample, category)
+
+        dheatmaps = {f"{k} (similarity : {round(sims[k])})": dheatmaps[k] for k in dheatmaps}
+        print(dheatmaps)
+
+        return sample, dheatmaps
 
     def get_diff_heatmaps_sample_for_cat(self, category, index=None):
         sample, sample_dict = self.get_sample_for_cat(category, index)
@@ -503,7 +509,7 @@ class DataLoader:
 
             sims.append((self.model.get_layers()[i].name, sim))
 
-        return sims
+        return {k:l for k,l in sims}
 
     def find_pv(self, category, df):
         """

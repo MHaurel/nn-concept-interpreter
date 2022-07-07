@@ -14,6 +14,7 @@ class HeatmapsSampleWidget(QWidget):
         self.sample_index = None
         self.category = None
         self.dataloader = None
+        self.paths_dict = None
 
         self.is_filtered_pvalue = False
 
@@ -53,6 +54,7 @@ class HeatmapsSampleWidget(QWidget):
         self.parent().set_sample(self.sample)
 
     def update_heatmap_list(self, paths):
+        self.paths_dict = paths
         self.heatmap_list.update(paths)
 
     def update_heatmap_list_with_category(self, category, same=False):
@@ -95,7 +97,11 @@ class HeatmapsSampleWidget(QWidget):
         self.parent().update_both_lists(self.sample_index, with_pv)
 
     def get_avg_similarity(self):
-        return self.parent().get_avg_similarity()
+        sims = self.parent().get_similarities()
+
+        avg_sim = round(sum([sims[sim] for sim in sims]) / len(sims), 2)
+
+        return avg_sim
 
     def update_avg_similarity(self):
         self.change_sample_footer_widget.set_sample(self.sample)
