@@ -406,16 +406,17 @@ class DataLoader:
                 # P-value heatmaps
                 r = self.find_pv(category, self.dfs[i])
                 rdf = pd.DataFrame(r)
+                rdf.rename(columns={0: 'rdf'}, inplace=True)
 
                 diff_pv = pd.DataFrame(diff_sample.copy().T)
+                diff_pv.rename(columns={0: 'diff'}, inplace=True)
 
-                # Must exist an easier way to do this
-                for j in range(len(diff_pv.iloc[:, 0])):
-                    if rdf.iloc[j, 0] > 0.01:
-                        diff_pv.iloc[j, 0] = 0 # Do we want it black ?
+                ft = pd.concat([diff_pv, rdf], axis=1)
+                ft = ft[ft.rdf <= 0.01]['diff'].reset_index()
+                ft.drop(columns=['index'], inplace=True)
 
                 ax = sns.heatmap(
-                    data=diff_pv.T,
+                    data=ft.T,
                     vmin=-1.0, #0,
                     vmax=1.0,
                     cbar=False,
@@ -600,18 +601,19 @@ class DataLoader:
                 # P-values heatmaps
                 r = self.find_pv(c, self.dfs[i]) #TO CHECK
                 rdf = pd.DataFrame(r)
+                rdf = rdf.rename(columns={0: 'rdf'})
 
                 #rdf[0] = rdf[0].apply(lambda x: 0 if x > 0.01 else 1)
 
                 diff_pv = diff.copy().T
+                diff_pv = diff_pv.rename(columns={0: 'diff'})
 
-                # Must exist a easier way to do this
-                for j in range(len(diff_pv.iloc[:, 0])):
-                    if rdf.iloc[j, 0] > 0.01:
-                        diff_pv.iloc[j, 0] = 0 # We want it black ?
+                ft = pd.concat([diff_pv, rdf], axis=1)
+                ft = ft[ft.rdf <= 0.01]['diff'].reset_index()
+                ft.drop(columns=['index'], inplace=True)
 
                 ax = sns.heatmap(
-                    data=diff_pv.T, # rdf.T
+                    data=ft.T, # rdf.T
                     vmin=-1.0, #0,
                     vmax=1.0,
                     cbar=False,
@@ -737,17 +739,4 @@ if __name__ == '__main__':
     cat = "http://dbpedia.org/resource/United_States"
     index = 'http://dbpedia.org/resource/Antoine_Roux'
 
-    """print(dl.get_sample_for_cat(cat, index=index))
-    print(dl.get_pv_heatmaps_sample_for_cat(cat, index))
-    print(dl.get_diff_heatmaps_sample_for_cat(cat, index))"""
-
-    sample, h = dl.get_sample_for_cat(cat)
-    sample_index = sample.index[0]
-
-    sims = dl.get_similarities_sample_cat(sample=sample, category=cat)
-    sumsim = []
-    for layer, sim in sims:
-        sumsim.append(np.array(sim))
-
-    avg_sim = np.mean(np.array(sumsim))
-    print(avg_sim)
+    print(dl.get_sample_for_cat(cat))
