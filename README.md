@@ -2,7 +2,6 @@
 
 ### HEATMAPS CATEGORIES
 
-* When selecting a sample, self.dfs is appending the table data ?????
 * Make CNN analysis working (churches)
   * ==> to check
 * Deploy loading pop-up

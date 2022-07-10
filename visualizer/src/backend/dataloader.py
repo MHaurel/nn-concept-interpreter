@@ -50,7 +50,6 @@ class DataLoader:
 
             print(f"Writing in {os.path.join('../heatmaps', self.dirname)}")
             for i in range(len(self.model.get_layers())):
-                #if i != 0:#Excluding embedding layer because idk how to deal with 3D data right now
                 new_model = self.model.rebuild_model(i)
 
                 df = self.get_all_activations(self.df, new_model)
@@ -73,7 +72,8 @@ class DataLoader:
             print(f"Using files in {os.path.join('../heatmaps', self.dirname)}")
             # Doesn't compute data, only returns heatmaps
             for filename in os.listdir(os.path.join('../activations', self.dirname)):
-                if filename.split('.')[-1] == 'pkl':
+                if filename.split('.')[-1] == 'pkl' and 'table_data' not in filename:
+                    print(f"Currently appending {filename}...")
                     df = pd.read_pickle(os.path.join('../activations', self.dirname, filename))
                     self.dfs.append(df)
 
