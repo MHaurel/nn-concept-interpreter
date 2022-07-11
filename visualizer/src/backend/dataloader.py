@@ -73,7 +73,6 @@ class DataLoader:
             # Doesn't compute data, only returns heatmaps
             for filename in os.listdir(os.path.join('../activations', self.dirname)):
                 if filename.split('.')[-1] == 'pkl' and 'table_data' not in filename:
-                    print(f"Currently appending {filename}...")
                     df = pd.read_pickle(os.path.join('../activations', self.dirname, filename))
                     self.dfs.append(df)
 
@@ -340,12 +339,16 @@ class DataLoader:
         activations_cols = [col for col in df.columns if "neuron" in col]
         return self.get_not_cat_df(category, df).loc[:, df.columns.isin(activations_cols)] #Must be more generic
 
-    def get_sample_for_cat(self, category, index=None):
+    def get_sample_for_cat(self, category, compare_category, index=None):
         """
 
         :param category:
         :return: a dict of the paths of the 2 heatmaps
         """
+
+        if compare_category is None:
+            compare_category = category
+
         dheatmaps = {}
 
         norm = matplotlib.colors.Normalize(-1, 1)
@@ -417,13 +420,12 @@ class DataLoader:
 
                 ax = sns.heatmap(
                     data=ft.T,
-                    vmin=-1.0, #0,
+                    vmin=-1.0,
                     vmax=1.0,
                     cbar=False,
                     cmap=custom_color_map
                 )
                 fig = ax.get_figure()
-                #path = f"{current_path}/{i}-{self.model.get_layers()[i].name}-pvalue.png"
                 path = os.path.join(current_path, f"{i}-{self.model.get_layers()[i].name}-pvalue.png")
                 fig.savefig(path)
                 dlayer['pvalue'] = {}
@@ -435,15 +437,15 @@ class DataLoader:
             dheatmaps = self.get_sample_heatmaps_from_files(category, sample_index)
 
         sample = self.df[self.df.index == sample_index]
-        sims = self.get_similarities_sample_cat(sample, category)
+        sims = self.get_similarities_sample_cat(sample, compare_category)
 
         dheatmaps = {f"{k} (similarity : {round(sims[k])})": dheatmaps[k] for k in dheatmaps}
         print(dheatmaps)
 
         return sample, dheatmaps
 
-    def get_diff_heatmaps_sample_for_cat(self, category, index=None):
-        sample, sample_dict = self.get_sample_for_cat(category, index)
+    def get_diff_heatmaps_sample_for_cat(self, category, comparison_category, index=None):
+        sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index)
 
         paths = {}
         for layer in sample_dict.keys():
@@ -451,8 +453,8 @@ class DataLoader:
 
         return sample, paths
 
-    def get_pv_heatmaps_sample_for_cat(self, category, index=None):
-        sample, sample_dict = self.get_sample_for_cat(category, index)
+    def get_pv_heatmaps_sample_for_cat(self, category, comparison_category, index=None):
+        sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index)
 
         paths = {}
         for layer in sample_dict.keys():

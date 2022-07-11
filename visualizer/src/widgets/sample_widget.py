@@ -12,6 +12,7 @@ class SampleWidget(QWidget):
 
         self.dataloader = None
         self.sample = None
+        self.index = None
 
         # Left widget (sample)
         self.heatmaps_sample = HeatmapsSampleWidget()
@@ -43,19 +44,25 @@ class SampleWidget(QWidget):
         :param with_pv: If true will pass pvalue heatmaps paths to lists
         :return: None
         """
+
         heatmaps_category = self.heatmaps_sample.get_category()
         comparison_category = self.comparison_category_widget.get_category()
 
+        """
+            NEED TO EXPLICIT THE CASE WHERE ONE OF THE TWO SIDE HAS NOT CHANGED
+            i.e. not re-fetch heatmaps which are already good
+        """
+
         if with_pv:
             self.sample, paths_heatmaps_sample = self.dataloader\
-                .get_pv_heatmaps_sample_for_cat(heatmaps_category, index)
+                .get_pv_heatmaps_sample_for_cat(heatmaps_category, comparison_category, index) #comparison_category
 
             paths_comparison_category = self.dataloader.get_pv_heatmaps_for_cat(comparison_category)
             self.heatmaps_sample.set_filtered_pvalue(True)
             self.comparison_category_widget.set_filtered_pvalue(True)
         else:
             self.sample, paths_heatmaps_sample = self.dataloader\
-                .get_diff_heatmaps_sample_for_cat(heatmaps_category, index)
+                .get_diff_heatmaps_sample_for_cat(heatmaps_category, comparison_category, index) #comparison_category
 
             paths_comparison_category = self.dataloader.get_diff_heatmaps_for_cat(comparison_category)
             self.heatmaps_sample.set_filtered_pvalue(False)
@@ -69,9 +76,13 @@ class SampleWidget(QWidget):
         category = self.comparison_category_widget.get_category()
 
         sims = self.dataloader.get_similarities_sample_cat(self.sample, category)
-        print(sims, self.__class__)
 
         return sims
+
+    def update_similarities(self, with_pv):
+        # Update left heatmap list with the actual sample
+        index = self.heatmaps_sample.get_index()
+        self.update_both_lists(index=index, with_pv=with_pv) #Must deal with "with_pv" now
 
     def update_avg_similarity(self):
         self.heatmaps_sample.update_avg_similarity()

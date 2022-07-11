@@ -42,6 +42,9 @@ class HeatmapsSampleWidget(QWidget):
     def get_category(self):
         return self.category
 
+    def get_index(self):
+        return self.sample_index
+
     def set_dataloader(self, dataloader):
         self.dataloader = dataloader
         self.category_selector.set_dataloader(self.dataloader)
@@ -84,9 +87,7 @@ class HeatmapsSampleWidget(QWidget):
             self.change_sample_footer_widget.set_sample(self.sample)
 
     def display_next_sample(self):
-        print("Asking to display next sample")
         self.update_heatmap_list_with_category(self.category, same=True)
-        #self.parent().update_both_lists(index=None, with_pv=self.is_filtered_pvalue)
 
     def update_heatmap_list_with_pv(self, with_pv):
         """

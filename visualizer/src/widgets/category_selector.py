@@ -39,5 +39,5 @@ class CategorySelector(QComboBox):
 
     def set_dataloader(self, dataloader):
         self.dataloader = dataloader
-        self.categories_tuple = self.dataloader.get_popular_categories(thresh=200) #Will be dynamic
+        self.categories_tuple = self.dataloader.get_popular_categories(self.dataloader.thresh)
         self.populate_selector()
