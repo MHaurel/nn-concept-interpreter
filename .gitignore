@@ -6,3 +6,5 @@
 /visualizer/activations
 /visualizer/src/heatmaps
 /visualizer/src/activations
+/visualizer/src/widgets/heatmaps
+/visualizer/src/widgets/activations

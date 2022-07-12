@@ -17,17 +17,17 @@ def print_every_3_seconds():
 
 
 class DataLoaderIntializingThread(QThread):
+
     def run(self) -> None:
+        load()
         # print every 3 seconds
-        model = Model('../../../models/painter_model')
-        dataloader = DataLoader('../../../data/painters_ds.json', model=model)
+        # model = Model('../../../models/painter_model')
+        # dataloader = DataLoader('../../../data/painters_ds.json', model=model)
 
 
 class RunFunctionDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__()
-
-        #self.function = function
 
         print("[INFO] Loading screen initialized")
 
@@ -42,6 +42,7 @@ class RunFunctionDialog(QDialog):
         self.startAnimation()
 
         self.thread = DataLoaderIntializingThread()
+
         self.thread.finished.connect(self.end)
         self.thread.start()
 
@@ -59,15 +60,21 @@ def show_dialog():
     dialog.exec()
 
 
+def load():
+    model = Model('../../../models/painter_model')
+    dataloader = DataLoader('../../../data/painters_ds.json', model=model)
+
+
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
 
-    widget = QWidget(None)
+    """widget = QWidget(None)
 
     button = QPushButton("Show dialog", widget)
-    button.clicked.connect(show_dialog)
+    button.clicked.connect(show_dialog)"""
 
-    widget.show()
+    #widget.show()
+    show_dialog()
 
     sys.exit(app.exec())

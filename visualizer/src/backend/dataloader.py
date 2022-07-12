@@ -439,7 +439,8 @@ class DataLoader:
         sample = self.df[self.df.index == sample_index]
         sims = self.get_similarities_sample_cat(sample, compare_category)
 
-        dheatmaps = {f"{k} (similarity : {round(sims[k])})": dheatmaps[k] for k in dheatmaps}
+        #dheatmaps = {f"{k} (similarity : {round(sims[k])})": dheatmaps[k] for k in dheatmaps}
+        dheatmaps = {f"{k} (similarity : {sims[k]})": dheatmaps[k] for k in dheatmaps}
         print(dheatmaps)
 
         return sample, dheatmaps
