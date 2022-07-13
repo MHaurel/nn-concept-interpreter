@@ -2,6 +2,7 @@
 
 ### HEATMAPS CATEGORIES
 
+* Filter sample with the new pvalue heatmap of the compare category
 * Compute euclidean distance / cosine similarity
   * Filter similarity pvalue
 * Get activations closer to the mean for a misclassified sample and test if the classification is much better. (will be long to develop)

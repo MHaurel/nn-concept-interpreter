@@ -431,14 +431,18 @@ class DataLoader:
                 rdf.rename(columns={0: 'rdf'}, inplace=True)
 
                 diff_pv = pd.DataFrame(diff_sample.copy().T)
-                diff_pv.rename(columns={0: 'diff'}, inplace=True)
+                """diff_pv.rename(columns={0: 'diff'}, inplace=True)
 
                 ft = pd.concat([diff_pv, rdf], axis=1)
                 ft = ft[ft.rdf <= 0.01]['diff'].reset_index()
-                ft.drop(columns=['index'], inplace=True)
+                ft.drop(columns=['index'], inplace=True)"""
+
+                for j in range(len(diff_pv.iloc[:, 0])):
+                    if rdf.iloc[j, 0] > 0.01:
+                        diff_pv.iloc[j,0] = 0
 
                 ax = sns.heatmap(
-                    data=ft.T,
+                    data=diff_pv.T, #ft.T,
                     vmin=-1.0,
                     vmax=1.0,
                     cbar=False,
@@ -588,6 +592,11 @@ class DataLoader:
 
         return_df = pd.DataFrame(np.array(reses)).mean()
 
+        if self.clean_s(category) == 'Russia':
+            if len(df.iloc[0, :]) == len(self.dfs[0].iloc[0, :]):
+                print("Category is Russia and layer is embedding")
+                return_df.to_pickle('russia-pv.pkl')
+
         #print(f"--- for find_pv with category: {category}: {time.time() - start_time} seconds ---")
         return return_df
 
@@ -658,14 +667,18 @@ class DataLoader:
                 #rdf[0] = rdf[0].apply(lambda x: 0 if x > 0.01 else 1)
 
                 diff_pv = diff.copy().T
-                diff_pv = diff_pv.rename(columns={0: 'diff'})
+                """diff_pv = diff_pv.rename(columns={0: 'diff'})
 
                 ft = pd.concat([diff_pv, rdf], axis=1)
                 ft = ft[ft.rdf <= 0.01]['diff'].reset_index()
-                ft.drop(columns=['index'], inplace=True)
+                ft.drop(columns=['index'], inplace=True)"""
+
+                for j in range(len(diff_pv.iloc[:, 0])):
+                    if rdf.iloc[j, 0] > 0.01:
+                        diff_pv.iloc[j, 0] = 0
 
                 ax = sns.heatmap(
-                    data=ft.T, # rdf.T
+                    data= diff_pv.T, #ft.T, # rdf.T
                     vmin=-1.0, #0,
                     vmax=1.0,
                     cbar=False,
