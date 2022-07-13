@@ -10,8 +10,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors
 from matplotlib.colors import LinearSegmentedColormap
 
-from scipy import stats
-from scipy.spatial import distance
+from scipy import stats, spatial
 from keras.layers import Embedding, Conv2D, MaxPooling2D, Flatten
 
 from visualizer.src.backend.model import Model
@@ -31,8 +30,11 @@ class DataLoader:
         self.df = pd.read_json(self.path)
         self.df = self.formalize_outputs(self.df)
 
-        # Will contain a df of activations for each layer of the model
+        # Will contain standardized df of activations for each layer of the model
         self.dfs = []
+
+        # Will contain non standardized df of activations for each layer of the model
+        self.non_standardized_dfs = []
 
         self.heatmaps = None
 
@@ -56,11 +58,17 @@ class DataLoader:
                 df = self.get_all_activations(self.df, new_model)
                 self.dfs.append(df)
 
+                ndf = self.get_all_activations(self.df, new_model, standardized=False)
+                self.non_standardized_dfs.append(ndf)
+
             if not os.path.exists(os.path.join('../activations', self.dirname)):
                 os.makedirs(os.path.join('../activations', self.dirname))
 
             for i in range(len(self.dfs)):
                 pd.to_pickle(self.dfs[i], os.path.join('../activations', self.dirname, f"{i} - {self.model.get_layers()[i].name}.pkl"))
+
+            for i in range(len(self.non_standardized_dfs)):
+                pd.to_pickle(self.non_standardized_dfs[i], os.path.join('../activations', self.dirname, f"{i} - n_{self.model.get_layers()[i].name}.pkl"))
 
             if self.new_thresh is not None and self.new_thresh != self.thresh:
                 self.old_thresh = self.thresh
@@ -75,7 +83,10 @@ class DataLoader:
             for filename in os.listdir(os.path.join('../activations', self.dirname)):
                 if filename.split('.')[-1] == 'pkl' and 'table_data' not in filename:
                     df = pd.read_pickle(os.path.join('../activations', self.dirname, filename))
-                    self.dfs.append(df)
+                    if 'n_' not in filename:
+                        self.dfs.append(df)
+                    else:
+                        self.non_standardized_dfs.append(df)
 
             self.heatmaps = self.get_heatmaps_from_files()
 
@@ -241,11 +252,15 @@ class DataLoader:
 
         return df_s
 
-    def get_all_activations(self, df, model):
+    def get_all_activations(self, df, model, standardized=True):
         """
         Returns a DataFrame with all the information and activations associated
+        :param df:
+        :param model:
+        :param standardized:
         :return: fully completed DataFrame
         """
+
         start_time = time.time()
 
         new_df = pd.DataFrame()
@@ -294,7 +309,10 @@ class DataLoader:
                 #print(np.array(value_list).shape)
                 new_df[index] = value_list
 
-        return_df = self.standardize(new_df)
+        return_df = new_df
+
+        if standardized:
+            return_df = self.standardize(return_df)
 
         print(f"--- For get_all_activations with layer {model.get_layers()[-1]}: {time.time() - start_time} seconds ---")
         return return_df
@@ -504,16 +522,43 @@ class DataLoader:
         :return:
         """
 
+        # ['euclidean', 'cosine']
+        sim_type = "cosine"
+
         sims = []
 
+        print(len(self.model.get_layers()))
         for i in range(len(self.model.get_layers())):
-            a = self.get_activation_for_sample(sample, self.dfs[i])
-            b = self.get_mean_activation_for_cat(category, self.dfs[i])
+            print(f"=== Layer {self.model.get_layers()[i].name} ===")
 
-            sim = np.linalg.norm(np.array(a) - np.array(b))
-            print(sim)
+            if sim_type == "euclidean":
+                # Similarities on standardized dfs
+                a = self.get_activation_for_sample(sample, self.dfs[i])
+                b = self.get_mean_activation_for_cat(category, self.dfs[i])
+                sim = np.linalg.norm(np.array(a) - np.array(b))
+                #print(f"standardized: {sim}")
 
-            # try with cosine similarity
+                # Similarities on non-standardized dfs
+                a = self.get_activation_for_sample(sample, self.non_standardized_dfs[i])
+                b = self.get_mean_activation_for_cat(category, self.non_standardized_dfs[i])
+                sim = np.linalg.norm(np.array(a) - np.array(b)) * 100
+                #print(f"Non-standardized: {sim}")
+
+                # Testing...
+                if i == 2:
+                    pd.DataFrame(a).to_pickle('a-sample.pkl')
+                    pd.DataFrame(b).to_pickle('b-category.pkl')
+
+            # Means that default is cosine
+            else:
+                # try with cosine similarity on non standardized dfs
+                a = self.get_activation_for_sample(sample, self.non_standardized_dfs[i])
+                b = self.get_mean_activation_for_cat(category, self.non_standardized_dfs[i])
+                sim = (1 - spatial.distance.cosine(a, b)) * 100 # To get a percentage
+                #print(f"Cosine: {sim}")
+
+                print(a)
+                print(b)
 
             sims.append((self.model.get_layers()[i].name, sim))
 
