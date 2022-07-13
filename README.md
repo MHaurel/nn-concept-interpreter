@@ -2,8 +2,12 @@
 
 ### HEATMAPS CATEGORIES
 
-* Make CNN analysis working (churches)
-  * ==> to check
+* Store non-standardized dataframes
+* Compute euclidean distance / cosine similarity
+* Get activations closer to the mean for a misclassified sample and test if the classification is much better. (will be long to develop)
+  * First hands on with a notebook (see boost.ipynb)
+  * Then deploy it on the app
+    * Only putting a boost button for misclassified samples
 * Deploy loading pop-up
 * Store p-values
 

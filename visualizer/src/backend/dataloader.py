@@ -11,6 +11,7 @@ import matplotlib.colors
 from matplotlib.colors import LinearSegmentedColormap
 
 from scipy import stats
+from scipy.spatial import distance
 from keras.layers import Embedding, Conv2D, MaxPooling2D, Flatten
 
 from visualizer.src.backend.model import Model
@@ -510,6 +511,9 @@ class DataLoader:
             b = self.get_mean_activation_for_cat(category, self.dfs[i])
 
             sim = np.linalg.norm(np.array(a) - np.array(b))
+            print(sim)
+
+            # try with cosine similarity
 
             sims.append((self.model.get_layers()[i].name, sim))
 
