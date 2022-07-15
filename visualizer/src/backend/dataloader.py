@@ -358,9 +358,10 @@ class DataLoader:
         activations_cols = [col for col in df.columns if "neuron" in col]
         return self.get_not_cat_df(category, df).loc[:, df.columns.isin(activations_cols)] #Must be more generic
 
-    def get_sample_for_cat(self, category, compare_categories=None, index=None): #compare_category
+    def get_sample_for_cat(self, category, index=None):
         """
 
+        :param index:
         :param category:
         :return: a dict of the paths of the 2 heatmaps
         """
@@ -396,12 +397,8 @@ class DataLoader:
         if not os.path.exists(current_path):
             os.makedirs(current_path)
 
-            #print(f"Calculating heatmaps for sample_index: {self.clean_s(sample_index)}")
-
             for i in range(len(self.model.get_layers())):
                 sample = self.dfs[i][self.dfs[i].index == sample_index]
-
-                #dlayer = {}
 
                 plt.figure(figsize=(16, 5))
 
@@ -420,47 +417,29 @@ class DataLoader:
                     cmap=custom_color_map
                 )
                 fig = ax.get_figure()
-                #path = f"{current_path}/{i}-{self.model.get_layers()[i].name}-diff.png"
                 path = os.path.join(current_path, f"{i}-{self.model.get_layers()[i].name}-diff.png")
                 fig.savefig(path)
-
-                #dlayer['diff'] = {}
-                #dlayer['diff']['path'] = path
 
                 dheatmaps[self.model.get_layers()[i].name] = {}
                 dheatmaps[self.model.get_layers()[i].name]['diff'] = {}
                 dheatmaps[self.model.get_layers()[i].name]['diff']['path'] = path
 
-            """# P-value heatmaps
-            r = self.find_pv(category, self.dfs[i], self.model.get_layers()[i].name)
-            rdf = pd.DataFrame(r)
-            rdf.rename(columns={0: 'rdf'}, inplace=True)
-            diff_pv = pd.DataFrame(diff_sample.copy().T)
-            for j in range(len(diff_pv.iloc[:, 0])):
-                if rdf.iloc[j, 0] > 0.01:
-                    diff_pv.iloc[j,0] = 0
-            ax = sns.heatmap(
-                data=diff_pv.T, #ft.T,
-                vmin=-1.0,
-                vmax=1.0,
-                cbar=False,
-                cmap=custom_color_map
-            )
-            fig = ax.get_figure()
-            path = os.path.join(current_path, f"{i}-{self.model.get_layers()[i].name}-pvalue.png")
-            fig.savefig(path)
-            dlayer['pvalue'] = {}
-            dlayer['pvalue']['path'] = path
-            dheatmaps[self.model.get_layers()[i].name] = dlayer"""
-
-            for i in range(len(self.model.get_layers())):
+            for i in range(0, len(self.model.get_layers())):
                 dpvalue = {}
                 for c, n in compare_categories:
-                    dcat = {}
-                    # P-value heatmaps
                     r = self.find_pv(c, self.dfs[i], self.model.get_layers()[i].name)
                     rdf = pd.DataFrame(r)
                     rdf.rename(columns={0: 'rdf'}, inplace=True)
+
+                    sample = self.dfs[i][self.dfs[i].index == sample_index]
+
+                    #duplicated code here
+                    data_1 = self.get_activation_for_not_cat(category=c, df=self.dfs[i])
+                    data_1 = pd.DataFrame(data_1.mean()).T
+
+                    sample_activations_cols = [col for col in sample.columns if "neuron" in col]
+                    sample_act = sample.loc[:, sample.columns.isin(sample_activations_cols)]
+                    diff_sample = np.array(sample_act) - np.array(data_1.T[0])
 
                     diff_pv = pd.DataFrame(diff_sample.copy().T)
 
@@ -469,7 +448,7 @@ class DataLoader:
                             diff_pv.iloc[j, 0] = 0
 
                     ax = sns.heatmap(
-                        data=diff_pv.T,  # ft.T,
+                        data=diff_pv.T,
                         vmin=-1.0,
                         vmax=1.0,
                         cbar=False,
@@ -529,39 +508,6 @@ class DataLoader:
         return sample, paths
 
     def get_sample_heatmaps_from_files(self, category, compare_categories, index):
-        """dheatmaps = {}
-
-        heatmap_path = '../heatmaps/'
-
-        if not os.path.exists(heatmap_path):
-            return {}
-
-        for i in range(len(self.model.get_layers())):
-            dlayer = {}
-
-            hdiff = os.path.join('..', 'heatmaps', self.dirname, 'sample',
-                                self.clean_s(category), self.clean_s(index),
-                                f"{i}-{self.model.get_layers()[i].name}-diff.png")
-            dlayer['diff'] = {}
-            dlayer['diff']['path'] = hdiff
-
-            #Need to edit this
-            hpv = os.path.join('..', 'heatmaps', self.dirname, 'sample',
-                                self.clean_s(category), self.clean_s(index))
-
-            for c, n in compare_categories:
-
-                print(f'hpv = {hpv}')
-                #filenames = glob.glob(hpv)
-                filename = glob.glob(f"{hpv}/*{self.model.get_layers()[i].name}*{category}*{c}*-pvalue.png")
-                print(f"{hpv}/*{self.model.get_layers()[i].name}*{category}*{c}*-pvalue.png")
-                print(filename)
-
-                dlayer[self.clean_s(c)] = {}
-                dlayer[self.clean_s(c)]['pvalue'] = {}
-                dlayer[self.clean_s(c)]['pvalue']['path'] = hpv
-
-            dheatmaps[self.model.get_layers()[i].name] = dlayer"""
         dheatmaps = None
         file_path = os.path.join('..', 'heatmaps', self.dirname, 'sample',
                             self.clean_s(category), self.clean_s(index), 'dheatmaps.json')
@@ -570,8 +516,6 @@ class DataLoader:
                 dheatmaps = json.load(f)
         except FileNotFoundError as fnfe:
             print(fnfe)
-
-        print(f"From loading heatmaps from files, dheatmaps = {dheatmaps}")
 
         return dheatmaps
 
