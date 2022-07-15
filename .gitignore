@@ -4,7 +4,10 @@
 /visualizer/data
 /visualizer/heatmaps
 /visualizer/activations
+/visualizer/pvalues
 /visualizer/src/heatmaps
 /visualizer/src/activations
+/visualizer/src/pvalues
 /visualizer/src/widgets/heatmaps
 /visualizer/src/widgets/activations
+/visualizer/src/widgets/pvalues

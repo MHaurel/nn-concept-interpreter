@@ -11,7 +11,9 @@
     * Only putting a boost button for misclassified samples
 * Solve terminal error when loading a sample (not urgent)
 * Deploy loading pop-up
-* Store p-values
+* May create a directory *visualizer_data* to store heatmaps, activations and pvalues
+* Issue with similarity (always 100)
+* Possibility to drag n drop a item from a list to another and should not be possible
 
 ### HEATMAPS SAMPLE
 

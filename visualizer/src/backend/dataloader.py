@@ -358,15 +358,17 @@ class DataLoader:
         activations_cols = [col for col in df.columns if "neuron" in col]
         return self.get_not_cat_df(category, df).loc[:, df.columns.isin(activations_cols)] #Must be more generic
 
-    def get_sample_for_cat(self, category, compare_category, index=None):
+    def get_sample_for_cat(self, category, compare_categories=None, index=None): #compare_category
         """
 
         :param category:
         :return: a dict of the paths of the 2 heatmaps
         """
 
-        if compare_category is None:
-            compare_category = category
+        """if compare_categories is None:
+            compare_category = category"""
+
+        compare_categories = self.get_popular_categories(thresh=self.thresh)
 
         dheatmaps = {}
 
@@ -381,6 +383,8 @@ class DataLoader:
             "",
             colors=colors,
         )
+
+        # for category in compare_categories:
 
         df_cat = self.get_cat_df(category, self.df)
 
@@ -397,6 +401,8 @@ class DataLoader:
             print(f"Calculating heatmaps for sample_index: {self.clean_s(sample_index)}")
 
             for i in range(len(self.model.get_layers())):
+
+
 
                 sample = self.dfs[i][self.dfs[i].index == sample_index]
 
@@ -426,7 +432,7 @@ class DataLoader:
                 dlayer['diff']['path'] = path
 
                 # P-value heatmaps
-                r = self.find_pv(category, self.dfs[i])
+                r = self.find_pv(category, self.dfs[i], self.model.get_layers()[i].name)
                 rdf = pd.DataFrame(r)
                 rdf.rename(columns={0: 'rdf'}, inplace=True)
 
@@ -460,7 +466,7 @@ class DataLoader:
             dheatmaps = self.get_sample_heatmaps_from_files(category, sample_index)
 
         sample = self.df[self.df.index == sample_index]
-        sims = self.get_similarities_sample_cat(sample, compare_category)
+        sims = self.get_similarities_sample_cat(sample, compare_categories[0]) # change it
 
         #dheatmaps = {f"{k} (similarity : {round(sims[k])})": dheatmaps[k] for k in dheatmaps}
         dheatmaps = {f"{k} (similarity : {sims[k]})": dheatmaps[k] for k in dheatmaps}
@@ -480,6 +486,7 @@ class DataLoader:
     def get_pv_heatmaps_sample_for_cat(self, category, comparison_category, index=None):
         sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index)
 
+        #Need to edit this
         paths = {}
         for layer in sample_dict.keys():
             paths[layer] = [sample_dict[layer]['pvalue']['path']]
@@ -503,6 +510,7 @@ class DataLoader:
             dlayer['diff'] = {}
             dlayer['diff']['path'] = hdiff
 
+            #Need to edit this
             hpv = os.path.join('..', 'heatmaps', self.dirname, 'sample',
                                 self.clean_s(category), self.clean_s(index),
                                 f"{i}-{self.model.get_layers()[i].name}-pvalue.png")
@@ -531,9 +539,7 @@ class DataLoader:
 
         sims = []
 
-        print(len(self.model.get_layers()))
         for i in range(len(self.model.get_layers())):
-            print(f"=== Layer {self.model.get_layers()[i].name} ===")
 
             if sim_type == "euclidean":
                 # Similarities on standardized dfs
@@ -548,11 +554,6 @@ class DataLoader:
                 sim = np.linalg.norm(np.array(a) - np.array(b)) * 100
                 #print(f"Non-standardized: {sim}")
 
-                # Testing...
-                if i == 2:
-                    pd.DataFrame(a).to_pickle('a-sample.pkl')
-                    pd.DataFrame(b).to_pickle('b-category.pkl')
-
             # Means that default is cosine
             else:
                 # try with cosine similarity on non standardized dfs
@@ -561,44 +562,46 @@ class DataLoader:
                 sim = (1 - spatial.distance.cosine(a, b)) * 100 # To get a percentage
                 #print(f"Cosine: {sim}")
 
-                print(a)
-                print(b)
-
             sims.append((self.model.get_layers()[i].name, sim))
 
         return {k:l for k,l in sims}
 
-    def find_pv(self, category, df):
+    def find_pv(self, category, df, layer_name):
         """
         Return the pvalue for a category
         :param category: The category for which we want the pvalue
         :param df: The dataframe to search among
+        :param layer_name: The layer name to set to the file
         :return: The pvalue for the category
         """
-        #start_time = time.time()
-        #print(f"=== FIND PV for {category} ===")
-        actc = self.get_activation_for_cat(category, df)
-        #print(actc)
-        actnc = self.get_activation_for_not_cat(category, df)
-        #print(actnc)
-        reses = []
-        for i in range(100): #1000 by default
-            actncs = actnc.sample(len(actc), replace=True)
-            res = []
-            for col in actc:
-                p = stats.wilcoxon(np.array(actncs[col]), y=np.array(actc[col])).pvalue
-                res.append(p)
-            reses.append(res)
 
-        return_df = pd.DataFrame(np.array(reses)).mean()
+        # Use this path to store pvalues
+        pvalue_dir = os.path.join('..', 'pvalues', self.dirname, self.clean_s(category))
+        pvalue_path = os.path.join(pvalue_dir, f"{layer_name}-pv.pkl")
 
-        if self.clean_s(category) == 'Russia':
-            if len(df.iloc[0, :]) == len(self.dfs[0].iloc[0, :]):
-                print("Category is Russia and layer is embedding")
-                return_df.to_pickle('russia-pv.pkl')
+        if not os.path.exists(pvalue_dir):
+            os.makedirs(pvalue_dir)
 
-        #print(f"--- for find_pv with category: {category}: {time.time() - start_time} seconds ---")
-        return return_df
+        if not os.path.exists(pvalue_path):
+
+            actc = self.get_activation_for_cat(category, df)
+            actnc = self.get_activation_for_not_cat(category, df)
+            reses = []
+            for i in range(100): #1000 by default
+                actncs = actnc.sample(len(actc), replace=True)
+                res = []
+                for col in actc:
+                    p = stats.wilcoxon(np.array(actncs[col]), y=np.array(actc[col])).pvalue
+                    res.append(p)
+                reses.append(res)
+
+            return_df = pd.DataFrame(np.array(reses))
+            return_df.to_pickle(pvalue_path)
+
+        else:
+            return_df = pd.read_pickle(pvalue_path)
+
+        return return_df.mean()
 
     def get_heatmaps_dict(self):
         """
