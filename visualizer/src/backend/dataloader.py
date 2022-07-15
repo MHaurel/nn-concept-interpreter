@@ -384,8 +384,6 @@ class DataLoader:
             colors=colors,
         )
 
-        # for category in compare_categories:
-
         df_cat = self.get_cat_df(category, self.df)
 
         if index is None:
@@ -398,15 +396,12 @@ class DataLoader:
         if not os.path.exists(current_path):
             os.makedirs(current_path)
 
-            print(f"Calculating heatmaps for sample_index: {self.clean_s(sample_index)}")
+            #print(f"Calculating heatmaps for sample_index: {self.clean_s(sample_index)}")
 
             for i in range(len(self.model.get_layers())):
-
-
-
                 sample = self.dfs[i][self.dfs[i].index == sample_index]
 
-                dlayer = {}
+                #dlayer = {}
 
                 plt.figure(figsize=(16, 5))
 
@@ -428,73 +423,113 @@ class DataLoader:
                 #path = f"{current_path}/{i}-{self.model.get_layers()[i].name}-diff.png"
                 path = os.path.join(current_path, f"{i}-{self.model.get_layers()[i].name}-diff.png")
                 fig.savefig(path)
-                dlayer['diff'] = {}
-                dlayer['diff']['path'] = path
 
-                # P-value heatmaps
-                r = self.find_pv(category, self.dfs[i], self.model.get_layers()[i].name)
-                rdf = pd.DataFrame(r)
-                rdf.rename(columns={0: 'rdf'}, inplace=True)
+                #dlayer['diff'] = {}
+                #dlayer['diff']['path'] = path
 
-                diff_pv = pd.DataFrame(diff_sample.copy().T)
-                """diff_pv.rename(columns={0: 'diff'}, inplace=True)
+                dheatmaps[self.model.get_layers()[i].name] = {}
+                dheatmaps[self.model.get_layers()[i].name]['diff'] = {}
+                dheatmaps[self.model.get_layers()[i].name]['diff']['path'] = path
 
-                ft = pd.concat([diff_pv, rdf], axis=1)
-                ft = ft[ft.rdf <= 0.01]['diff'].reset_index()
-                ft.drop(columns=['index'], inplace=True)"""
+            """# P-value heatmaps
+            r = self.find_pv(category, self.dfs[i], self.model.get_layers()[i].name)
+            rdf = pd.DataFrame(r)
+            rdf.rename(columns={0: 'rdf'}, inplace=True)
+            diff_pv = pd.DataFrame(diff_sample.copy().T)
+            for j in range(len(diff_pv.iloc[:, 0])):
+                if rdf.iloc[j, 0] > 0.01:
+                    diff_pv.iloc[j,0] = 0
+            ax = sns.heatmap(
+                data=diff_pv.T, #ft.T,
+                vmin=-1.0,
+                vmax=1.0,
+                cbar=False,
+                cmap=custom_color_map
+            )
+            fig = ax.get_figure()
+            path = os.path.join(current_path, f"{i}-{self.model.get_layers()[i].name}-pvalue.png")
+            fig.savefig(path)
+            dlayer['pvalue'] = {}
+            dlayer['pvalue']['path'] = path
+            dheatmaps[self.model.get_layers()[i].name] = dlayer"""
 
-                for j in range(len(diff_pv.iloc[:, 0])):
-                    if rdf.iloc[j, 0] > 0.01:
-                        diff_pv.iloc[j,0] = 0
+            for i in range(len(self.model.get_layers())):
+                dpvalue = {}
+                for c, n in compare_categories:
+                    dcat = {}
+                    # P-value heatmaps
+                    r = self.find_pv(c, self.dfs[i], self.model.get_layers()[i].name)
+                    rdf = pd.DataFrame(r)
+                    rdf.rename(columns={0: 'rdf'}, inplace=True)
 
-                ax = sns.heatmap(
-                    data=diff_pv.T, #ft.T,
-                    vmin=-1.0,
-                    vmax=1.0,
-                    cbar=False,
-                    cmap=custom_color_map
-                )
-                fig = ax.get_figure()
-                path = os.path.join(current_path, f"{i}-{self.model.get_layers()[i].name}-pvalue.png")
-                fig.savefig(path)
-                dlayer['pvalue'] = {}
-                dlayer['pvalue']['path'] = path
+                    diff_pv = pd.DataFrame(diff_sample.copy().T)
 
-                dheatmaps[self.model.get_layers()[i].name] = dlayer
+                    for j in range(len(diff_pv.iloc[:, 0])):
+                        if rdf.iloc[j, 0] > 0.01:
+                            diff_pv.iloc[j, 0] = 0
+
+                    ax = sns.heatmap(
+                        data=diff_pv.T,  # ft.T,
+                        vmin=-1.0,
+                        vmax=1.0,
+                        cbar=False,
+                        cmap=custom_color_map
+                    )
+                    fig = ax.get_figure()
+                    path = os.path.join(current_path,
+                                        f"{i}-{self.model.get_layers()[i].name}-{self.clean_s(c)}-pvalue.png")
+                    fig.savefig(path)
+
+                    dpvalue[f"{self.clean_s(c)}"] = {}
+                    dpvalue[f"{self.clean_s(c)}"]['path'] = path
+
+                dheatmaps[self.model.get_layers()[i].name]['pvalue'] = dpvalue
+
+                with open(os.path.join(current_path, 'dheatmaps.json'), 'w') as f:
+                    json.dump(dheatmaps, f)
+            #print(dheatmaps)
 
         else:
-            dheatmaps = self.get_sample_heatmaps_from_files(category, sample_index)
+            dheatmaps = self.get_sample_heatmaps_from_files(category, compare_categories, sample_index)#add compare_categories
 
         sample = self.df[self.df.index == sample_index]
         sims = self.get_similarities_sample_cat(sample, compare_categories[0]) # change it
 
         #dheatmaps = {f"{k} (similarity : {round(sims[k])})": dheatmaps[k] for k in dheatmaps}
         dheatmaps = {f"{k} (similarity : {sims[k]})": dheatmaps[k] for k in dheatmaps}
-        print(dheatmaps)
+        #print(dheatmaps)
 
         return sample, dheatmaps
 
     def get_diff_heatmaps_sample_for_cat(self, category, comparison_category, index=None):
         sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index)
 
+        #print(sample_dict)
+
         paths = {}
         for layer in sample_dict.keys():
+            #print(layer)
             paths[layer] = [sample_dict[layer]['diff']['path']]
 
         return sample, paths
 
     def get_pv_heatmaps_sample_for_cat(self, category, comparison_category, index=None):
+        print(comparison_category)
         sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index)
+
+        #print(f"sample_dict: {sample_dict}")
 
         #Need to edit this
         paths = {}
         for layer in sample_dict.keys():
-            paths[layer] = [sample_dict[layer]['pvalue']['path']]
+            paths[layer] = [sample_dict[layer]['pvalue'][self.clean_s(comparison_category)]['path']]
+
+        print(paths)
 
         return sample, paths
 
-    def get_sample_heatmaps_from_files(self, category, index):
-        dheatmaps = {}
+    def get_sample_heatmaps_from_files(self, category, compare_categories, index):
+        """dheatmaps = {}
 
         heatmap_path = '../heatmaps/'
 
@@ -512,12 +547,31 @@ class DataLoader:
 
             #Need to edit this
             hpv = os.path.join('..', 'heatmaps', self.dirname, 'sample',
-                                self.clean_s(category), self.clean_s(index),
-                                f"{i}-{self.model.get_layers()[i].name}-pvalue.png")
-            dlayer['pvalue'] = {}
-            dlayer['pvalue']['path'] = hpv
+                                self.clean_s(category), self.clean_s(index))
 
-            dheatmaps[self.model.get_layers()[i].name] = dlayer
+            for c, n in compare_categories:
+
+                print(f'hpv = {hpv}')
+                #filenames = glob.glob(hpv)
+                filename = glob.glob(f"{hpv}/*{self.model.get_layers()[i].name}*{category}*{c}*-pvalue.png")
+                print(f"{hpv}/*{self.model.get_layers()[i].name}*{category}*{c}*-pvalue.png")
+                print(filename)
+
+                dlayer[self.clean_s(c)] = {}
+                dlayer[self.clean_s(c)]['pvalue'] = {}
+                dlayer[self.clean_s(c)]['pvalue']['path'] = hpv
+
+            dheatmaps[self.model.get_layers()[i].name] = dlayer"""
+        dheatmaps = None
+        file_path = os.path.join('..', 'heatmaps', self.dirname, 'sample',
+                            self.clean_s(category), self.clean_s(index), 'dheatmaps.json')
+        try:
+            with open(file_path, 'r') as f:
+                dheatmaps = json.load(f)
+        except FileNotFoundError as fnfe:
+            print(fnfe)
+
+        print(f"From loading heatmaps from files, dheatmaps = {dheatmaps}")
 
         return dheatmaps
 
@@ -663,7 +717,7 @@ class DataLoader:
                 heatmap_dic['diff']['path'] = path
 
                 # P-values heatmaps
-                r = self.find_pv(c, self.dfs[i]) #TO CHECK
+                r = self.find_pv(c, self.dfs[i], self.model.get_layers()[i].name)
                 rdf = pd.DataFrame(r)
                 rdf = rdf.rename(columns={0: 'rdf'})
 
