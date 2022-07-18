@@ -12,7 +12,7 @@
 * Deploy loading pop-up
 * May create a directory *visualizer_data* to store heatmaps, activations and pvalues
 * Add similaritites in dheatmaps
-* Possibility to drag n drop a item from a list to another and **should not be possible**
+* Fix width of layer labels inside list
 
 ### HEATMAPS SAMPLE
 
