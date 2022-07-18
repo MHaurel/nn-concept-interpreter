@@ -8,11 +8,11 @@
   * First hands on with a notebook (see boost.ipynb)
   * Then deploy it on the app
     * Only putting a boost button for misclassified samples
-* Solve terminal error when loading a sample (not urgent)
 * Deploy loading pop-up
+
+* Solve terminal error when loading a sample (not urgent)
 * May create a directory *visualizer_data* to store heatmaps, activations and pvalues
 * Add similaritites in dheatmaps
-* Fix width of layer labels inside list
 
 ### HEATMAPS SAMPLE
 

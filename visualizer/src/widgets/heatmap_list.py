@@ -30,6 +30,7 @@ class HeatmapList(QListWidget):
             item_layer_name = QListWidgetItem()
             item_layer_name.setText(layer)
             item_layer_name.setFont(QFont("Sans Serif", 20))
+            item_layer_name.setSizeHint(QSize(self.width(), 100))
             self.addItem(item_layer_name)
 
             for path in paths_dict[layer]:
