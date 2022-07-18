@@ -48,6 +48,8 @@ class SampleWidget(QWidget):
         heatmaps_category = self.heatmaps_sample.get_category()
         comparison_category = self.comparison_category_widget.get_category()
 
+        print(comparison_category, self.__class__)
+
         """
             NEED TO EXPLICIT THE CASE WHERE ONE OF THE TWO SIDE HAS NOT CHANGED
             i.e. not re-fetch heatmaps which are already good
@@ -55,18 +57,20 @@ class SampleWidget(QWidget):
 
         if with_pv:
             self.sample, paths_heatmaps_sample = self.dataloader\
-                .get_pv_heatmaps_sample_for_cat(heatmaps_category, comparison_category, index) #comparison_category
+                .get_pv_heatmaps_sample_for_cat(heatmaps_category, comparison_category, index)
 
             paths_comparison_category = self.dataloader.get_pv_heatmaps_for_cat(comparison_category)
             self.heatmaps_sample.set_filtered_pvalue(True)
             self.comparison_category_widget.set_filtered_pvalue(True)
         else:
             self.sample, paths_heatmaps_sample = self.dataloader\
-                .get_diff_heatmaps_sample_for_cat(heatmaps_category, comparison_category, index) #comparison_category
+                .get_diff_heatmaps_sample_for_cat(heatmaps_category, comparison_category, index)
 
             paths_comparison_category = self.dataloader.get_diff_heatmaps_for_cat(comparison_category)
             self.heatmaps_sample.set_filtered_pvalue(False)
             self.comparison_category_widget.set_filtered_pvalue(False)
+
+        print(paths_heatmaps_sample, self.__class__)
 
         self.heatmaps_sample.update_heatmap_list(paths_heatmaps_sample)
 
@@ -74,7 +78,7 @@ class SampleWidget(QWidget):
 
     def get_similarities(self):
         category = self.comparison_category_widget.get_category()
-
+        print(category, self.__class__)
         sims = self.dataloader.get_similarities_sample_cat(self.sample, category)
 
         return sims

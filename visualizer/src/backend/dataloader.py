@@ -306,7 +306,6 @@ class DataLoader:
         elif not isinstance(model.get_layers()[-1], Flatten): # Excepting Flatten layer
             for neuron_index, value_list in enumerate(activations.T):
                 index = f"neuron_{neuron_index + 1}"
-                #print(np.array(value_list).shape)
                 new_df[index] = value_list
 
         return_df = new_df
@@ -358,7 +357,7 @@ class DataLoader:
         activations_cols = [col for col in df.columns if "neuron" in col]
         return self.get_not_cat_df(category, df).loc[:, df.columns.isin(activations_cols)] #Must be more generic
 
-    def get_sample_for_cat(self, category, index=None):
+    def get_sample_for_cat(self, category, comparison_category, index=None):
         """
 
         :param index:
@@ -366,8 +365,8 @@ class DataLoader:
         :return: a dict of the paths of the 2 heatmaps
         """
 
-        """if compare_categories is None:
-            compare_category = category"""
+        if comparison_category is None:
+            comparison_category = category
 
         compare_categories = self.get_popular_categories(thresh=self.thresh)
 
@@ -466,44 +465,33 @@ class DataLoader:
 
                 with open(os.path.join(current_path, 'dheatmaps.json'), 'w') as f:
                     json.dump(dheatmaps, f)
-            #print(dheatmaps)
 
         else:
             dheatmaps = self.get_sample_heatmaps_from_files(category, compare_categories, sample_index)#add compare_categories
 
         sample = self.df[self.df.index == sample_index]
 
-        sims = self.get_similarities_sample_cat(sample, compare_categories[0][0]) # change it
+        sims = self.get_similarities_sample_cat(sample, comparison_category)
 
         dheatmaps = {f"{k} (similarity : {sims[k]})": dheatmaps[k] for k in dheatmaps}
-        print(dheatmaps)
 
         return sample, dheatmaps
 
     def get_diff_heatmaps_sample_for_cat(self, category, comparison_category, index=None):
-        sample, sample_dict = self.get_sample_for_cat(category, index)
-
-        #print(sample_dict)
+        sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index)
 
         paths = {}
         for layer in sample_dict.keys():
-            #print(layer)
             paths[layer] = [sample_dict[layer]['diff']['path']]
 
         return sample, paths
 
     def get_pv_heatmaps_sample_for_cat(self, category, comparison_category, index=None):
-        print(comparison_category)
-        sample, sample_dict = self.get_sample_for_cat(category, index)
+        sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index)
 
-        #print(f"sample_dict: {sample_dict}")
-
-        #Need to edit this
         paths = {}
         for layer in sample_dict.keys():
             paths[layer] = [sample_dict[layer]['pvalue'][self.clean_s(comparison_category)]['path']]
-
-        print(paths)
 
         return sample, paths
 
@@ -523,6 +511,9 @@ class DataLoader:
         activations_cols = [col for col in df.columns if "neuron" in col]
         sample_act = df[df.index == sample.index[0]].loc[:, df.columns.isin(activations_cols)]
         return sample_act
+
+    def get_cosine_similarity(self, a, b):
+        return (1 - spatial.distance.cosine(a, b)) * 100  # Multiply by 100 to get a percentage
 
     def get_similarities_sample_cat(self, sample, category):
         """
@@ -544,13 +535,11 @@ class DataLoader:
                 a = self.get_activation_for_sample(sample, self.dfs[i])
                 b = self.get_mean_activation_for_cat(category, self.dfs[i])
                 sim = np.linalg.norm(np.array(a) - np.array(b))
-                #print(f"standardized: {sim}")
 
                 # Similarities on non-standardized dfs
                 a = self.get_activation_for_sample(sample, self.non_standardized_dfs[i])
                 b = self.get_mean_activation_for_cat(category, self.non_standardized_dfs[i])
                 sim = np.linalg.norm(np.array(a) - np.array(b)) * 100
-                #print(f"Non-standardized: {sim}")
 
             # Means that default is cosine
             else:
@@ -558,10 +547,8 @@ class DataLoader:
                 a = self.get_activation_for_sample(sample, self.non_standardized_dfs[i])
                 b = self.get_mean_activation_for_cat(category, self.non_standardized_dfs[i])
                 sim = (1 - spatial.distance.cosine(a, b)) * 100 # To get a percentage
-                #print(f"Cosine: {sim}")
 
             sims.append((self.model.get_layers()[i].name, sim))
-        print(self.__class__, sims)
 
         return {k:l for k,l in sims}
 
@@ -777,6 +764,7 @@ class DataLoader:
         for i in range(len(self.dfs)):
             pv = self.find_pv(cat, self.dfs[i], self.model.get_layers()[i].name).min()
             if pv < min_pv:
+                min_pv = pv
                 min_pv = pv
         return min_pv
 

@@ -15,7 +15,7 @@ class OverallChartWidget(QWidget):
 
         self.dataloader = dataloader
 
-        with open(os.path.join('../activations', dataloader.dirname, 'popular_categories.json'), 'r') as f:
+        with open(os.path.join('..', 'visualizer_data' ,'activations', dataloader.dirname, 'popular_categories.json'), 'r') as f:
             data = json.load(f)
 
         df = pd.DataFrame({
