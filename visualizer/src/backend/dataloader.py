@@ -40,7 +40,7 @@ class DataLoader:
 
         self.new_thresh = thresh
 
-        self.THRESH_CONFIG_PATH = os.path.join('..', 'activations', self.dirname, "thresh.json")
+        self.THRESH_CONFIG_PATH = os.path.join('..', 'visualizer_data', 'activations', self.dirname, "thresh.json")
         if os.path.exists(self.THRESH_CONFIG_PATH):
             with open(self.THRESH_CONFIG_PATH, 'r') as tf:
                 self.thresh = json.load(tf)
@@ -48,10 +48,10 @@ class DataLoader:
             self.thresh = DEFAULT_THRESH
 
 
-        if not os.path.exists(os.path.join('../heatmaps', self.dirname)) or not os.path.exists(os.path.join('../activations', self.dirname)) or \
+        if not os.path.exists(os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname)) or not os.path.exists(os.path.join('..', 'visualizer_data', 'activations', self.dirname)) or \
                 (self.new_thresh is not None and self.new_thresh != self.thresh):
 
-            print(f"Writing in {os.path.join('../heatmaps', self.dirname)}")
+            print(f"Writing in {os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname)}")
             for i in range(len(self.model.get_layers())):
                 new_model = self.model.rebuild_model(i)
 
@@ -61,14 +61,14 @@ class DataLoader:
                 ndf = self.get_all_activations(self.df, new_model, standardized=False)
                 self.non_standardized_dfs.append(ndf)
 
-            if not os.path.exists(os.path.join('../activations', self.dirname)):
-                os.makedirs(os.path.join('../activations', self.dirname))
+            if not os.path.exists(os.path.join('..', 'visualizer_data', 'activations', self.dirname)):
+                os.makedirs(os.path.join('..', 'visualizer_data', 'activations', self.dirname))
 
             for i in range(len(self.dfs)):
-                pd.to_pickle(self.dfs[i], os.path.join('../activations', self.dirname, f"{i} - {self.model.get_layers()[i].name}.pkl"))
+                pd.to_pickle(self.dfs[i], os.path.join('..', 'visualizer_data', 'activations', self.dirname, f"{i} - {self.model.get_layers()[i].name}.pkl"))
 
             for i in range(len(self.non_standardized_dfs)):
-                pd.to_pickle(self.non_standardized_dfs[i], os.path.join('../activations', self.dirname, f"{i} - n_{self.model.get_layers()[i].name}.pkl"))
+                pd.to_pickle(self.non_standardized_dfs[i], os.path.join('..', 'visualizer_data', 'activations', self.dirname, f"{i} - n_{self.model.get_layers()[i].name}.pkl"))
 
             if self.new_thresh is not None and self.new_thresh != self.thresh:
                 self.old_thresh = self.thresh
@@ -78,11 +78,11 @@ class DataLoader:
 
             self.heatmaps = self.get_heatmaps_dict()
         else:
-            print(f"Using files in {os.path.join('../heatmaps', self.dirname)}")
+            print(f"Using files in {os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname)}")
             # Doesn't compute data, only returns heatmaps
-            for filename in os.listdir(os.path.join('../activations', self.dirname)):
+            for filename in os.listdir(os.path.join('..', 'visualizer_data', 'activations', self.dirname)):
                 if filename.split('.')[-1] == 'pkl' and 'table_data' not in filename:
-                    df = pd.read_pickle(os.path.join('../activations', self.dirname, filename))
+                    df = pd.read_pickle(os.path.join('..', 'visualizer_data', 'activations', self.dirname, filename))
                     if 'n_' not in filename:
                         self.dfs.append(df)
                     else:
@@ -224,7 +224,7 @@ class DataLoader:
 
         return_dic = {c: n for c, n in dic.items() if n >= self.thresh}
 
-        with open(os.path.join('../activations', self.dirname, 'popular_categories.json'), 'w') as f:
+        with open(os.path.join('..', 'visualizer_data', 'activations', self.dirname, 'popular_categories.json'), 'w') as f:
             json.dump(return_dic, f)
 
         return sorted(return_dic.items(), key=lambda x: x[1], reverse=True) # Return sorted dictionary
@@ -392,7 +392,7 @@ class DataLoader:
         else:
             sample_index = index
 
-        current_path = os.path.join('../heatmaps', self.dirname, 'sample',
+        current_path = os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname, 'sample',
                                     self.clean_s(category), self.clean_s(sample_index))
         if not os.path.exists(current_path):
             os.makedirs(current_path)
@@ -509,7 +509,7 @@ class DataLoader:
 
     def get_sample_heatmaps_from_files(self, category, compare_categories, index):
         dheatmaps = None
-        file_path = os.path.join('..', 'heatmaps', self.dirname, 'sample',
+        file_path = os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname, 'sample',
                             self.clean_s(category), self.clean_s(index), 'dheatmaps.json')
         try:
             with open(file_path, 'r') as f:
@@ -575,7 +575,7 @@ class DataLoader:
         """
 
         # Use this path to store pvalues
-        pvalue_dir = os.path.join('..', 'pvalues', self.dirname, self.clean_s(category))
+        pvalue_dir = os.path.join('..', 'visualizer_data', 'pvalues', self.dirname, self.clean_s(category))
         pvalue_path = os.path.join(pvalue_dir, f"{layer_name}-pv.pkl")
 
         if not os.path.exists(pvalue_dir):
@@ -613,7 +613,7 @@ class DataLoader:
 
         dheatmaps = {}
 
-        heatmap_path = '../heatmaps/'
+        heatmap_path = os.path.join('..', 'visualizer_data', 'heatmaps')
         norm = matplotlib.colors.Normalize(-1, 1)
         colors = [[norm(-1.0), "cyan"],
                   [norm(-0.6), "lightblue"],
@@ -669,19 +669,15 @@ class DataLoader:
                 #rdf[0] = rdf[0].apply(lambda x: 0 if x > 0.01 else 1)
 
                 diff_pv = diff.copy().T
-                """diff_pv = diff_pv.rename(columns={0: 'diff'})
 
-                ft = pd.concat([diff_pv, rdf], axis=1)
-                ft = ft[ft.rdf <= 0.01]['diff'].reset_index()
-                ft.drop(columns=['index'], inplace=True)"""
-
+                # duplicated statement here
                 for j in range(len(diff_pv.iloc[:, 0])):
                     if rdf.iloc[j, 0] > 0.01:
                         diff_pv.iloc[j, 0] = 0
 
                 ax = sns.heatmap(
-                    data= diff_pv.T, #ft.T, # rdf.T
-                    vmin=-1.0, #0,
+                    data= diff_pv.T,
+                    vmin=-1.0,
                     vmax=1.0,
                     cbar=False,
                     cmap=custom_color_map
@@ -716,22 +712,22 @@ class DataLoader:
         """
         dheatmaps = {}
 
-        heatmap_path = '../heatmaps/'
+        heatmap_path = os.path.join('..', 'visualizer_data', 'heatmaps')
 
         if not os.path.exists(heatmap_path):
             return {}
 
-        for dir in os.listdir(os.path.join('..', 'heatmaps', self.dirname)):
+        for dir in os.listdir(os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname)):
             ddf = {}
 
             for p, n in self.get_popular_categories(self.thresh):
                 heatmaps_dict = {}
 
-                hdiff = os.path.join('..', 'heatmaps', self.dirname, dir, f"{self.clean_s(p)}-diff.png")
+                hdiff = os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname, dir, f"{self.clean_s(p)}-diff.png")
                 heatmaps_dict["diff"] = {}
                 heatmaps_dict["diff"]['path'] = hdiff
 
-                hpv = os.path.join('..', 'heatmaps', self.dirname, dir, f"{self.clean_s(p)}-pvalue.png")
+                hpv = os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname, dir, f"{self.clean_s(p)}-pvalue.png")
                 heatmaps_dict["pvalue"] = {}
                 heatmaps_dict["pvalue"]['path'] = hpv
 
@@ -747,7 +743,7 @@ class DataLoader:
         :return: the computed data of these parameters, the name of these parameters and the categories we compare
         """
         categories = self.get_popular_categories(self.thresh)
-        table_data_path = os.path.join('../activations', self.dirname, 'table_data.pkl')
+        table_data_path = os.path.join('..', 'visualizer_data', 'activations', self.dirname, 'table_data.pkl')
         if not os.path.exists(table_data_path) or (self.new_thresh is not None and self.thresh != self.old_thresh):
 
             data_dict = {}
@@ -779,7 +775,7 @@ class DataLoader:
     def get_min_pv(self, cat):
         min_pv = 1
         for i in range(len(self.dfs)):
-            pv = self.find_pv(cat, self.dfs[i]).min()
+            pv = self.find_pv(cat, self.dfs[i], self.model.get_layers()[i].name).min()
             if pv < min_pv:
                 min_pv = pv
         return min_pv

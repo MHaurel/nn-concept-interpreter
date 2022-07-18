@@ -11,8 +11,8 @@
 * Deploy loading pop-up
 
 * Solve terminal error when loading a sample (not urgent)
-* May create a directory *visualizer_data* to store heatmaps, activations and pvalues
 * Add similaritites in dheatmaps
+* docstring
 
 ### HEATMAPS SAMPLE
 
