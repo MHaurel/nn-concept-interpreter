@@ -472,16 +472,16 @@ class DataLoader:
             dheatmaps = self.get_sample_heatmaps_from_files(category, compare_categories, sample_index)#add compare_categories
 
         sample = self.df[self.df.index == sample_index]
-        sims = self.get_similarities_sample_cat(sample, compare_categories[0]) # change it
 
-        #dheatmaps = {f"{k} (similarity : {round(sims[k])})": dheatmaps[k] for k in dheatmaps}
+        sims = self.get_similarities_sample_cat(sample, compare_categories[0][0]) # change it
+
         dheatmaps = {f"{k} (similarity : {sims[k]})": dheatmaps[k] for k in dheatmaps}
-        #print(dheatmaps)
+        print(dheatmaps)
 
         return sample, dheatmaps
 
     def get_diff_heatmaps_sample_for_cat(self, category, comparison_category, index=None):
-        sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index)
+        sample, sample_dict = self.get_sample_for_cat(category, index)
 
         #print(sample_dict)
 
@@ -494,7 +494,7 @@ class DataLoader:
 
     def get_pv_heatmaps_sample_for_cat(self, category, comparison_category, index=None):
         print(comparison_category)
-        sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index)
+        sample, sample_dict = self.get_sample_for_cat(category, index)
 
         #print(f"sample_dict: {sample_dict}")
 
@@ -561,6 +561,7 @@ class DataLoader:
                 #print(f"Cosine: {sim}")
 
             sims.append((self.model.get_layers()[i].name, sim))
+        print(self.__class__, sims)
 
         return {k:l for k,l in sims}
 
