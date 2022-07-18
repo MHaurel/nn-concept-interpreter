@@ -76,7 +76,6 @@ class SampleWidget(QWidget):
 
     def get_similarities(self):
         category = self.comparison_category_widget.get_category()
-        print(category, self.__class__)
         sims = self.dataloader.get_similarities_sample_cat(self.sample, category)
 
         return sims

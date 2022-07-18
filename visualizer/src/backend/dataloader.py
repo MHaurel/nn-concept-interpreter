@@ -47,8 +47,8 @@ class DataLoader:
         else:
             self.thresh = DEFAULT_THRESH
 
-
-        if not os.path.exists(os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname)) or not os.path.exists(os.path.join('..', 'visualizer_data', 'activations', self.dirname)) or \
+        if not os.path.exists(os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname)) or not os.path.exists(
+                os.path.join('..', 'visualizer_data', 'activations', self.dirname)) or \
                 (self.new_thresh is not None and self.new_thresh != self.thresh):
 
             print(f"Writing in {os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname)}")
@@ -65,10 +65,13 @@ class DataLoader:
                 os.makedirs(os.path.join('..', 'visualizer_data', 'activations', self.dirname))
 
             for i in range(len(self.dfs)):
-                pd.to_pickle(self.dfs[i], os.path.join('..', 'visualizer_data', 'activations', self.dirname, f"{i} - {self.model.get_layers()[i].name}.pkl"))
+                pd.to_pickle(self.dfs[i], os.path.join('..', 'visualizer_data', 'activations', self.dirname,
+                                                       f"{i} - {self.model.get_layers()[i].name}.pkl"))
 
             for i in range(len(self.non_standardized_dfs)):
-                pd.to_pickle(self.non_standardized_dfs[i], os.path.join('..', 'visualizer_data', 'activations', self.dirname, f"{i} - n_{self.model.get_layers()[i].name}.pkl"))
+                pd.to_pickle(self.non_standardized_dfs[i],
+                             os.path.join('..', 'visualizer_data', 'activations', self.dirname,
+                                          f"{i} - n_{self.model.get_layers()[i].name}.pkl"))
 
             if self.new_thresh is not None and self.new_thresh != self.thresh:
                 self.old_thresh = self.thresh
@@ -90,7 +93,7 @@ class DataLoader:
 
             self.heatmaps = self.get_heatmaps_from_files()
 
-        #self.loading_screen.end()  # Ending loading screen animation and close the popup
+        # self.loading_screen.end()  # Ending loading screen animation and close the popup
 
     def get_model(self):
         """
@@ -119,13 +122,13 @@ class DataLoader:
         :return: a prediction
         """
         inputs = np.array([np.array(x) for x in self.df.input])
-        y_pred = self.model.get_model().predict(inputs) #Try to replace with self.model.predict_inputs(inputs)
+        y_pred = self.model.get_model().predict(inputs)  # Try to replace with self.model.predict_inputs(inputs)
 
         if self.dirname == "painters_ds":
-            return [1 if p >= 0.5 else 0 for p in y_pred] # Because we're facing a regression problem
+            return [1 if p >= 0.5 else 0 for p in y_pred]  # Because we're facing a regression problem
 
-        else: # if self.dirname == "bycountry_ds":
-            return [np.argmax(p) for p in y_pred] # Because we're facing a classification problem
+        else:  # if self.dirname == "bycountry_ds":
+            return [np.argmax(p) for p in y_pred]  # Because we're facing a classification problem
 
     def formalize_outputs(self, df):
         """
@@ -134,17 +137,23 @@ class DataLoader:
         :return: the new df with formalized outputs
         """
         temp_df = df.copy()
+
+        print(temp_df.columns)
+
         if 'output' not in df.columns:
             output = np.zeros(df.output_low.shape)
 
             temp_df['true'] = output
             temp_df.loc[(temp_df.output_medium == 1), 'true'] = 1
             temp_df.loc[(temp_df.output_high == 1), 'true'] = 2
+            temp_df['true'] = temp_df['true'].astype('int')
 
         else:
             temp_df['true'] = temp_df['output']
 
         temp_df['pred'] = self.get_predictions()
+
+        print(temp_df['true'])
 
         return temp_df
 
@@ -208,6 +217,11 @@ class DataLoader:
         return unique_categories
 
     def clean_s(self, s):
+        """
+        Clean the passed string (e.g. only keep the end of the link)
+        :param s: the string to clean
+        :return: the cleaned string
+        """
         return s.split('/')[-1]
 
     def get_popular_categories(self, thresh=500):
@@ -224,10 +238,11 @@ class DataLoader:
 
         return_dic = {c: n for c, n in dic.items() if n >= self.thresh}
 
-        with open(os.path.join('..', 'visualizer_data', 'activations', self.dirname, 'popular_categories.json'), 'w') as f:
+        with open(os.path.join('..', 'visualizer_data', 'activations', self.dirname, 'popular_categories.json'),
+                  'w') as f:
             json.dump(return_dic, f)
 
-        return sorted(return_dic.items(), key=lambda x: x[1], reverse=True) # Return sorted dictionary
+        return sorted(return_dic.items(), key=lambda x: x[1], reverse=True)  # Return sorted dictionary
 
     def get_inputs_for_cat(self, category):
         """
@@ -267,10 +282,6 @@ class DataLoader:
 
         new_df['category'] = df.category
         new_df['input'] = df.input
-        """new_df['output_low'] = df.output_low
-        new_df['output_medium'] = df.output_medium
-        new_df['output_high'] = df.output_high"""
-        #new_df['output'] = df.output
         new_df['true'] = df.true
         new_df['pred'] = df.pred
 
@@ -303,7 +314,7 @@ class DataLoader:
 
             print(f"--- For taking Embedding activations: {time.time() - mean_start_time} seconds ---")
 
-        elif not isinstance(model.get_layers()[-1], Flatten): # Excepting Flatten layer
+        elif not isinstance(model.get_layers()[-1], Flatten):  # Excepting Flatten layer
             for neuron_index, value_list in enumerate(activations.T):
                 index = f"neuron_{neuron_index + 1}"
                 new_df[index] = value_list
@@ -313,7 +324,8 @@ class DataLoader:
         if standardized:
             return_df = self.standardize(return_df)
 
-        print(f"--- For get_all_activations with layer {model.get_layers()[-1]}: {time.time() - start_time} seconds ---")
+        print(
+            f"--- For get_all_activations with layer {model.get_layers()[-1]}: {time.time() - start_time} seconds ---")
         return return_df
 
     def get_cat_df(self, category, df):
@@ -336,6 +348,12 @@ class DataLoader:
         return self.get_cat_df(category, df).loc[:, df.columns.isin(activations_cols)]
 
     def get_mean_activation_for_cat(self, category, df):
+        """
+        Taking the mean of the activations for a given category and a given df (e.g. layer)
+        :param category: The category to take the mean of the activations for
+        :param df: The df from where we fetch the activation
+        :return: The transposed dataframe of the mean activations
+        """
         return pd.DataFrame(self.get_activation_for_cat(category, df).mean()).T
 
     def get_not_cat_df(self, category, df):
@@ -355,14 +373,17 @@ class DataLoader:
         :return: A DataFrame containing all activations except the ones for category
         """
         activations_cols = [col for col in df.columns if "neuron" in col]
-        return self.get_not_cat_df(category, df).loc[:, df.columns.isin(activations_cols)] #Must be more generic
+        return self.get_not_cat_df(category, df).loc[:, df.columns.isin(activations_cols)]  # Must be more generic
 
     def get_sample_for_cat(self, category, comparison_category, index=None, with_pv=False):
         """
-
-        :param index:
-        :param category:
-        :return: a dict of the paths of the 2 heatmaps
+        Fetch a sample for a given index and category. Then compute heatmaps for the difference between the sample and
+        all the category except the one he belongs to, compute also the heatmaps filtered with the pvalue.
+        :param category: The category of the sample
+        :param comparison_category: the category to compare to compute the similarity
+        :param index: The index of the sample we want
+        :param with_pv: True if the filter of pvalue is enabled
+        :return: the sample and a dict of the paths of the 2 kind of the heatmaps
         """
 
         if comparison_category is None:
@@ -429,10 +450,10 @@ class DataLoader:
                     sample = self.dfs[i][self.dfs[i].index == sample_index]
 
                     diff_pv = self.get_pv_activation_for_sample(sample, c, self.dfs[i],
-                                                            self.model.get_layers()[i].name)
+                                                                self.model.get_layers()[i].name)
 
                     ax = sns.heatmap(
-                        data=diff_pv, # diff_pv.T
+                        data=diff_pv,
                         vmin=-1.0,
                         vmax=1.0,
                         cbar=False,
@@ -452,7 +473,8 @@ class DataLoader:
                     json.dump(dheatmaps, f)
 
         else:
-            dheatmaps = self.get_sample_heatmaps_from_files(category, compare_categories, sample_index)#add compare_categories
+            dheatmaps = self.get_sample_heatmaps_from_files(category, compare_categories,
+                                                            sample_index)
 
         sample = self.df[self.df.index == sample_index]
 
@@ -463,6 +485,13 @@ class DataLoader:
         return sample, dheatmaps
 
     def get_diff_heatmaps_sample_for_cat(self, category, comparison_category, index=None):
+        """
+        Parse the heatmaps of the differences from the global dict of heatmaps
+        :param category: the category of the sample for which we want the heatmaps of the differences
+        :param comparison_category: the category we want to compare to compute similarities
+        :param index: the index of the sample we want the heatmaps of
+        :return: the sample and a list of the paths of the heatmaps
+        """
         sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index, with_pv=False)
 
         paths = {}
@@ -472,6 +501,13 @@ class DataLoader:
         return sample, paths
 
     def get_pv_heatmaps_sample_for_cat(self, category, comparison_category, index=None):
+        """
+        Parse the heatmaps of the differences filtered with pvalues from the global dict of heatmaps
+        :param category: the category of the sample for which we want the heatmaps of the differences filtered
+        :param comparison_category: the category we want to compare to compute similarities
+        :param index: the index of the sample we want the heatmaps of
+        :return: the sample and a list of the paths of the heatmaps
+        """
         sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index, with_pv=True)
 
         paths = {}
@@ -481,6 +517,14 @@ class DataLoader:
         return sample, paths
 
     def get_pv_activation_for_sample(self, sample, category, df, layer_name):
+        """
+        Get the dataframe of the differences filtered with pvalue according to the parameters
+        :param sample: the sample to fetch the heatmaps for
+        :param category: the category of the sample
+        :param df: the df (layer) for which we want to get the heatmaps
+        :param layer_name: the name of the layer
+        :return: the dataframe of the differences filtered with pvalue
+        """
         r = self.find_pv(category, df, layer_name)
         rdf = pd.DataFrame(r)
         rdf.rename(columns={0: 'rdf'}, inplace=True)
@@ -499,10 +543,16 @@ class DataLoader:
 
         return diff_pv.T
 
-    def get_sample_heatmaps_from_files(self, category, compare_categories, index):
+    def get_sample_heatmaps_from_files(self, category, index):
+        """
+        Load the heatmaps dict from a file when already generated
+        :param category: the category for which we want the sample
+        :param index: the index of the sample we want the heatmaps of
+        :return: the loaded dict of the heatmaps
+        """
         dheatmaps = None
         file_path = os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname, 'sample',
-                            self.clean_s(category), self.clean_s(index), 'dheatmaps.json')
+                                 self.clean_s(category), self.clean_s(index), 'dheatmaps.json')
         try:
             with open(file_path, 'r') as f:
                 dheatmaps = json.load(f)
@@ -512,19 +562,34 @@ class DataLoader:
         return dheatmaps
 
     def get_activation_for_sample(self, sample, df):
+        """
+        Get the dataframe of the activations for a sample and for a df (layer)
+        :param sample: the sample we want the activations of
+        :param df: the df for which we want the activations
+        :return: the dataframe of the activations
+        """
         activations_cols = [col for col in df.columns if "neuron" in col]
         sample_act = df[df.index == sample.index[0]].loc[:, df.columns.isin(activations_cols)]
         return sample_act
 
     def get_cosine_similarity(self, a, b):
+        """
+        Compute the cosine similarity from 2 arrays and returns it in the shape of a percentage
+        :param a: the 1st array
+        :param b: the 2nd array
+        :return: the cosine similarity between a and b
+        """
         return (1 - spatial.distance.cosine(a, b)) * 100  # Multiply by 100 to get a percentage
 
     def get_similarities_sample_cat(self, sample, category, with_pv=False):
         """
-
-        :param sample:
-        :param category:
-        :return:
+        Get the similarities per layer for a sample and a category. And whether yes or no we are filtering by
+        p-value.
+        For the moment, the chosen similarity is a cosine similarity.
+        :param sample: The sample from which we want the similarities
+        :param category: The category to get the similarities compared to the sample
+        :param with_pv: If True, taking the pvalue filtered differences array. Else, taking the raw differences array
+        :return: A list of tuples each containing the name of the layer and the value of the similarity
         """
 
         # ['euclidean', 'cosine']
@@ -554,11 +619,11 @@ class DataLoader:
                 else:
                     a = self.get_activation_for_sample(sample, self.non_standardized_dfs[i])
                 b = self.get_mean_activation_for_cat(category, self.non_standardized_dfs[i])
-                sim = (1 - spatial.distance.cosine(a, b)) * 100 # To get a percentage
+                sim = (1 - spatial.distance.cosine(a, b)) * 100  # To get a percentage
 
             sims.append((self.model.get_layers()[i].name, sim))
 
-        return {k:l for k,l in sims}
+        return {k: l for k, l in sims}
 
     def find_pv(self, category, df, layer_name):
         """
@@ -581,7 +646,7 @@ class DataLoader:
             actc = self.get_activation_for_cat(category, df)
             actnc = self.get_activation_for_not_cat(category, df)
             reses = []
-            for i in range(100): #1000 by default
+            for i in range(100):  # 1000 by default
                 actncs = actnc.sample(len(actc), replace=True)
                 res = []
                 for col in actc:
@@ -624,11 +689,11 @@ class DataLoader:
         if not os.path.exists(heatmap_path):
             os.makedirs(heatmap_path)
 
-        #for i in range(len(self.model.get_layers())):
+        # for i in range(len(self.model.get_layers())):
         for i in range(len(self.dfs)):
             ddf = {}
 
-            current_path = os.path.join(heatmap_path, self.dirname, f"{i+1} - {self.model.get_layers()[i].name}")
+            current_path = os.path.join(heatmap_path, self.dirname, f"{i + 1} - {self.model.get_layers()[i].name}")
             if not os.path.exists(current_path):
                 os.makedirs(current_path)
 
@@ -636,12 +701,13 @@ class DataLoader:
                 heatmap_dic = {}
 
                 # Difference between in and out of category
-                plt.figure(figsize=(16,5))
+                plt.figure(figsize=(16, 5))
 
                 data_1 = self.get_activation_for_not_cat(category=c, df=self.dfs[i])
                 data_1 = pd.DataFrame(data_1.mean()).T
 
-                diff = np.array(self.get_activation_for_cat(c, self.dfs[i]).mean()) - np.array(data_1.T[0]) #Need to store activations (self.dfs)
+                diff = np.array(self.get_activation_for_cat(c, self.dfs[i]).mean()) - np.array(
+                    data_1.T[0])  # Need to store activations (self.dfs)
                 diff = pd.DataFrame(diff).T
                 ax = sns.heatmap(
                     data=diff,
@@ -661,7 +727,7 @@ class DataLoader:
                 rdf = pd.DataFrame(r)
                 rdf = rdf.rename(columns={0: 'rdf'})
 
-                #rdf[0] = rdf[0].apply(lambda x: 0 if x > 0.01 else 1)
+                # rdf[0] = rdf[0].apply(lambda x: 0 if x > 0.01 else 1)
 
                 diff_pv = diff.copy().T
 
@@ -671,7 +737,7 @@ class DataLoader:
                         diff_pv.iloc[j, 0] = 0
 
                 ax = sns.heatmap(
-                    data= diff_pv.T,
+                    data=diff_pv.T,
                     vmin=-1.0,
                     vmax=1.0,
                     cbar=False,
@@ -718,11 +784,13 @@ class DataLoader:
             for p, n in self.get_popular_categories(self.thresh):
                 heatmaps_dict = {}
 
-                hdiff = os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname, dir, f"{self.clean_s(p)}-diff.png")
+                hdiff = os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname, dir,
+                                     f"{self.clean_s(p)}-diff.png")
                 heatmaps_dict["diff"] = {}
                 heatmaps_dict["diff"]['path'] = hdiff
 
-                hpv = os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname, dir, f"{self.clean_s(p)}-pvalue.png")
+                hpv = os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname, dir,
+                                   f"{self.clean_s(p)}-pvalue.png")
                 heatmaps_dict["pvalue"] = {}
                 heatmaps_dict["pvalue"]['path'] = hpv
 
@@ -767,20 +835,30 @@ class DataLoader:
 
         return data, headers, categories
 
-    def get_min_pv(self, cat):
+    def get_min_pv(self, category):
+        """
+        Get the minimum of p-values for a category among all the layers.
+        :param category: the category for which we want this minimum
+        :return: the minimum p-value
+        """
         min_pv = 1
         for i in range(len(self.dfs)):
-            pv = self.find_pv(cat, self.dfs[i], self.model.get_layers()[i].name).min()
+            pv = self.find_pv(category, self.dfs[i], self.model.get_layers()[i].name).min()
             if pv < min_pv:
-                min_pv = pv
                 min_pv = pv
         return min_pv
 
-    def get_max_diff(self, cat):
+    def get_max_diff(self, category):
+        """
+        Get the maximum of the difference per neuron of the activations between the activations for the category and
+        all except the category.
+        :param category: The category for which we want the maximum of the difference
+        :return: The maximum difference
+        """
         max_diff = 0
         for i in range(len(self.dfs)):
-            df_cat = self.get_activation_for_cat(cat, self.dfs[i])
-            df_ncat = self.get_activation_for_not_cat(cat, self.dfs[i])
+            df_cat = self.get_activation_for_cat(category, self.dfs[i])
+            df_ncat = self.get_activation_for_not_cat(category, self.dfs[i])
 
             temp_max = abs((df_cat.mean() - df_ncat.mean()).max())
             if temp_max > max_diff:
@@ -790,7 +868,6 @@ class DataLoader:
 
 
 if __name__ == '__main__':
-
     m = Model(path='../../models/painter_model')
 
     dl = DataLoader('../../data/painters_ds.json', model=m, thresh=500)
