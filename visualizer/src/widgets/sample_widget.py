@@ -70,8 +70,6 @@ class SampleWidget(QWidget):
             self.heatmaps_sample.set_filtered_pvalue(False)
             self.comparison_category_widget.set_filtered_pvalue(False)
 
-        print(paths_heatmaps_sample, self.__class__)
-
         self.heatmaps_sample.update_heatmap_list(paths_heatmaps_sample)
 
         self.comparison_category_widget.update_heatmap_list(paths_comparison_category)

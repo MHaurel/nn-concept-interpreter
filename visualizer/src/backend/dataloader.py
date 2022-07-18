@@ -357,7 +357,7 @@ class DataLoader:
         activations_cols = [col for col in df.columns if "neuron" in col]
         return self.get_not_cat_df(category, df).loc[:, df.columns.isin(activations_cols)] #Must be more generic
 
-    def get_sample_for_cat(self, category, comparison_category, index=None):
+    def get_sample_for_cat(self, category, comparison_category, index=None, with_pv=False):
         """
 
         :param index:
@@ -426,28 +426,13 @@ class DataLoader:
             for i in range(0, len(self.model.get_layers())):
                 dpvalue = {}
                 for c, n in compare_categories:
-                    r = self.find_pv(c, self.dfs[i], self.model.get_layers()[i].name)
-                    rdf = pd.DataFrame(r)
-                    rdf.rename(columns={0: 'rdf'}, inplace=True)
-
                     sample = self.dfs[i][self.dfs[i].index == sample_index]
 
-                    #duplicated code here
-                    data_1 = self.get_activation_for_not_cat(category=c, df=self.dfs[i])
-                    data_1 = pd.DataFrame(data_1.mean()).T
-
-                    sample_activations_cols = [col for col in sample.columns if "neuron" in col]
-                    sample_act = sample.loc[:, sample.columns.isin(sample_activations_cols)]
-                    diff_sample = np.array(sample_act) - np.array(data_1.T[0])
-
-                    diff_pv = pd.DataFrame(diff_sample.copy().T)
-
-                    for j in range(len(diff_pv.iloc[:, 0])):
-                        if rdf.iloc[j, 0] > 0.01:
-                            diff_pv.iloc[j, 0] = 0
+                    diff_pv = self.get_pv_activation_for_sample(sample, c, self.dfs[i],
+                                                            self.model.get_layers()[i].name)
 
                     ax = sns.heatmap(
-                        data=diff_pv.T,
+                        data=diff_pv, # diff_pv.T
                         vmin=-1.0,
                         vmax=1.0,
                         cbar=False,
@@ -471,14 +456,14 @@ class DataLoader:
 
         sample = self.df[self.df.index == sample_index]
 
-        sims = self.get_similarities_sample_cat(sample, comparison_category)
+        sims = self.get_similarities_sample_cat(sample, comparison_category, with_pv)
 
         dheatmaps = {f"{k} (similarity : {sims[k]})": dheatmaps[k] for k in dheatmaps}
 
         return sample, dheatmaps
 
     def get_diff_heatmaps_sample_for_cat(self, category, comparison_category, index=None):
-        sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index)
+        sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index, with_pv=False)
 
         paths = {}
         for layer in sample_dict.keys():
@@ -487,13 +472,32 @@ class DataLoader:
         return sample, paths
 
     def get_pv_heatmaps_sample_for_cat(self, category, comparison_category, index=None):
-        sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index)
+        sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index, with_pv=True)
 
         paths = {}
         for layer in sample_dict.keys():
             paths[layer] = [sample_dict[layer]['pvalue'][self.clean_s(comparison_category)]['path']]
 
         return sample, paths
+
+    def get_pv_activation_for_sample(self, sample, category, df, layer_name):
+        r = self.find_pv(category, df, layer_name)
+        rdf = pd.DataFrame(r)
+        rdf.rename(columns={0: 'rdf'}, inplace=True)
+
+        data_1 = self.get_activation_for_not_cat(category, df)
+        data_1 = pd.DataFrame(data_1.mean()).T
+
+        sample_act = self.get_activation_for_sample(sample, df)
+        diff_sample = np.array(sample_act) - np.array(data_1.T[0])
+
+        diff_pv = pd.DataFrame(diff_sample.copy().T)
+
+        for j in range(len(diff_pv.iloc[:, 0])):
+            if rdf.iloc[j, 0] > 0.01:
+                diff_pv.iloc[j, 0] = 0
+
+        return diff_pv.T
 
     def get_sample_heatmaps_from_files(self, category, compare_categories, index):
         dheatmaps = None
@@ -515,7 +519,7 @@ class DataLoader:
     def get_cosine_similarity(self, a, b):
         return (1 - spatial.distance.cosine(a, b)) * 100  # Multiply by 100 to get a percentage
 
-    def get_similarities_sample_cat(self, sample, category):
+    def get_similarities_sample_cat(self, sample, category, with_pv=False):
         """
 
         :param sample:
@@ -544,7 +548,11 @@ class DataLoader:
             # Means that default is cosine
             else:
                 # try with cosine similarity on non standardized dfs
-                a = self.get_activation_for_sample(sample, self.non_standardized_dfs[i])
+                if with_pv:
+                    a = self.get_pv_activation_for_sample(sample, category, self.non_standardized_dfs[i],
+                                                          self.model.get_layers()[i].name)
+                else:
+                    a = self.get_activation_for_sample(sample, self.non_standardized_dfs[i])
                 b = self.get_mean_activation_for_cat(category, self.non_standardized_dfs[i])
                 sim = (1 - spatial.distance.cosine(a, b)) * 100 # To get a percentage
 

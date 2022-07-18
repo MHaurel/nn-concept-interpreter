@@ -2,8 +2,6 @@
 
 ### HEATMAPS CATEGORIES
 
-* Compute euclidean distance / cosine similarity **(done)**
-  * Filter similarity pvalue
 * Get activations closer to the mean for a misclassified sample and test if the classification is much better. (will be long to develop)
   * First hands on with a notebook (see boost.ipynb)
   * Then deploy it on the app
@@ -11,7 +9,6 @@
 * Deploy loading pop-up
 
 * Solve terminal error when loading a sample (not urgent)
-* Add similaritites in dheatmaps
 * docstring
 
 ### HEATMAPS SAMPLE
