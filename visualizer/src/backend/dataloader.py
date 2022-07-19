@@ -138,8 +138,6 @@ class DataLoader:
         """
         temp_df = df.copy()
 
-        print(temp_df.columns)
-
         if 'output' not in df.columns:
             output = np.zeros(df.output_low.shape)
 
@@ -152,8 +150,6 @@ class DataLoader:
             temp_df['true'] = temp_df['output']
 
         temp_df['pred'] = self.get_predictions()
-
-        print(temp_df['true'])
 
         return temp_df
 
@@ -473,8 +469,7 @@ class DataLoader:
                     json.dump(dheatmaps, f)
 
         else:
-            dheatmaps = self.get_sample_heatmaps_from_files(category, compare_categories,
-                                                            sample_index)
+            dheatmaps = self.get_sample_heatmaps_from_files(category, sample_index)
 
         sample = self.df[self.df.index == sample_index]
 

@@ -48,12 +48,12 @@ class SampleWidget(QWidget):
         heatmaps_category = self.heatmaps_sample.get_category()
         comparison_category = self.comparison_category_widget.get_category()
 
-        print(comparison_category, self.__class__)
-
         """
             NEED TO EXPLICIT THE CASE WHERE ONE OF THE TWO SIDE HAS NOT CHANGED
             i.e. not re-fetch heatmaps which are already good
         """
+
+        print(f"comparison_category: {comparison_category}", self.__class__)
 
         if with_pv:
             self.sample, paths_heatmaps_sample = self.dataloader\

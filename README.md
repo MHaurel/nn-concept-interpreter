@@ -2,7 +2,6 @@
 
 ### HEATMAPS CATEGORIES
 
-* Similarities not updated when actualizing the comparison heatmaps
 * Get activations closer to the mean for a misclassified sample and test if the classification is much better. (will be long to develop)
   * First hands on with a notebook (see boost.ipynb)
   * Then deploy it on the app
