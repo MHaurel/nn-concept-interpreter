@@ -296,6 +296,9 @@ class DataLoader:
             pd.DataFrame(activations.flatten()).to_pickle(os.path.join('..', 'visualizer_data', 'activations',
                                                              self.dirname, model.get_layers()[-1].name + "-not-mean.pkl"))
 
+            print(activations)
+            print(activations.shape)
+
             emb_activations_arr = [a.flatten() for a in activations]
             emb_activations_arr = np.array(emb_activations_arr)
 
@@ -432,12 +435,14 @@ class DataLoader:
                     data=diff_sample,
                     vmin=-1.0,
                     vmax=1.0,
-                    cbar=False,
+                    cbar=True,#False,
                     cmap=custom_color_map
                 )
                 fig = ax.get_figure()
                 path = os.path.join(current_path, f"{i}-{self.model.get_layers()[i].name}-diff.png")
                 fig.savefig(path)
+
+                plt.close(fig)
 
                 dheatmaps[self.model.get_layers()[i].name] = {}
                 dheatmaps[self.model.get_layers()[i].name]['diff'] = {}
@@ -446,6 +451,8 @@ class DataLoader:
             for i in range(0, len(self.model.get_layers())):
                 dpvalue = {}
                 for c, n in compare_categories:
+                    plt.figure(figsize=(16, 5))
+
                     sample = self.dfs[i][self.dfs[i].index == sample_index]
 
                     diff_pv = self.get_pv_activation_for_sample(sample, c, self.dfs[i],
@@ -455,13 +462,15 @@ class DataLoader:
                         data=diff_pv,
                         vmin=-1.0,
                         vmax=1.0,
-                        cbar=False,
+                        cbar=True,#False,
                         cmap=custom_color_map
                     )
                     fig = ax.get_figure()
                     path = os.path.join(current_path,
                                         f"{i}-{self.model.get_layers()[i].name}-{self.clean_s(c)}-pvalue.png")
                     fig.savefig(path)
+
+                    plt.close(fig)
 
                     dpvalue[f"{self.clean_s(c)}"] = {}
                     dpvalue[f"{self.clean_s(c)}"]['path'] = path
@@ -707,11 +716,16 @@ class DataLoader:
                 diff = np.array(self.get_activation_for_cat(c, self.dfs[i]).mean()) - np.array(
                     data_1.T[0])  # Need to store activations (self.dfs)
                 diff = pd.DataFrame(diff).T
+
+                if self.clean_s(c) == 'France':
+                    print('saving france')
+                    diff.to_pickle(str(i) + ' france.pkl')
+
                 ax = sns.heatmap(
                     data=diff,
                     vmin=-1.0,
                     vmax=1.0,
-                    cbar=False,
+                    cbar=True, #False
                     cmap=custom_color_map
                 )
                 fig = ax.get_figure()
@@ -738,7 +752,7 @@ class DataLoader:
                     data=diff_pv.T,
                     vmin=-1.0,
                     vmax=1.0,
-                    cbar=False,
+                    cbar=True, #False
                     cmap=custom_color_map
                 )
                 fig = ax.get_figure()
