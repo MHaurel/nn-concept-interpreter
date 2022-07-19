@@ -51,6 +51,9 @@ class DataLoader:
                 os.path.join('..', 'visualizer_data', 'activations', self.dirname)) or \
                 (self.new_thresh is not None and self.new_thresh != self.thresh):
 
+            if not os.path.exists(os.path.join('..', 'visualizer_data', 'activations', self.dirname)):
+                os.makedirs(os.path.join('..', 'visualizer_data', 'activations', self.dirname))
+
             print(f"Writing in {os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname)}")
             for i in range(len(self.model.get_layers())):
                 new_model = self.model.rebuild_model(i)
@@ -60,9 +63,6 @@ class DataLoader:
 
                 ndf = self.get_all_activations(self.df, new_model, standardized=False)
                 self.non_standardized_dfs.append(ndf)
-
-            if not os.path.exists(os.path.join('..', 'visualizer_data', 'activations', self.dirname)):
-                os.makedirs(os.path.join('..', 'visualizer_data', 'activations', self.dirname))
 
             for i in range(len(self.dfs)):
                 pd.to_pickle(self.dfs[i], os.path.join('..', 'visualizer_data', 'activations', self.dirname,
@@ -292,6 +292,9 @@ class DataLoader:
             mean_start_time = time.time()
 
             print("Taking Embedding activations")
+
+            pd.DataFrame(activations.flatten()).to_pickle(os.path.join('..', 'visualizer_data', 'activations',
+                                                             self.dirname, model.get_layers()[-1].name + "-not-mean.pkl"))
 
             emb_activations_arr = [a.flatten() for a in activations]
             emb_activations_arr = np.array(emb_activations_arr)

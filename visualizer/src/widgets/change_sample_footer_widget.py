@@ -18,6 +18,9 @@ class ChangeSampleFooterWidget(QWidget):
 
         self.label_similarity = QLabel("avg similarity:")
 
+        self.btn_boost = QPushButton('Boost')
+        self.btn_boost.clicked.connect(self.boost_sample)
+
         self.btn_next_sample = QPushButton("Next")
         self.btn_next_sample.clicked.connect(self.display_next_sample)
 
@@ -30,6 +33,9 @@ class ChangeSampleFooterWidget(QWidget):
 
     def display_next_sample(self):
         self.parent().display_next_sample()
+
+    def boost_sample(self):
+        print("Asking to boost sample")
 
     def set_sample(self, sample):
         """
@@ -47,9 +53,11 @@ class ChangeSampleFooterWidget(QWidget):
             if self.label_true.text().split(':')[-1] == self.label_pred.text().split(':')[-1]:
                 self.label_pred.setObjectName('good_pred_label')
                 self.label_pred.setStyleSheet('QLabel#good_pred_label {color: green}')
+                self.btn_boost.setParent(None)
             else:
                 self.label_pred.setObjectName('bad_pred_label')
                 self.label_pred.setStyleSheet('QLabel#bad_pred_label {color: red}')
+                self.main_layout.addWidget(self.btn_boost)
 
             avg_similarity = self.parent().get_avg_similarity()
             self.label_similarity.setText(f"avg similarity: {str(round(avg_similarity, 2))}")
