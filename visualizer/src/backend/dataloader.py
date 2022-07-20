@@ -293,14 +293,15 @@ class DataLoader:
 
             print("Taking Embedding activations")
 
-            pd.DataFrame(activations.flatten()).to_pickle(os.path.join('..', 'visualizer_data', 'activations',
-                                                             self.dirname, model.get_layers()[-1].name + "-not-mean.pkl"))
-
-            print(activations)
-            print(activations.shape)
-
             emb_activations_arr = [a.flatten() for a in activations]
+            df_fa = pd.DataFrame(emb_activations_arr)
             emb_activations_arr = np.array(emb_activations_arr)
+
+            df_fa.set_index(new_df.index, inplace=True)
+
+            pd.concat([new_df, df_fa], axis=1).to_pickle(os.path.join('..', 'visualizer_data', 'activations',
+                                                                      self.dirname,
+                                                                      model.get_layers()[-1].name + "-raw.pkl"))
 
             output_dim = model.get_layers()[-1].output_shape[-1]
 
@@ -884,7 +885,12 @@ if __name__ == '__main__':
 
     dl = DataLoader('../../data/painters_ds.json', model=m, thresh=500)
 
-    cat = "http://dbpedia.org/resource/United_States"
-    index = 'http://dbpedia.org/resource/Antoine_Roux'
+    nm = m.rebuild_model(0)
+    print(nm.get_layers()[-1].name)
 
-    print(dl.get_sample_for_cat(cat))
+    dl.get_all_activations(df=dl.df, model=nm)
+
+    #cat = "http://dbpedia.org/resource/United_States"
+    #index = 'http://dbpedia.org/resource/Antoine_Roux'
+
+
