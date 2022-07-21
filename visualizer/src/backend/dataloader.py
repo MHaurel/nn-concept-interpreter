@@ -298,6 +298,7 @@ class DataLoader:
             emb_activations_arr = np.array(emb_activations_arr)
 
             df_fa.set_index(new_df.index, inplace=True)
+            #df_fa = self.standardize(df_fa)
 
             pd.concat([new_df, df_fa], axis=1).to_pickle(os.path.join('..', 'visualizer_data', 'activations',
                                                                       self.dirname,
@@ -624,10 +625,22 @@ class DataLoader:
                 if with_pv:
                     a = self.get_pv_activation_for_sample(sample, category, self.non_standardized_dfs[i],
                                                           self.model.get_layers()[i].name)
+                    a_s = self.get_pv_activation_for_sample(sample, category, self.dfs[i], self.model.get_layers()[i].name)
                 else:
                     a = self.get_activation_for_sample(sample, self.non_standardized_dfs[i])
+                    a_s = self.get_activation_for_sample(sample, self.dfs[i])
+
                 b = self.get_mean_activation_for_cat(category, self.non_standardized_dfs[i])
-                sim = (1 - spatial.distance.cosine(a, b)) * 100  # To get a percentage
+
+
+                b_s = self.get_mean_activation_for_cat(category, self.dfs[i])
+
+                print(a_s.shape)
+                print(b_s.shape)
+
+                print(f"Non-standardized sims : {(1 - spatial.distance.cosine(a, b)) * 100}")
+
+                sim = (1 - spatial.distance.cosine(a_s, b_s)) * 100  # To get a percentage
 
             sims.append((self.model.get_layers()[i].name, sim))
 

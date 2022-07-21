@@ -2,6 +2,7 @@
 
 ### HEATMAPS CATEGORIES
 
+* Need to put 'neuron' in cols of the raw activations embedding df
 * Get activations closer to the mean for a misclassified sample and test if the classification is much better. (will be long to develop)
   * First hands on with a notebook (see boost.ipynb)
   * Then deploy it on the app
