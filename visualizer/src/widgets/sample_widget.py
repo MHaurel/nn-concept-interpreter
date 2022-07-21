@@ -90,3 +90,6 @@ class SampleWidget(QWidget):
 
     def go_to_home(self):
         self.parent().goto("home", self.dataloader)
+
+    def go_to_boost(self, sample, category):
+        self.parent().goto('boost', self.dataloader, category, sample)

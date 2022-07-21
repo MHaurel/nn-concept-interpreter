@@ -165,3 +165,10 @@ class HomeWidget(QWidget):
         :return: None
         """
         self.parent().goto("explore_category", self.dataloader, category)
+
+    def go_to_boost(self):
+        """
+
+        :return:
+        """
+        self.parent().goto("boost")

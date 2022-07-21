@@ -7,10 +7,12 @@ import numpy as np
 from home_window import HomeWindow
 from sample_window import SampleWindow
 from explore_category_window import ExploreCategoryWindow
+from boost_window import BoostWindow
 
 from widgets.home_widget import HomeWidget
 from widgets.explore_category_widget import ExploreCategoryWidget
 from widgets.sample_widget import SampleWidget
+from widgets.boost_widget import BoostWidget
 
 
 class Window(QMainWindow):
@@ -32,8 +34,11 @@ class Window(QMainWindow):
         sample_widget = SampleWidget()
         self.register(SampleWindow(sample_widget), "sample")
 
+        boost_widget = BoostWidget()
+        self.register(BoostWindow(boost_widget), "boost")
+
         # Default page
-        self.goto("home", None, None)  # Dataloader is None
+        self.goto("home", None, None, None)  # Dataloader is None
 
         # Menu
         self.menu = self.menuBar()
@@ -64,8 +69,8 @@ class Window(QMainWindow):
 
         window.gotoSignal.connect(self.goto)
 
-    @Slot(str, object, str)
-    def goto(self, name, dataloader, category):
+    @Slot(str, object, str, object)
+    def goto(self, name, dataloader, category, sample):
         """
         Change the QStackedWidget current window to display the one with the name in parameter
         :param name: The name of the window to display
@@ -80,6 +85,11 @@ class Window(QMainWindow):
 
             if name == "explore_category":
                 window.set_dataloader(dataloader)
+                window.set_category(category)
+
+            if name == "boost":
+                window.set_dataloader(dataloader)
+                window.set_sample(sample)
                 window.set_category(category)
 
             self.stacked_widget.setCurrentWidget(window)

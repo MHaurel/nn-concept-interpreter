@@ -111,8 +111,14 @@ class HeatmapsSampleWidget(QWidget):
         return avg_sim
 
     def update_avg_similarity(self):
+        """"""
         self.change_sample_footer_widget.set_sample(self.sample)
 
     def go_to_home(self):
+        """"""
         self.sample_index = None
         self.parent().go_to_home()
+
+    def go_to_boost(self, sample):
+        """"""
+        self.parent().go_to_boost(sample, self.category)

@@ -121,4 +121,8 @@ class TableCategoriesWidget(QWidget):
         """
         self.parent().go_to_explore_category(category)
 
+    def go_to_boost(self):
+        self.parent().go_to_boost()
+
+
 

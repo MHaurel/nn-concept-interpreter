@@ -2,6 +2,14 @@
 
 ### HEATMAPS CATEGORIES
 
+#### ISSUES
+* misclassified sample similarity is always 100
+* Solve terminal error when loading a sample (not urgent)
+* Can't go to next sample if pvalue filtered
+* "sample" in right lists
+
+#### TASKS
+
 * Need to put 'neuron' in cols of the raw activations embedding df
 * Get activations closer to the mean for a misclassified sample and test if the classification is much better. (will be long to develop)
   * First hands on with a notebook (see boost.ipynb)
@@ -9,7 +17,6 @@
     * Only putting a boost button for misclassified samples
 * Deploy loading pop-up
 
-* Solve terminal error when loading a sample (not urgent)
 * docstring
 
 * Compile the app to make a desktop .exe

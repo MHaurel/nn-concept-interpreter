@@ -6,6 +6,7 @@ class CategorySelector(QComboBox):
         QComboBox.__init__(self)
 
         self.dataloader = dataloader
+        self.categories = None
         self.categories_tuple = None
 
         if self.dataloader is not None:
