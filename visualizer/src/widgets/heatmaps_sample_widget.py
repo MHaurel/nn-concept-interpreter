@@ -60,11 +60,12 @@ class HeatmapsSampleWidget(QWidget):
         self.paths_dict = paths
         self.heatmap_list.update(paths)
 
-    def update_heatmap_list_with_category(self, category, same=False):
+    def update_heatmap_list_with_category(self, category, same=False, misclassified=False):
         """
 
         :param category:
         :param same:
+        :param misclassified:
         :return:
         """
         if category != self.category or same:
@@ -74,17 +75,22 @@ class HeatmapsSampleWidget(QWidget):
             if self.is_filtered_pvalue:
 
                 # Get a sample from category with pvalue filter
-                self.sample, paths = self.dataloader.get_pv_heatmaps_sample_for_cat(category, self.sample_index)
+                self.sample, paths = self.dataloader.get_pv_heatmaps_sample_for_cat(category, self.sample_index,
+                                                                                    misclassified=misclassified)
                 self.heatmap_list.update(paths)
 
             else:
                 # Get a sample from category without pvalue filter
-                self.sample, paths = self.dataloader.get_diff_heatmaps_sample_for_cat(category, self.sample_index)
+                self.sample, paths = self.dataloader.get_diff_heatmaps_sample_for_cat(category, self.sample_index,
+                                                                                      misclassified=misclassified)
                 self.heatmap_list.update(paths)
 
             self.sample_index = self.sample.index[0]
             self.label_sample_index.setText(self.sample_index)
             self.change_sample_footer_widget.set_sample(self.sample)
+
+    def display_misclassified_sample(self):
+        self.update_heatmap_list_with_category(self.category, same=False, misclassified=True)
 
     def display_next_sample(self):
         self.update_heatmap_list_with_category(self.category, same=True)

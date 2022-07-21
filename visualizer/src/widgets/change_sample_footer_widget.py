@@ -16,7 +16,8 @@ class ChangeSampleFooterWidget(QWidget):
         self.label_true = QLabel("true:")
         self.label_pred = QLabel("pred:")
 
-        self.label_similarity = QLabel("avg similarity:")
+        self.btn_misclassified_sample = QPushButton('Load misclassified sample')
+        self.btn_misclassified_sample.clicked.connect(self.load_misclassified_sample)
 
         self.btn_boost = QPushButton('Boost')
         self.btn_boost.clicked.connect(self.boost_sample)
@@ -26,10 +27,13 @@ class ChangeSampleFooterWidget(QWidget):
 
         self.main_layout.addWidget(self.label_true)
         self.main_layout.addWidget(self.label_pred)
-        self.main_layout.addWidget(self.label_similarity)
+        self.main_layout.addWidget(self.btn_misclassified_sample)
         self.main_layout.addWidget(self.btn_next_sample)
 
         self.setLayout(self.main_layout)
+
+    def load_misclassified_sample(self):
+        self.parent().display_misclassified_sample()
 
     def display_next_sample(self):
         self.parent().display_next_sample()
@@ -58,6 +62,3 @@ class ChangeSampleFooterWidget(QWidget):
                 self.label_pred.setObjectName('bad_pred_label')
                 self.label_pred.setStyleSheet('QLabel#bad_pred_label {color: red}')
                 self.main_layout.addWidget(self.btn_boost)
-
-            avg_similarity = self.parent().get_avg_similarity()
-            self.label_similarity.setText(f"avg similarity: {str(round(avg_similarity, 2))}")

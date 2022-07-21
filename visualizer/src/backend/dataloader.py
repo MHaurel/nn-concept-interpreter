@@ -379,7 +379,7 @@ class DataLoader:
         activations_cols = [col for col in df.columns if "neuron" in col]
         return self.get_not_cat_df(category, df).loc[:, df.columns.isin(activations_cols)]  # Must be more generic
 
-    def get_sample_for_cat(self, category, comparison_category, index=None, with_pv=False):
+    def get_sample_for_cat(self, category, comparison_category, index=None, with_pv=False, misclassified=False):
         """
         Fetch a sample for a given index and category. Then compute heatmaps for the difference between the sample and
         all the category except the one he belongs to, compute also the heatmaps filtered with the pvalue.
@@ -387,6 +387,7 @@ class DataLoader:
         :param comparison_category: the category to compare to compute the similarity
         :param index: The index of the sample we want
         :param with_pv: True if the filter of pvalue is enabled
+        :param misclassified: If we want a misclassified sample
         :return: the sample and a dict of the paths of the 2 kind of the heatmaps
         """
 
@@ -412,7 +413,11 @@ class DataLoader:
         df_cat = self.get_cat_df(category, self.df)
 
         if index is None:
-            sample_index = df_cat.sample(n=1).index[0]
+            if misclassified:
+                sample = df_cat[df_cat.pred != df_cat.true].sample(n=1)
+                sample_index = sample.index[0]
+            else:
+                sample_index = df_cat.sample(n=1).index[0]
         else:
             sample_index = index
 
@@ -493,15 +498,17 @@ class DataLoader:
 
         return sample, dheatmaps
 
-    def get_diff_heatmaps_sample_for_cat(self, category, comparison_category, index=None):
+    def get_diff_heatmaps_sample_for_cat(self, category, comparison_category, index=None, misclassified=False):
         """
         Parse the heatmaps of the differences from the global dict of heatmaps
         :param category: the category of the sample for which we want the heatmaps of the differences
         :param comparison_category: the category we want to compare to compute similarities
         :param index: the index of the sample we want the heatmaps of
+        :param misclassified: if we want a misclassified sample
         :return: the sample and a list of the paths of the heatmaps
         """
-        sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index, with_pv=False)
+        sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index, with_pv=False,
+                                                      misclassified=misclassified)
 
         paths = {}
         for layer in sample_dict.keys():
@@ -509,15 +516,17 @@ class DataLoader:
 
         return sample, paths
 
-    def get_pv_heatmaps_sample_for_cat(self, category, comparison_category, index=None):
+    def get_pv_heatmaps_sample_for_cat(self, category, comparison_category, index=None, misclassified=False):
         """
         Parse the heatmaps of the differences filtered with pvalues from the global dict of heatmaps
         :param category: the category of the sample for which we want the heatmaps of the differences filtered
         :param comparison_category: the category we want to compare to compute similarities
         :param index: the index of the sample we want the heatmaps of
+        :param misclassified: if we want a misclassified sample
         :return: the sample and a list of the paths of the heatmaps
         """
-        sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index, with_pv=True)
+        sample, sample_dict = self.get_sample_for_cat(category, comparison_category, index, with_pv=True,
+                                                      misclassified=misclassified)
 
         paths = {}
         for layer in sample_dict.keys():
@@ -623,22 +632,14 @@ class DataLoader:
             else:
                 # try with cosine similarity on non standardized dfs
                 if with_pv:
-                    a = self.get_pv_activation_for_sample(sample, category, self.non_standardized_dfs[i],
-                                                          self.model.get_layers()[i].name)
+                    #a = self.get_pv_activation_for_sample(sample, category, self.non_standardized_dfs[i], self.model.get_layers()[i].name)
                     a_s = self.get_pv_activation_for_sample(sample, category, self.dfs[i], self.model.get_layers()[i].name)
                 else:
-                    a = self.get_activation_for_sample(sample, self.non_standardized_dfs[i])
+                    #a = self.get_activation_for_sample(sample, self.non_standardized_dfs[i])
                     a_s = self.get_activation_for_sample(sample, self.dfs[i])
 
-                b = self.get_mean_activation_for_cat(category, self.non_standardized_dfs[i])
-
-
+                #b = self.get_mean_activation_for_cat(category, self.non_standardized_dfs[i])
                 b_s = self.get_mean_activation_for_cat(category, self.dfs[i])
-
-                print(a_s.shape)
-                print(b_s.shape)
-
-                print(f"Non-standardized sims : {(1 - spatial.distance.cosine(a, b)) * 100}")
 
                 sim = (1 - spatial.distance.cosine(a_s, b_s)) * 100  # To get a percentage
 

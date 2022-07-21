@@ -9,6 +9,7 @@
     * Only putting a boost button for misclassified samples
 * Deploy loading pop-up
 
+* Load a misclassified sample
 * Solve terminal error when loading a sample (not urgent)
 * docstring
 
