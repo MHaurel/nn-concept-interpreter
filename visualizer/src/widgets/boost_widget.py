@@ -12,7 +12,8 @@ class BoostWidget(QWidget):
         self.sample = None
         self.dataloader = None
         self.category = None
-        self.sample_booster = None #SampleBooster()
+        self.sample_booster = None
+        self.layer_index = 0 #by default
 
         # Home button & layer combobox
         self.header_boost_widget = HeaderBoostWidget()
@@ -48,7 +49,11 @@ class BoostWidget(QWidget):
         self.boost_chart_widget.set_category(self.category)
 
     def boost_sample(self):
-        print("Asking to boost sample")
+        self.sample_booster = SampleBooster(
+            dataloader=self.dataloader, sample=self.sample, category=self.category, layer_index=self.layer_index
+        )
+        df_boost = self.sample_booster.boost()
+        print(df_boost)
 
     def go_to_home(self):
         self.parent().goto("home", self.dataloader)

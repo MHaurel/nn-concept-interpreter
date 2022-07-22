@@ -16,34 +16,9 @@ class BoostChartWidget(QWidget):
         self.sample_booster = None
         self.layer_index = 0 # By default
 
-        # Series for the sample
-        self.sample_series = QLineSeries()
-        self.sample_series.append(0, 6)
-        self.sample_series.append(2, 4)
-        self.sample_series.append(3, 8)
-        self.sample_series.append(7, 4)
-        self.sample_series.append(10, 5)
-
-        # Series for the mean of the category
-        self.category_series = QLineSeries()
-        self.category_series.append(0, 2)
-        self.category_series.append(2, 6)
-        self.category_series.append(3, 1)
-        self.category_series.append(7, 3)
-        self.category_series.append(10, 8)
-
         # Chart
         self.chart = QChart()
         self.chart.setAnimationOptions(QChart.SeriesAnimations)
-
-        # Legend
-        markers = self.chart.legend().markers()
-        #QLegendMarker
-
-        #self.add_series(self.sample.loc[:, 4:])
-
-        #self.chart.addSeries(self.sample_series)
-        #self.chart.addSeries(self.category_series)
 
         self.chart.createDefaultAxes()
         self.chart.setTitle("sample {sample_index} vs concept {category}")

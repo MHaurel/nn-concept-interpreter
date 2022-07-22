@@ -10,15 +10,26 @@ from visualizer.src.backend.dataloader import DataLoader
 
 
 class SampleBooster:
-    def __init__(self, df, sample):
+    def __init__(self, dataloader, sample, category, layer_index):
         self.factor = 0.1  # e.g. 10%
 
-        self.df = df
+        self.dataloader = dataloader
+        self.layer_index = layer_index
+        self.df = self.dataloader.get_dfs()[self.layer_index]
         self.sample = sample
+        self.df_act_sample = self.dataloader.get_activation_for_sample(self.sample, self.df)
+        self.category = category
+        self.df_mean_cat = self.dataloader.get_mean_activation_for_cat(self.category, self.df)
+        self.pvalue = self.dataloader.find_pv(self.category, self.df,
+                                              self.dataloader.model.get_layers()[layer_index].name)
 
-    def boost(self, sample, pvalue=None):
-        category = sample.category
-        df = pd.concat([sample, category, pvalue]).T
+        self.dfrpv = pd.DataFrame(self.pvalue, columns=['pvalue'])
+        self.dfrpv['sign'] = self.dfrpv['pvalue'] <= 0.01
+        self.dfrpv.set_index(self.df_act_sample.T.index, inplace=True)
+        self.dfrpv = self.dfrpv.T
+
+    def boost(self):
+        df = pd.concat([self.df_act_sample, self.df_mean_cat, self.dfrpv]).T
         df.columns = [
             'sample', 'cat', 'pvalue', 'sign'
         ]
@@ -33,16 +44,15 @@ class SampleBooster:
 
         return df
 
-    def predict(self):
-        pass
+    def predict(self, dfb=None):
+        """
+        Re-construct the 'back' of the model and predict with new activations in order to get a
+        new prediction and see if the boost worked.
+        :return: the prediction
+        """
+        if dfb is None:
+            dfb = self.boost()
+        # re-construct model
 
 
-if __name__ == '__main__':
-    m = Model(path='../../models/painter_model')
-    dl = DataLoader('../../data/painters_ds.json', model=m, thresh=500)
-
-    sample_index = 'http://dbpedia.org/resource/Jacopo_Vignali'
-    df = dl.df
-    sample = dl.get_sample_for_cat()
-
-    sb = SampleBooster()
+        # then predict
