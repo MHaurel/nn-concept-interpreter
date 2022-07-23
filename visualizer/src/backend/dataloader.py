@@ -47,9 +47,9 @@ class DataLoader:
         else:
             self.thresh = DEFAULT_THRESH
 
-        if not os.path.exists(os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname)) or not os.path.exists(
-                os.path.join('..', 'visualizer_data', 'activations', self.dirname)) or \
-                (self.new_thresh is not None and self.new_thresh != self.thresh):
+        if True: #not os.path.exists(os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname)) or not os.path.exists(
+                #os.path.join('..', 'visualizer_data', 'activations', self.dirname)) or \
+                #(self.new_thresh is not None and self.new_thresh != self.thresh):
 
             if not os.path.exists(os.path.join('..', 'visualizer_data', 'activations', self.dirname)):
                 os.makedirs(os.path.join('..', 'visualizer_data', 'activations', self.dirname))
@@ -250,13 +250,18 @@ class DataLoader:
         inputs = [i for i in raw_inputs]
         return np.array(inputs)
 
-    def standardize(self, df):
+    def standardize(self, df, layer_name):
         """
         Standardize a DataFrame which will replace self.df
         :param df: The DataFrame to standardize
+        :param layer_name: The name of the layer for the dataloader to save the describe table
         :return: the standardized DataFrame
         """
+        stats_path = os.path.join('..', 'visualizer_data', 'activations', self.dirname, 'stats')
+        if not os.path.exists(stats_path):
+            os.makedirs(stats_path)
         df_s = df.copy()
+        df_s.describe().to_pickle(os.path.join(stats_path, f"{layer_name}-describe.pkl"))
         for col in df:
             if "neuron" in col:
                 df_s[col] = (df[col] - df[col].mean()) / df[col].std()
@@ -294,10 +299,11 @@ class DataLoader:
             print("Taking Embedding activations")
 
             emb_activations_arr = [a.flatten() for a in activations]
-            df_fa = pd.DataFrame(emb_activations_arr)
             emb_activations_arr = np.array(emb_activations_arr)
 
+            df_fa = pd.DataFrame([a.flatten() for a in activations])
             df_fa.set_index(new_df.index, inplace=True)
+            #print("Standardizing df_fa")
             #df_fa = self.standardize(df_fa)
 
             pd.concat([new_df, df_fa], axis=1).to_pickle(os.path.join('..', 'visualizer_data', 'activations',
@@ -326,7 +332,7 @@ class DataLoader:
         return_df = new_df
 
         if standardized:
-            return_df = self.standardize(return_df)
+            return_df = self.standardize(return_df, model.get_layers()[-1].name)
 
         print(
             f"--- For get_all_activations with layer {model.get_layers()[-1]}: {time.time() - start_time} seconds ---")
@@ -732,10 +738,6 @@ class DataLoader:
                     data_1.T[0])  # Need to store activations (self.dfs)
                 diff = pd.DataFrame(diff).T
 
-                if self.clean_s(c) == 'France':
-                    print('saving france')
-                    diff.to_pickle(str(i) + ' france.pkl')
-
                 ax = sns.heatmap(
                     data=diff,
                     vmin=-1.0,
@@ -899,10 +901,11 @@ if __name__ == '__main__':
 
     dl = DataLoader('../../data/painters_ds.json', model=m, thresh=500)
 
-    nm = m.rebuild_model(0)
-    print(nm.get_layers()[-1].name)
+    """nm = m.rebuild_model(0)
+    print(nm.get_layers()[-1].name)"""
 
-    dl.get_all_activations(df=dl.df, model=nm)
+
+    #dl.get_all_activations(df=dl.df, model=m)
 
     #cat = "http://dbpedia.org/resource/United_States"
     #index = 'http://dbpedia.org/resource/Antoine_Roux'

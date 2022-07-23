@@ -50,9 +50,15 @@ class SampleBooster:
         new prediction and see if the boost worked.
         :return: the prediction
         """
+
+        # NEED TO CHECK IF THE PROCESS HERE IS GOOD (see visualizer.txt on desktop)
         if dfb is None:
             dfb = self.boost()
         # re-construct model
+        model = Sequential()
+        for i in range(self.layer_index + 1, len(self.dataloader.model.get_layers())):
+            model.add(self.dataloader.model.get_layers()[i])
 
+        model.build(input_shape=self.dataloader.model.get_layers()[0].output_shape)
 
         # then predict
