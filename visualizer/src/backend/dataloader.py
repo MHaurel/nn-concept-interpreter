@@ -47,9 +47,9 @@ class DataLoader:
         else:
             self.thresh = DEFAULT_THRESH
 
-        if True: #not os.path.exists(os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname)) or not os.path.exists(
-                #os.path.join('..', 'visualizer_data', 'activations', self.dirname)) or \
-                #(self.new_thresh is not None and self.new_thresh != self.thresh):
+        if not os.path.exists(os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname)) or not os.path.exists(
+                os.path.join('..', 'visualizer_data', 'activations', self.dirname)) or \
+                (self.new_thresh is not None and self.new_thresh != self.thresh) or True:
 
             if not os.path.exists(os.path.join('..', 'visualizer_data', 'activations', self.dirname)):
                 os.makedirs(os.path.join('..', 'visualizer_data', 'activations', self.dirname))
@@ -250,7 +250,7 @@ class DataLoader:
         inputs = [i for i in raw_inputs]
         return np.array(inputs)
 
-    def standardize(self, df, layer_name):
+    def standardize(self, df, layer_name, neuron=True):
         """
         Standardize a DataFrame which will replace self.df
         :param df: The DataFrame to standardize
@@ -263,8 +263,28 @@ class DataLoader:
         df_s = df.copy()
         df_s.describe().to_pickle(os.path.join(stats_path, f"{layer_name}-describe.pkl"))
         for col in df:
-            if "neuron" in col:
+            if neuron:
+                if "neuron" in col:
+                    df_s[col] = (df[col] - df[col].mean()) / df[col].std()
+            else:
                 df_s[col] = (df[col] - df[col].mean()) / df[col].std()
+
+        return df_s
+
+    def standardize_from_file(self, df, layer_name):
+        """
+        Return a standardized df from already saved files for a layer
+        :param df: a df only containing activations
+        :param layer_name: the name of the layer for which we want the stats
+        :return:
+        """
+        stats_path = os.path.join('..', 'visualizer_data', 'activations', self.dirname, 'stats')
+        layer_stats = pd.read_pickle(os.path.join(stats_path, f"{layer_name}-describe.pkl"))
+        df_s = df.copy()
+        print(f"layer_stats.columns: {layer_stats.columns}")
+        print(f"df_s.columns: {df_s.columns}")
+        for col in df:
+            df_s[col] = (df[col] - layer_stats.loc['mean', col] / layer_stats.loc['std', col])
 
         return df_s
 
@@ -276,8 +296,6 @@ class DataLoader:
         :param standardized:
         :return: fully completed DataFrame
         """
-
-        start_time = time.time()
 
         new_df = pd.DataFrame()
 
@@ -291,26 +309,47 @@ class DataLoader:
         activations = model.predict_input(inputs)
 
         # If the layer is an embedding layer, we take the mean of activations
-        if isinstance(model.get_layers()[-1], Embedding) or \
-                isinstance(model.get_layers()[-1], Conv2D) or \
-                isinstance(model.get_layers()[-1], MaxPooling2D):
-            mean_start_time = time.time()
+        if isinstance(model.get_layers()[-1], Embedding):
 
             print("Taking Embedding activations")
 
-            emb_activations_arr = [a.flatten() for a in activations]
-            emb_activations_arr = np.array(emb_activations_arr)
+            """emb_activations_arr = [a.flatten() for a in activations]
+            emb_activations_arr = np.array(emb_activations_arr)"""
 
-            df_fa = pd.DataFrame([a.flatten() for a in activations])
-            df_fa.set_index(new_df.index, inplace=True)
-            #print("Standardizing df_fa")
-            #df_fa = self.standardize(df_fa)
 
-            pd.concat([new_df, df_fa], axis=1).to_pickle(os.path.join('..', 'visualizer_data', 'activations',
-                                                                      self.dirname,
-                                                                      model.get_layers()[-1].name + "-raw.pkl"))
+            # Here testing another approach for the Embedding layer
+            df_fsr = pd.DataFrame([a.flatten() for a in activations])
 
+            df_fsr.set_index(new_df.index)
+            df_fsr.to_pickle(os.path.join('..', 'visualizer_data', 'activations', self.dirname, "df_fsr.pkl"))
+
+            if standardized:
+                df_fssr = self.standardize(df_fsr, model.get_layers()[-1].name, neuron=False)
+            else:
+                df_fssr = df_fsr.copy()
+
+            df_fssr.set_index(new_df.index, inplace=True)
+
+            """emb_matrix = df_fssr.to_numpy()
             output_dim = model.get_layers()[-1].output_shape[-1]
+            acts = []
+            for i in range(len(emb_matrix)):
+                acts.append(pd.DataFrame(pd.DataFrame(emb_matrix[i].reshape(-1, output_dim)).mean()).T)
+
+            activations = np.array(acts).reshape(-1, output_dim)
+            for neuron_index, value_list in enumerate(activations.T):
+                index = f"neuron_{neuron_index+1}"
+                new_df[index] = value_list"""
+
+            new_df = pd.concat([new_df, df_fssr], axis=1)
+            print(new_df.columns.tolist())
+            # Rename columns
+            new_cols = {k: f"neuron_{k+1}" for k in df_fssr.columns.tolist() if str(k).isdigit()}
+            new_df.rename(columns=new_cols, inplace=True)
+
+            print(new_df.columns.tolist())
+
+            """output_dim = model.get_layers()[-1].output_shape[-1]
 
             acts = []
             for i in range(len(emb_activations_arr)):
@@ -320,9 +359,9 @@ class DataLoader:
 
             for neuron_index, value_list in enumerate(activations.T):
                 index = f"neuron_{neuron_index + 1}"
-                new_df[index] = value_list
+                new_df[index] = value_list"""
 
-            print(f"--- For taking Embedding activations: {time.time() - mean_start_time} seconds ---")
+            return new_df
 
         elif not isinstance(model.get_layers()[-1], Flatten):  # Excepting Flatten layer
             for neuron_index, value_list in enumerate(activations.T):
@@ -334,9 +373,10 @@ class DataLoader:
         if standardized:
             return_df = self.standardize(return_df, model.get_layers()[-1].name)
 
-        print(
-            f"--- For get_all_activations with layer {model.get_layers()[-1]}: {time.time() - start_time} seconds ---")
         return return_df
+
+    def get_mean_df_per_neuron(self, df):
+        return pd.DataFrame(pd.DataFrame(df).mean()).T
 
     def get_cat_df(self, category, df):
         """
@@ -345,6 +385,9 @@ class DataLoader:
         :param category: The category to seek for
         :return: A DataFrame only containing the samples including the category
         """
+        # Deal with the embedding layer (e.g. return the mean per neuron)
+        # if embedding layer
+            #return self.get_mean_df_per_neuron(df[df.category.apply(lambda x: category in x)])
         return df[df.category.apply(lambda x: category in x)]
 
     def get_activation_for_cat(self, category, df):
@@ -436,7 +479,6 @@ class DataLoader:
                 sample = self.dfs[i][self.dfs[i].index == sample_index]
 
                 plt.figure(figsize=(16, 5))
-
                 data_1 = self.get_activation_for_not_cat(category=category, df=self.dfs[i])
                 data_1 = pd.DataFrame(data_1.mean()).T
 
@@ -730,7 +772,7 @@ class DataLoader:
 
                 # Difference between in and out of category
                 plt.figure(figsize=(16, 5))
-
+                print("i", i, self.model.get_layers()[i].name)
                 data_1 = self.get_activation_for_not_cat(category=c, df=self.dfs[i])
                 data_1 = pd.DataFrame(data_1.mean()).T
 
@@ -909,5 +951,6 @@ if __name__ == '__main__':
 
     #cat = "http://dbpedia.org/resource/United_States"
     #index = 'http://dbpedia.org/resource/Antoine_Roux'
+
 
 
