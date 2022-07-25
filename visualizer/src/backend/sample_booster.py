@@ -34,19 +34,28 @@ class SampleBooster:
         self.dfrpv = self.dfrpv.T"""
 
     def boost(self):
-        df_mssr = self.dataloader.get_activation_for_sample(sample=self.sample, df=self.df)
+        output_dim = self.dataloader.model.get_layers()[self.layer_index].output_shape[-1]
+
+        df_ssr = self.dataloader.get_activation_for_sample(sample=self.sample, df=self.df)
+        df_ssr = pd.DataFrame(df_ssr.to_numpy().reshape(-1, output_dim))
+        df_ssr.to_pickle('df_ssr.pkl')
+
+        df_mssr = pd.DataFrame(pd.DataFrame(df_ssr).mean()).T
         df_mssr.to_pickle('df_mssr.pkl')
 
-        df_smc = self.dataloader.get_mean_activation_for_cat(self.category, df=self.df) # df Mean Category
+        df_smc = self.dataloader.get_mean_activation_for_cat(self.category, df=self.df,
+                                                             index=self.layer_index) # df Mean Category
         df_smc.to_pickle('df_smc.pkl')
 
         d = df_mssr - df_smc
         print("d", d)
 
+        output_rows = self.dataloader.model.get_layers()[self.layer_index].output_shape[-2]
+
         print(f"f.d = {self.factor * d}")
-
-        #df_new_sr = df_ssr - ((self.factor * d) / 150)
-
+        print('output_rows', output_rows)
+        df_ssrp = df_ssr - ((self.factor * d) / output_rows)
+        print(f"df_ssrp: {df_ssrp}")
         #df_new_ssr = None #standardize df_new_sr
 
         """df = pd.concat([self.df_act_sample, self.df_mean_cat, self.dfrpv]).T

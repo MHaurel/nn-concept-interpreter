@@ -57,7 +57,9 @@ class BoostChartWidget(QWidget):
     def set_category(self, category):
         self.category = category
 
-        category_act = self.dataloader.get_mean_activation_for_cat(self.category, self.dataloader.get_dfs()[self.layer_index])
+        category_act = self.dataloader.get_mean_activation_for_cat(self.category,
+                                                                   self.dataloader.get_dfs()[self.layer_index],
+                                                                   self.layer_index)
         category_act = category_act.to_numpy().tolist()[0]
 
         self.add_series(category_act, clean_s(self.category))
