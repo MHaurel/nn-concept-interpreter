@@ -28,7 +28,7 @@ class TableCategoriesWidget(QWidget):
         self.thresh_selector.set_dataloader(self.dataloader)
 
         # Table View
-        self.data, self.header, self.categories = self.dataloader.getTableData()
+        self.data, self.header, self.categories = self.dataloader.get_table_data()
 
         self.data_list = self.data.values.tolist()
 

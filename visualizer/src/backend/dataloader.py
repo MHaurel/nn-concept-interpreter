@@ -318,7 +318,7 @@ class DataLoader:
             df_fsr = pd.DataFrame([a.flatten() for a in activations])
 
             df_fsr.set_index(new_df.index)
-            df_fsr.to_pickle(os.path.join('..', 'visualizer_data', 'activations', self.dirname, "df_fsr.pkl"))
+            #df_fsr.to_pickle(os.path.join('..', 'visualizer_data', 'activations', self.dirname, "df_fsr.pkl"))
 
             if standardized:
                 df_fssr = self.standardize(df_fsr, model.get_layers()[-1].name, neuron=False)
@@ -379,6 +379,7 @@ class DataLoader:
         :param category: The category to seek for
         :return: A DataFrame only containing the samples including the category
         """
+        #print(df.columns)
         return df[df.category.apply(lambda x: category in x)]
 
     def get_activation_for_cat(self, category, df, index):
@@ -609,7 +610,7 @@ class DataLoader:
         :param layer_name: the name of the layer
         :return: the dataframe of the differences filtered with pvalue
         """
-        r = self.find_pv(category, df, self.model.get_layers()[index].name)
+        r = self.find_pv(category, df, self.model.get_layers()[index].name, index)
         rdf = pd.DataFrame(r)
         rdf.rename(columns={0: 'rdf'}, inplace=True)
 
@@ -703,7 +704,7 @@ class DataLoader:
                 # try with cosine similarity on non standardized dfs
                 if with_pv:
                     #a = self.get_pv_activation_for_sample(sample, category, self.non_standardized_dfs[i], self.model.get_layers()[i].name)
-                    a_s = self.get_pv_activation_for_sample(sample, category, self.dfs[i], self.model.get_layers()[i].name)
+                    a_s = self.get_pv_activation_for_sample(sample, category, self.dfs[i], i)
                 else:
                     #a = self.get_activation_for_sample(sample, self.non_standardized_dfs[i])
                     a_s = self.get_activation_for_sample(sample, self.dfs[i])
@@ -714,9 +715,14 @@ class DataLoader:
                 #b = self.get_mean_activation_for_cat(category, self.non_standardized_dfs[i])
                 b_s = self.get_mean_activation_for_cat(category, self.dfs[i], i)
 
+                if i == 0:
+                    a_s.to_pickle(f'a_s-{self.clean_s(sample.index[0])}.pkl')
+                    b_s.to_pickle(f'b_s-{self.clean_s(sample.index[0])}.pkl')
+
                 sim = (1 - spatial.distance.cosine(a_s, b_s)) * 100  # To get a percentage
 
             sims.append((self.model.get_layers()[i].name, sim))
+        print(sims, self.__class__)
 
         return {k: l for k, l in sims}
 
@@ -816,6 +822,8 @@ class DataLoader:
                 heatmap_dic['diff'] = {}
                 heatmap_dic['diff']['path'] = path
 
+                plt.close(fig)
+
                 # P-values heatmaps
                 r = self.find_pv(c, self.dfs[i], self.model.get_layers()[i].name, i)
                 rdf = pd.DataFrame(r)
@@ -824,6 +832,7 @@ class DataLoader:
                 # rdf[0] = rdf[0].apply(lambda x: 0 if x > 0.01 else 1)
 
                 diff_pv = diff.copy().T
+                plt.figure(figsize=(16, 5))
 
                 # duplicated statement here
                 for j in range(len(diff_pv.iloc[:, 0])):
@@ -842,6 +851,8 @@ class DataLoader:
                 fig.savefig(path)
                 heatmap_dic['pvalue'] = {}
                 heatmap_dic['pvalue']['path'] = path
+
+                plt.close(fig)
 
                 # Add paths to dict
                 ddf[c] = heatmap_dic
@@ -894,7 +905,7 @@ class DataLoader:
 
         return dheatmaps
 
-    def getTableData(self):
+    def get_table_data(self):
         """
         Compute different parameters to visualize differences between categories in a table
         :return: the computed data of these parameters, the name of these parameters and the categories we compare
@@ -937,7 +948,7 @@ class DataLoader:
         """
         min_pv = 1
         for i in range(len(self.dfs)):
-            pv = self.find_pv(category, self.dfs[i], self.model.get_layers()[i].name).min()
+            pv = self.find_pv(category, self.dfs[i], self.model.get_layers()[i].name, i).min()
             if pv < min_pv:
                 min_pv = pv
         return min_pv
@@ -951,8 +962,10 @@ class DataLoader:
         """
         max_diff = 0
         for i in range(len(self.dfs)):
-            df_cat = self.get_activation_for_cat(category, self.dfs[i])
-            df_ncat = self.get_activation_for_not_cat(category, self.dfs[i])
+            #need to rename columns (not really elegant)
+            new_cols = {k: f"neuron_{k+1}" for k in self.dfs[i].columns.tolist() if str(k).isdigit()}
+            df_cat = self.get_activation_for_cat(category, self.dfs[i].rename(columns=new_cols), i)
+            df_ncat = self.get_activation_for_not_cat(category, self.dfs[i].rename(columns=new_cols), i)
 
             temp_max = abs((df_cat.mean() - df_ncat.mean()).max())
             if temp_max > max_diff:
