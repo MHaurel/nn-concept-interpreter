@@ -25,7 +25,6 @@ class HeatmapList(QListWidget):
         :param paths_dict: A dict containing paths as value for each layer as key
         :return: None
         """
-        print(f"paths_dict: {paths_dict}, - {self.__class__}")
         for layer in paths_dict.keys():
             item_layer_name = QListWidgetItem()
             item_layer_name.setText(layer)

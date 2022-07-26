@@ -37,7 +37,7 @@ class BoostWidget(QWidget):
         # Main layout
         self.main_layout = QVBoxLayout()
         self.main_layout.addWidget(self.header_boost_widget)
-        #self.main_layout.addWidget(self.boost_chart_widget)
+        self.main_layout.addWidget(self.boost_chart_widget)
         self.main_layout.addWidget(self.label_true_output)
         self.main_layout.addWidget(self.label_old_pred)
         self.main_layout.addWidget(self.label_new_pred)
@@ -67,8 +67,16 @@ class BoostWidget(QWidget):
             dataloader=self.dataloader, sample=self.sample, category=self.category, layer_index=self.layer_index
         )
         df_boost = self.sample_booster.boost()
-        #new_pred = self.sample_booster.predict(df_boost)
-        #print(f"new_pred: {new_pred}")
+        new_pred = self.sample_booster.predict(df_boost)
+        print(f"new_pred: {new_pred}")
+
+    def update_layer_index(self, layer_index):
+        self.layer_index = layer_index
+        self.boost_chart_widget.update_layer_index(self.layer_index)
+
+        self.boost_chart_widget.set_dataloader(self.dataloader)
+        self.boost_chart_widget.set_sample(self.sample)
+        self.boost_chart_widget.set_category(self.category)
 
     def go_to_home(self):
         self.parent().goto("home", self.dataloader)

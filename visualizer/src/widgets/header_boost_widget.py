@@ -27,12 +27,13 @@ class HeaderBoostWidget(QWidget):
         self.setLayout(self.main_layout)
 
     def on_item_changed(self, value):
-       """
+        """
 
-       :param value:
-       :return:
-       """
-       print(f"Selecting {self.dataloader.model.get_layers()[value].name}")
+        :param value:
+        :return:
+        """
+        print(f"Selecting {self.dataloader.model.get_layers()[value].name}")
+        self.parent().update_layer_index(value)
 
     def set_datalaoder(self, dataloader):
         self.dataloader = dataloader

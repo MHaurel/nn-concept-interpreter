@@ -6,6 +6,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from keras.models import Sequential
+from keras.layers import Embedding
 
 from visualizer.src.backend.model import Model
 from visualizer.src.backend.dataloader import DataLoader
@@ -13,11 +14,14 @@ from visualizer.src.backend.dataloader import DataLoader
 
 class SampleBooster:
     def __init__(self, dataloader, sample, category, layer_index):
-        self.factor = 0.1  # e.g. 10%
+        self.factor = 0.25  # e.g. 25%
 
         self.dataloader = dataloader
 
         self.layer_index = layer_index
+        self.layer_index = 1 # Short-circuiting the program to test another layer
+
+        print(f"boosting the sample on {self.dataloader.model.get_layers()[self.layer_index].name}")
 
         self.df = self.dataloader.get_dfs()[self.layer_index]
 
@@ -26,53 +30,68 @@ class SampleBooster:
         self.category = category
 
         self.pvalue = self.dataloader.find_pv(self.category, self.df,
-                                              self.dataloader.model.get_layers()[layer_index].name)
+                                              self.dataloader.model.get_layers()[self.layer_index].name, self.layer_index)
 
-        """self.dfrpv = pd.DataFrame(self.pvalue, columns=['pvalue'])
+        self.dfrpv = pd.DataFrame(self.pvalue, columns=['pvalue'])
         self.dfrpv['sign'] = self.dfrpv['pvalue'] <= 0.01
-        self.dfrpv.set_index(self.df_act_sample.T.index, inplace=True)
-        self.dfrpv = self.dfrpv.T"""
+        self.dfrpv.rename(index={k: f"neuron_{k+1}" for k in self.dfrpv.index.tolist()}, inplace=True)
 
     def boost(self):
+        output_rows = self.dataloader.model.get_layers()[self.layer_index].output_shape[-2]
         output_dim = self.dataloader.model.get_layers()[self.layer_index].output_shape[-1]
 
         df_ssr = self.dataloader.get_activation_for_sample(sample=self.sample, df=self.df)
-        df_ssr = pd.DataFrame(df_ssr.to_numpy().reshape(-1, output_dim))
+        #df_ssr = pd.DataFrame(df_ssr.to_numpy().reshape(-1, output_dim)) # only for embedding
         df_ssr.to_pickle('df_ssr.pkl')
 
         df_mssr = pd.DataFrame(pd.DataFrame(df_ssr).mean()).T
+        df_mssr.rename(columns={k: f"neuron_{k+1}" for k in df_mssr.columns.tolist() if str(k).isdigit()}, inplace=True)
         df_mssr.to_pickle('df_mssr.pkl')
 
         df_smc = self.dataloader.get_mean_activation_for_cat(self.category, df=self.df,
                                                              index=self.layer_index) # df Mean Category
+        df_smc.rename(columns={k: f"neuron_{k+1}" for k in df_smc.columns.tolist() if str(k).isdigit()}, inplace=True)
         df_smc.to_pickle('df_smc.pkl')
 
-        d = df_mssr - df_smc
-        print("d", d)
+        d = df_mssr.to_numpy() - df_smc.to_numpy()
 
-        output_rows = self.dataloader.model.get_layers()[self.layer_index].output_shape[-2]
+        fd = self.factor * d
+        if isinstance(self.dataloader.model.get_layers()[self.layer_index], Embedding):
+            fd /= output_rows
 
-        print(f"f.d = {self.factor * d}")
-        print('output_rows', output_rows)
-        df_ssrp = df_ssr - ((self.factor * d) / output_rows)
-        print(f"df_ssrp: {df_ssrp}")
-        #df_new_ssr = None #standardize df_new_sr
+        df_ssrp = df_ssr.to_numpy() - fd
+        df_ssrp = pd.DataFrame(pd.DataFrame(df_ssrp).mean()).T
+        df_ssrp.rename(columns={k: f"neuron_{k+1}" for k in df_ssrp.columns.tolist()}, inplace=True)
 
-        """df = pd.concat([self.df_act_sample, self.df_mean_cat, self.dfrpv]).T
-        df.columns = [
+        """
+        /!\-/!\-/!\-/!\-/!\-/!\
+            ATTENTION : ON NE FAIT LA DISTANCE QUE SUR LES NEURONES OU 
+            LA DIFFERENCE EST SIGNIFICATIVE
+        /!\-/!\-/!\-/!\-/!\-/!\
+        """
+
+        dfb = pd.concat([df_mssr, df_smc, self.dfrpv.T]).T
+        self.dfrpv.T.to_pickle('dfrpv.pkl')
+        dfb.columns = [
             'sample', 'cat', 'pvalue', 'sign'
         ]
+        #df.rename(index={k: f'neuron_{k+1}' for k in df.index.tolist() if str(k).isdigit()}, inplace=True) # Renaming indexes
+        dfb.to_pickle('dfb.pkl')
 
-        df['new_value'] = df['sample']
+        dfb['new_value'] = dfb['sample']
 
-        for i in range(df.shape[0]):
+        for i in range(dfb.shape[0]):
             index = f"neuron_{i+1}"
-            if df.loc[index, 'sign']:
-                df.loc[index, 'new_value'] = df.loc[index, 'sample'] - \
-                                             (df.loc[index, 'sample'] - df.loc[index, 'cat']) * self.factor
+            if dfb.loc[index, 'sign'] is True:
+                dfb.loc[index, 'new_value'] = df_ssrp.T.loc[index, 0]
 
-        return df"""
-        return None
+        print(f"dfb['sample'].to_numpy(): {dfb['sample'].to_numpy()}")
+        print(f"dfb['cat'].to_numpy(): {dfb['cat'].to_numpy()}")
+        print(f"dfb['new_value'].to_numpy(): {dfb['new_value'].to_numpy()}")
+
+        print()
+
+        return dfb
 
     def predict(self, dfb=None):
         """
@@ -93,3 +112,4 @@ class SampleBooster:
 
         # then predict
         # model.predict
+        return -1 # default to test

@@ -53,8 +53,6 @@ class SampleWidget(QWidget):
             i.e. not re-fetch heatmaps which are already good
         """
 
-        print(f"comparison_category: {comparison_category}", self.__class__)
-
         if with_pv:
             self.sample, paths_heatmaps_sample = self.dataloader\
                 .get_pv_heatmaps_sample_for_cat(heatmaps_category, comparison_category, index)

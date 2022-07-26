@@ -477,10 +477,12 @@ class DataLoader:
 
         if index is None:
             if misclassified:
-                sample = df_cat[df_cat.pred != df_cat.true].sample(n=1)
+                sample = df_cat[df_cat.index == 'http://dbpedia.org/resource/Judy_Chicago'] # shortcut but only works for united states...
+                #sample = df_cat[df_cat.pred != df_cat.true].sample(n=1)
                 sample_index = sample.index[0]
             else:
-                sample_index = df_cat.sample(n=1).index[0]
+                sample_index = 'http://dbpedia.org/resource/David_Choe' # AGAIN TAKING A SHORTCUT
+                #sample_index = df_cat.sample(n=1).index[0]
         else:
             sample_index = index
 
@@ -724,6 +726,7 @@ class DataLoader:
     def find_pv(self, category, df, layer_name, i):
         """
         Return the pvalue for a category
+        :param i:
         :param category: The category for which we want the pvalue
         :param df: The dataframe to search among
         :param layer_name: The layer name to set to the file

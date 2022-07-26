@@ -4,6 +4,7 @@
 
 #### ISSUES
 * check calcul pvalues heatmaps samples and check the loading too
+  * issue : pvalue of the embedding are always 1.0
 * sample loading is really slow
   * take the mean reshape for all the sample and save it as standardized and non standardized
   * and also save for each Embedding layer a df of the non reshaped sample
