@@ -92,3 +92,4 @@ class SampleBooster:
         model.build(input_shape=self.dataloader.model.get_layers()[0].output_shape)
 
         # then predict
+        # model.predict
