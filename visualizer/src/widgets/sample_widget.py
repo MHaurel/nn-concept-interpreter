@@ -85,6 +85,9 @@ class SampleWidget(QWidget):
         index = self.heatmaps_sample.get_index()
         self.update_both_lists(index=index, with_pv=with_pv) #Must deal with "with_pv" now
 
+    def get_comparison_category(self):
+        return self.comparison_category_widget.get_category()
+
     def update_avg_similarity(self):
         self.heatmaps_sample.update_avg_similarity()
 

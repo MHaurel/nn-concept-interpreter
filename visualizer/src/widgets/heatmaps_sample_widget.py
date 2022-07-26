@@ -35,7 +35,7 @@ class HeatmapsSampleWidget(QWidget):
         self.main_layout.addWidget(self.heatmap_list)
         self.main_layout.addWidget(self.change_sample_footer_widget)
 
-        self.setMaximumWidth(self.screen().geometry().width()*0.5)
+        self.setMaximumWidth(self.screen().geometry().width() * 0.5)
 
         self.setLayout(self.main_layout)
 
@@ -71,18 +71,21 @@ class HeatmapsSampleWidget(QWidget):
         if category != self.category or same:
             self.sample_index, self.sample = None, None
         self.category = category
+        comparison_category = self.parent().get_comparison_category()
         if self.dataloader is not None:
             if self.is_filtered_pvalue:
 
                 # Get a sample from category with pvalue filter
-                self.sample, paths = self.dataloader.get_pv_heatmaps_sample_for_cat(category, self.sample_index,
-                                                                                    misclassified=misclassified)
+                self.sample, paths = self.dataloader. \
+                    get_pv_heatmaps_sample_for_cat(category, comparison_category=comparison_category,
+                                                   index=None, misclassified=misclassified)
                 self.heatmap_list.update(paths)
 
             else:
                 # Get a sample from category without pvalue filter
-                self.sample, paths = self.dataloader.get_diff_heatmaps_sample_for_cat(category, self.sample_index,
-                                                                                      misclassified=misclassified)
+                self.sample, paths = self.dataloader. \
+                    get_diff_heatmaps_sample_for_cat(category, comparison_category=comparison_category,
+                                                     index=None, misclassified=misclassified)
                 self.heatmap_list.update(paths)
 
             self.sample_index = self.sample.index[0]

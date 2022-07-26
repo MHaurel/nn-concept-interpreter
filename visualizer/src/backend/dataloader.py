@@ -715,10 +715,6 @@ class DataLoader:
                 #b = self.get_mean_activation_for_cat(category, self.non_standardized_dfs[i])
                 b_s = self.get_mean_activation_for_cat(category, self.dfs[i], i)
 
-                if i == 0:
-                    a_s.to_pickle(f'a_s-{self.clean_s(sample.index[0])}.pkl')
-                    b_s.to_pickle(f'b_s-{self.clean_s(sample.index[0])}.pkl')
-
                 sim = (1 - spatial.distance.cosine(a_s, b_s)) * 100  # To get a percentage
 
             sims.append((self.model.get_layers()[i].name, sim))
