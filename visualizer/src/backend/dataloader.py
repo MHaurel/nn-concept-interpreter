@@ -718,7 +718,6 @@ class DataLoader:
                 sim = (1 - spatial.distance.cosine(a_s, b_s)) * 100  # To get a percentage
 
             sims.append((self.model.get_layers()[i].name, sim))
-        print(sims, self.__class__)
 
         return {k: l for k, l in sims}
 
@@ -880,24 +879,25 @@ class DataLoader:
             return {}
 
         for dir in os.listdir(os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname)):
-            ddf = {}
+            if dir != 'sample':
+                ddf = {}
 
-            for p, n in self.get_popular_categories(self.thresh):
-                heatmaps_dict = {}
+                for p, n in self.get_popular_categories(self.thresh):
+                    heatmaps_dict = {}
 
-                hdiff = os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname, dir,
-                                     f"{self.clean_s(p)}-diff.png")
-                heatmaps_dict["diff"] = {}
-                heatmaps_dict["diff"]['path'] = hdiff
+                    hdiff = os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname, dir,
+                                         f"{self.clean_s(p)}-diff.png")
+                    heatmaps_dict["diff"] = {}
+                    heatmaps_dict["diff"]['path'] = hdiff
 
-                hpv = os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname, dir,
-                                   f"{self.clean_s(p)}-pvalue.png")
-                heatmaps_dict["pvalue"] = {}
-                heatmaps_dict["pvalue"]['path'] = hpv
+                    hpv = os.path.join('..', 'visualizer_data', 'heatmaps', self.dirname, dir,
+                                       f"{self.clean_s(p)}-pvalue.png")
+                    heatmaps_dict["pvalue"] = {}
+                    heatmaps_dict["pvalue"]['path'] = hpv
 
-                ddf[p] = heatmaps_dict
+                    ddf[p] = heatmaps_dict
 
-            dheatmaps[dir] = ddf
+                dheatmaps[dir] = ddf
 
         return dheatmaps
 

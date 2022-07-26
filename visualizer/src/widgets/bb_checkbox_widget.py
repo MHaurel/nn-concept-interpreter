@@ -10,7 +10,7 @@ class BBCheckBoxWidget(QWidget):
         self.btn_home = QPushButton("Home")
         self.btn_home.clicked.connect(self.go_to_home)
 
-        self.checkbox_pv = QCheckBox("P-values")
+        self.checkbox_pv = QCheckBox("Filter with p-values")
         self.checkbox_pv.stateChanged.connect(self.filter_pvalue)
 
         self.main_layout = QHBoxLayout()

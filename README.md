@@ -4,7 +4,6 @@
 
 #### ISSUES
 * check calcul pvalues heatmaps samples and check the loading too
-* misclassified sample similarity is always 100
 * sample loading is really slow
   * take the mean reshape for all the sample and save it as standardized and non standardized
   * and also save for each Embedding layer a df of the non reshaped sample
