@@ -19,7 +19,6 @@ class SampleBooster:
         self.dataloader = dataloader
 
         self.layer_index = layer_index
-        self.layer_index = 1 # Short-circuiting the program to test another layer
 
         print(f"boosting the sample on {self.dataloader.model.get_layers()[self.layer_index].name}")
 
@@ -41,7 +40,8 @@ class SampleBooster:
         output_dim = self.dataloader.model.get_layers()[self.layer_index].output_shape[-1]
 
         df_ssr = self.dataloader.get_activation_for_sample(sample=self.sample, df=self.df)
-        #df_ssr = pd.DataFrame(df_ssr.to_numpy().reshape(-1, output_dim)) # only for embedding
+        if isinstance(self.dataloader.model.get_layers()[self.layer_index], Embedding):
+            df_ssr = pd.DataFrame(df_ssr.to_numpy().reshape(-1, output_dim)) # only for embedding
         df_ssr.to_pickle('df_ssr.pkl')
 
         df_mssr = pd.DataFrame(pd.DataFrame(df_ssr).mean()).T
@@ -85,11 +85,11 @@ class SampleBooster:
             if dfb.loc[index, 'sign'] is True:
                 dfb.loc[index, 'new_value'] = df_ssrp.T.loc[index, 0]
 
-        print(f"dfb['sample'].to_numpy(): {dfb['sample'].to_numpy()}")
-        print(f"dfb['cat'].to_numpy(): {dfb['cat'].to_numpy()}")
-        print(f"dfb['new_value'].to_numpy(): {dfb['new_value'].to_numpy()}")
-
-        print()
+        """
+        /!\-/!\-/!\-/!\-/!\-/!\
+            BESOIN D'AVOIR DE L'EMBEDDING SOUS LA FORME ORIGINELLE ET PAS MOYENNEE
+        /!\-/!\-/!\-/!\-/!\-/!\
+        """
 
         return dfb
 
@@ -108,8 +108,14 @@ class SampleBooster:
         for i in range(self.layer_index + 1, len(self.dataloader.model.get_layers())):
             model.add(self.dataloader.model.get_layers()[i])
 
-        model.build(input_shape=self.dataloader.model.get_layers()[0].output_shape)
+        model.build(input_shape=self.dataloader.model.get_layers()[self.layer_index].output_shape)
 
         # then predict
-        # model.predict
-        return -1 # default to test
+        new_inputs = dfb['new_value'].to_numpy()
+        new_inputs = new_inputs.reshape(-1, new_inputs.shape[0])
+        new_inputs = new_inputs.reshape(-1, new_inputs.shape[-2], new_inputs.shape[-1])
+        new_inputs = np.array(new_inputs).astype('float32')
+
+        pred = model.predict(new_inputs)
+        return pred
+        #return -1
