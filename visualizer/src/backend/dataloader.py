@@ -124,10 +124,10 @@ class DataLoader:
         y_pred = self.model.get_model().predict(inputs)  # Try to replace with self.model.predict_inputs(inputs)
 
         if self.dirname == "painters_ds":
-            return [1 if p >= 0.5 else 0 for p in y_pred]  # Because we're facing a regression problem
+            return [1 if p >= 0.5 else 0 for p in y_pred]  # Because we're facing a binary classification problem
 
         else:  # if self.dirname == "bycountry_ds":
-            return [np.argmax(p) for p in y_pred]  # Because we're facing a classification problem
+            return [np.argmax(p) for p in y_pred]  # Because we're facing a multiple classification problem
 
     def formalize_outputs(self, df):
         """

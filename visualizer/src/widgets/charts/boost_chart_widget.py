@@ -38,6 +38,9 @@ class BoostChartWidget(QWidget):
         self.setLayout(self.main_layout)
 
     def add_series(self, elts, name):
+        for x in self.chart.series():
+            if x.name() == name:
+                self.chart.removeSeries(x)
         series = QLineSeries()
         series.setName(name)
         for i, elt in enumerate(elts):

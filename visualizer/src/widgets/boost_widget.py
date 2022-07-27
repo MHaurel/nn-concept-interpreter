@@ -13,7 +13,7 @@ class BoostWidget(QWidget):
         self.dataloader = None
         self.category = None
         self.sample_booster = None
-        self.layer_index = 0 #will be dynamic (e.g. combobox or select popup)
+        self.layer_index = 0  # First layer by default
 
         # Home button & layer combobox
         self.header_boost_widget = HeaderBoostWidget()
@@ -30,6 +30,13 @@ class BoostWidget(QWidget):
         # New prediction
         self.label_new_pred = QLabel(f"New prediction: ")
 
+        # History of boost label
+        self.label_history = QLabel("")
+
+        # History of boost button
+        self.btn_history_boost = QPushButton('Show boost history')
+        self.btn_history_boost.clicked.connect(self.show_history)
+
         # Boost button
         self.btn_boost = QPushButton("Boost sample")
         self.btn_boost.clicked.connect(self.boost_sample)
@@ -41,6 +48,8 @@ class BoostWidget(QWidget):
         self.main_layout.addWidget(self.label_true_output)
         self.main_layout.addWidget(self.label_old_pred)
         self.main_layout.addWidget(self.label_new_pred)
+        self.main_layout.addWidget(self.label_history)
+        self.main_layout.addWidget(self.btn_history_boost)
         self.main_layout.addWidget(self.btn_boost)
 
         self.setLayout(self.main_layout)
@@ -50,6 +59,8 @@ class BoostWidget(QWidget):
         self.header_boost_widget.set_datalaoder(self.dataloader)
         self.boost_chart_widget.set_dataloader(self.dataloader)
 
+        self.init_sample_booster()
+
     def set_sample(self, sample):
         self.sample = sample
         self.header_boost_widget.set_sample(self.sample)
@@ -57,18 +68,35 @@ class BoostWidget(QWidget):
         self.label_true_output.setText(f"True output: {self.sample.true[0]}")
         self.label_old_pred.setText(f"Old prediction: {self.sample.pred[0]}")
 
+        self.init_sample_booster()
+
     def set_category(self, category):
         self.category = category
         self.header_boost_widget.set_category(self.category)
         self.boost_chart_widget.set_category(self.category)
 
+        self.init_sample_booster()
+
+    def init_sample_booster(self):
+        if self.dataloader is not None and self.sample is not None and self.category is not None:
+            self.sample_booster = SampleBooster(
+                dataloader=self.dataloader, sample=self.sample, category=self.category, layer_index=self.layer_index
+            )
+
     def boost_sample(self):
-        self.sample_booster = SampleBooster(
-            dataloader=self.dataloader, sample=self.sample, category=self.category, layer_index=self.layer_index
-        )
-        df_boost = self.sample_booster.boost()
-        new_pred = self.sample_booster.predict(df_boost)
-        print(f"new_pred: {new_pred}")
+        new_value = self.sample_booster.boost()
+        # Update chart with new series
+        self.boost_chart_widget.add_series(new_value.to_numpy(), "boosted activations")
+
+        new_pred = self.sample_booster.predict(new_value)
+        self.label_new_pred.setText(f"New prediction: {new_pred[0]}")
+        if self.sample.true[0] == new_pred[0]:
+            self.label_new_pred.setObjectName('good_pred_label')
+            self.label_new_pred.setStyleSheet('QLabel#good_pred_label {color: green}')
+        else:
+            self.label_new_pred.setObjectName('bad_pred_label')
+            self.label_new_pred.setStyleSheet('QLabel#bad_pred_label {color: red}')
+        self.show_history()
 
     def update_layer_index(self, layer_index):
         self.layer_index = layer_index
@@ -77,6 +105,18 @@ class BoostWidget(QWidget):
         self.boost_chart_widget.set_dataloader(self.dataloader)
         self.boost_chart_widget.set_sample(self.sample)
         self.boost_chart_widget.set_category(self.category)
+
+    def show_history(self):
+        if self.sample_booster is not None:
+            try:
+                history = self.sample_booster.get_history()[self.dataloader.model.get_layers()[self.layer_index].name]
+                print(history)
+                try:
+                    self.label_history.setText(" ; ".join([str(h) for h in history]))
+                except:
+                    pass
+            except KeyError as ke:
+                print(ke)
 
     def go_to_home(self):
         self.parent().goto("home", self.dataloader)

@@ -61,12 +61,12 @@ class HomeWidget(QWidget):
         path = QFileDialog.getExistingDirectory(self, "Select model source folder")
         try:
             self.model = Model(path)
-            self.model_path = path
+            self.model_path = path[0]
             self.btn_load_model.setEnabled(False)
 
             if self.model is not None and self.data_path is not None:
-                self.dataloader = DataLoader(self.data_path[0], self.model)
-                self.store_config(model_path=self.model_path, data_path=self.data_path[0])
+                self.dataloader = DataLoader(self.data_path, self.model)
+                self.store_config(model_path=self.model_path, data_path=self.data_path)
                 self.revealCategoryTable()
         except:
             #Show error through label
@@ -80,12 +80,12 @@ class HomeWidget(QWidget):
         """
         path = QFileDialog.getOpenFileName(self, 'Select a data file', '', 'JSON files (*.json)')
         if path != ('', ''):
-            self.data_path = path
+            self.data_path = path[0]
             self.btn_load_data.setEnabled(False)
 
             if self.model is not None and self.data_path is not None:
-                self.dataloader = DataLoader(self.data_path[0], self.model)
-                self.store_config(model_path=self.model_path, data_path=self.data_path[0])
+                self.dataloader = DataLoader(self.data_path, self.model)
+                self.store_config(model_path=self.model_path, data_path=self.data_path)
                 self.revealCategoryTable()
 
     def store_config(self, model_path, data_path):
@@ -144,7 +144,8 @@ class HomeWidget(QWidget):
         if value != self.dataloader.thresh:
             print(f"New thresh will be: {value}")
             self.table_view_category.setParent(None)
-            self.dataloader = DataLoader(self.data_path[0], self.model, thresh=value)
+            print(self.data_path)
+            self.dataloader = DataLoader(self.data_path, self.model, thresh=value)
             self.table_view_category = TableCategoriesWidget(dataloader=self.dataloader)
             self.main_layout.addWidget(self.table_view_category)
 

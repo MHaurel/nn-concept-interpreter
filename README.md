@@ -12,6 +12,7 @@
 
 #### TASKS
 
+* Check at compute of prediction because it's not dynamic for now
 * Deploy the sample booster
 * Deploy loading pop-up
 
