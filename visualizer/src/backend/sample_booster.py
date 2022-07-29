@@ -9,7 +9,7 @@ from keras.layers import Embedding
 
 class SampleBooster:
     def __init__(self, dataloader, sample, category, layer_index):
-        self.factor = 25  # e.g. ?????% I believed 0.1 was 10 percent but seems that I was wrong - 25 seems to be good
+        self.factor = 0.25  # e.g. ?????% I believed 0.1 was 10 percent but seems that I was wrong - 25 seems to be good
 
         self.dataloader = dataloader
 
@@ -19,7 +19,7 @@ class SampleBooster:
 
         self.df = self.dataloader.get_dfs()[self.layer_index]
 
-        # Buffer which stores the bunch of new activations at each iterations
+        # Buffer which stores the bunch of new activations at each iteration
         # Can keep track of the history (with index) and allows us to repeat the boosting
         self.na_buffer = {}
 
@@ -36,11 +36,13 @@ class SampleBooster:
         output_rows = self.dataloader.model.get_layers()[self.layer_index].output_shape[-2]
         output_dim = self.dataloader.model.get_layers()[self.layer_index].output_shape[-1]
 
+        print(f"Using layer_index: {self.layer_index}")
+
         if self.dataloader.model.get_layers()[self.layer_index].name in self.na_buffer:
             # do not load the ssr and use the last index of self.na_buffer as the sample activations
-            print('Using previously boosted activations')
-            print(self.na_buffer)
-            df_ssr = pd.DataFrame(self.na_buffer[self.dataloader.model.get_layers()[self.layer_index].name][-1])
+            #print('Using previously boosted activations')
+            #print(self.na_buffer)
+            df_ssr = pd.DataFrame(self.na_buffer[self.dataloader.model.get_layers()[self.layer_index].name][-1]) # or 0
             #print(f"df_ssr.shape: {df_ssr.shape}")
         else:
             self.na_buffer[self.dataloader.model.get_layers()[self.layer_index].name] = []
@@ -54,7 +56,7 @@ class SampleBooster:
                 df_ssr = pd.DataFrame(df_ssr.to_numpy().reshape(-1, output_dim)) # only for embedding
         df_ssr.to_pickle('df_ssr.pkl')
 
-
+        print(f"df_ssr.shape: {df_ssr.shape}")
 
         if isinstance(self.dataloader.model.get_layers()[self.layer_index], Embedding):
             df_mssr = pd.DataFrame(pd.DataFrame(df_ssr).mean()).T
@@ -103,7 +105,6 @@ class SampleBooster:
         dfb.columns = [
             'sample', 'cat', 'pvalue', 'sign'
         ]
-        #df.rename(index={k: f'neuron_{k+1}' for k in df.index.tolist() if str(k).isdigit()}, inplace=True) # Renaming indexes
 
         dfb['new_value'] = dfb['sample']
 
@@ -112,14 +113,10 @@ class SampleBooster:
             if dfb.loc[index, 'sign'] is True:
                 dfb.loc[index, 'new_value'] = df_ssrp.T.loc[index, 0]
 
-        """
-        /!\-/!\-/!\-/!\-/!\-/!\
-            BESOIN D'AVOIR DE L'EMBEDDING SOUS LA FORME ORIGINELLE ET PAS MOYENNEE
-        /!\-/!\-/!\-/!\-/!\-/!\
-        """
-        dfb.to_pickle(f'dfb - {len(self.na_buffer)}.pkl')
+        print(f"Is there any significativity for this layer ? : {dfb[dfb['sign'] == True]['sign'].any()}")
+        print(f"Neurons w/ significativity : {dfb[dfb['sign'] == True]['sign'].sum()}")
 
-        print(dfb['new_value'])
+        #print(dfb['new_value'])
 
         return dfb['new_value']
         #return dfb
@@ -149,11 +146,19 @@ class SampleBooster:
 
         pred = model.predict(new_inputs)
         self.history[self.dataloader.model.get_layers()[self.layer_index].name].append(pred[0][0])
-        print(f'pred: {pred}')
 
+        """
+        /!\-/!\-/!\-/!\-/!\-/!\
+            BESOIN DE RENDRE CE PROCESS PLUS GENERIQUE
+        /!\-/!\-/!\-/!\-/!\-/!\
+        """
         if self.dataloader.dirname == 'painters_ds':
             return [1 if p >= 0.5 else 0 for p in pred]
         return [np.argmax(p) for p in pred]
 
     def get_history(self):
         return self.history
+
+    def update_layer_index(self, layer_index):
+        self.layer_index = layer_index
+        self.df = self.dataloader.get_dfs()[self.layer_index]

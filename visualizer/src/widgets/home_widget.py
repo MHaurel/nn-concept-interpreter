@@ -61,7 +61,7 @@ class HomeWidget(QWidget):
         path = QFileDialog.getExistingDirectory(self, "Select model source folder")
         try:
             self.model = Model(path)
-            self.model_path = path[0]
+            self.model_path = path
             self.btn_load_model.setEnabled(False)
 
             if self.model is not None and self.data_path is not None:
@@ -105,7 +105,6 @@ class HomeWidget(QWidget):
                 json.dump(cfg, f)
 
             print("Config saved !")
-            print(cfg)
 
     def load_previous_config(self):
         """

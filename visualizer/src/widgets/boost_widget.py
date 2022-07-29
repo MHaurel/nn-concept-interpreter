@@ -1,8 +1,9 @@
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QPushButton, QVBoxLayout, QLabel
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QPushButton, QVBoxLayout, QLabel, QMessageBox
 
 from visualizer.src.backend.sample_booster import SampleBooster
 from visualizer.src.widgets.charts.boost_chart_widget import BoostChartWidget
 from visualizer.src.widgets.header_boost_widget import HeaderBoostWidget
+from visualizer.src.widgets.dialogs.history_boosting_popup import HistoryBoostingPopup
 
 
 class BoostWidget(QWidget):
@@ -35,7 +36,7 @@ class BoostWidget(QWidget):
 
         # History of boost button
         self.btn_history_boost = QPushButton('Show boost history')
-        self.btn_history_boost.clicked.connect(self.show_history)
+        self.btn_history_boost.clicked.connect(self.show_history_with_popup)
 
         # Boost button
         self.btn_boost = QPushButton("Boost sample")
@@ -102,15 +103,45 @@ class BoostWidget(QWidget):
         self.layer_index = layer_index
         self.boost_chart_widget.update_layer_index(self.layer_index)
 
+        self.sample_booster.update_layer_index(self.layer_index)
+
         self.boost_chart_widget.set_dataloader(self.dataloader)
         self.boost_chart_widget.set_sample(self.sample)
         self.boost_chart_widget.set_category(self.category)
+
+        self.clear_ui()
+
+    def clear_ui(self):
+        self.label_history.setText("")
+        self.label_new_pred.setText("")
 
     def show_history(self):
         if self.sample_booster is not None:
             try:
                 history = self.sample_booster.get_history()[self.dataloader.model.get_layers()[self.layer_index].name]
                 print(history)
+
+                try:
+                    self.label_history.setText(" ; ".join([str(h) for h in history]))
+                except:
+                    pass
+            except KeyError as ke:
+                print(ke)
+
+    def show_history_with_popup(self):
+        if self.sample_booster is not None:
+            try:
+                history = self.sample_booster.get_history()[self.dataloader.model.get_layers()[self.layer_index].name]
+                print("history:", history)
+
+                """msgb = QMessageBox()
+                msgb.setWindowTitle("Boost history")
+                msgb.setText(" ; ".join([str(h) for h in history]))
+                x = msgb.exec()"""
+
+                h = HistoryBoostingPopup(history)
+                x = h.exec()
+
                 try:
                     self.label_history.setText(" ; ".join([str(h) for h in history]))
                 except:
