@@ -672,7 +672,7 @@ class DataLoader:
         """
         return (1 - spatial.distance.cosine(a, b)) * 100  # Multiply by 100 to get a percentage
 
-    def get_similarities_sample_cat(self, sample, category, with_pv=False):
+    def get_similarities_sample_cat(self, sample, category, with_pv=False, sim_type="cosine"):
         """
         Get the similarities per layer for a sample and a category. And whether yes or no we are filtering by
         p-value.
@@ -680,11 +680,9 @@ class DataLoader:
         :param sample: The sample from which we want the similarities
         :param category: The category to get the similarities compared to the sample
         :param with_pv: If True, taking the pvalue filtered differences array. Else, taking the raw differences array
+        :param sim_type: can be 'euclidean' or 'cosine'
         :return: A list of tuples each containing the name of the layer and the value of the similarity
         """
-
-        # ['euclidean', 'cosine']
-        sim_type = "cosine"
 
         sims = []
 
@@ -703,18 +701,14 @@ class DataLoader:
 
             # Means that default is cosine
             else:
-                # try with cosine similarity on non standardized dfs
                 if with_pv:
-                    #a = self.get_pv_activation_for_sample(sample, category, self.non_standardized_dfs[i], self.model.get_layers()[i].name)
                     a_s = self.get_pv_activation_for_sample(sample, category, self.dfs[i], i)
                 else:
-                    #a = self.get_activation_for_sample(sample, self.non_standardized_dfs[i])
                     a_s = self.get_activation_for_sample(sample, self.dfs[i])
                     if isinstance(self.model.get_layers()[i], Embedding):
                         output_dim = self.model.get_layers()[i].output_shape[-1]
                         a_s = self.get_mean_df_per_neuron(pd.DataFrame(a_s.to_numpy().reshape(-1, output_dim)))
 
-                #b = self.get_mean_activation_for_cat(category, self.non_standardized_dfs[i])
                 b_s = self.get_mean_activation_for_cat(category, self.dfs[i], i)
 
                 sim = (1 - spatial.distance.cosine(a_s, b_s)) * 100  # To get a percentage

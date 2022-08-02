@@ -10,7 +10,7 @@ class HeatmapList(QListWidget):
         QListWidget.__init__(self)
 
         self.setViewMode(QListView.IconMode)
-        self.setIconSize(QSize(600, 600))
+        self.setIconSize(QSize(700, 600))
 
         self.setMovement(QListView.Static)
 
