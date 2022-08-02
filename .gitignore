@@ -1,6 +1,2 @@
-./spyproject
-/visualizer/venv
-/visualizer/models
-/visualizer/data
-/visualizer/visualizer_data
-/visualizer/src/visualizer_data
+venv
+interpreter_data
