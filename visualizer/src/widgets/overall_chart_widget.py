@@ -37,7 +37,7 @@ class OverallChartWidget(QWidget):
         font = QFont()
         font.setPixelSize(20)
         self.chart.setTitleFont(font)
-        self.chart.setTitle(f"Categories repartition for dataset {self.dataloader.dirname}")
+        self.chart.setTitle(f"Concept repartition for dataset {self.dataloader.dirname}")
 
         # data to series and put to chart
         cases_max = []
@@ -45,7 +45,6 @@ class OverallChartWidget(QWidget):
 
         for data in self.data_list:
             series = QBarSeries()
-            curr_set = "set" + str(i)
             curr_set = QBarSet(str(data[0]))
             curr_set << int(data[1])
             series.append(curr_set)

@@ -14,7 +14,7 @@ class ThreshSelector(QWidget):
 
         self.main_layout = QHBoxLayout()
 
-        self.label_enter_thresh = QLabel(f"Edit the threshold to define a category as popular (current is {self.thresh})")
+        self.label_enter_thresh = QLabel(f"Edit the threshold to define a concept as popular (current is {self.thresh})")
         self.label_enter_thresh.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
         self.entry_thresh = QLineEdit()
@@ -60,4 +60,4 @@ class ThreshSelector(QWidget):
     def set_dataloader(self, dataloader):
         self.dataloader = dataloader
         self.thresh = self.dataloader.thresh
-        self.label_enter_thresh.setText(f"Edit the threshold to define a category as popular (current is {self.thresh})")
+        self.label_enter_thresh.setText(f"Edit the threshold to define a concept as popular (current is {self.thresh})")
