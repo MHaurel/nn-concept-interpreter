@@ -23,8 +23,13 @@ pip install -r ./requirements.txt
 
 The software is not compiled to an .exe file, so you'd have to run it inside a prompt or an IDE, *window.py* being the starting point of the whole project.
 
+## Dataset format
+
+
+
 ## Infos
 
-This software is the first one I develop in Python with the PyQt library, so I'd understand if there were any mistakes 
+This software is the first one I develop in Python (3.10.2) with the PyQt library, so I'd understand if there were any mistakes 
 I made.
+
 You're free to fork this project to improve it or give me feedbacks about my work.
