@@ -13,8 +13,6 @@ class Heatmap(QWidget):
 
         if (data is not None) and (index is not None):
 
-            print("using data and index")
-
             self.path = '../heatmaps/'
             self.filename = f"heatmap-{index}.png"
             if not os.path.exists(self.path):

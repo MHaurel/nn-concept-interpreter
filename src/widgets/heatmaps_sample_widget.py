@@ -40,33 +40,61 @@ class HeatmapsSampleWidget(QWidget):
         self.setLayout(self.main_layout)
 
     def get_category(self):
+        """
+        Returns the category
+        :return: the category
+        """
         return self.category
 
     def get_index(self):
+        """
+        Returns the index of the sample
+        :return: the index of the sample
+        """
         return self.sample_index
 
     def set_dataloader(self, dataloader):
+        """
+        Updates dataloader in this class and in child elements.
+        :param dataloader: the dataloader to set
+        :return: None
+        """
         self.dataloader = dataloader
         self.category_selector.set_dataloader(self.dataloader)
 
     def set_filtered_pvalue(self, is_filtered_pvalue):
+        """
+        Updates the p-value-filter boolean value
+        :param is_filtered_pvalue: the new boolean value to assign
+        :return: None
+        """
         self.is_filtered_pvalue = is_filtered_pvalue
 
     def set_sample(self, sample):
+        """
+        Updates sample in this class and in the parent element.
+        :param sample: the sample to set
+        :return: None
+        """
         self.sample = sample
         self.parent().set_sample(self.sample)
 
     def update_heatmap_list(self, paths):
+        """
+        Updates the heatmaps of the heatmap list
+        :param paths: the paths of the heatmaps
+        :return: None
+        """
         self.paths_dict = paths
         self.heatmap_list.update(paths)
 
     def update_heatmap_list_with_category(self, category, same=False, misclassified=False):
         """
-
-        :param category:
-        :param same:
-        :param misclassified:
-        :return:
+        Update heatmap list with another category
+        :param category: the category of tne next sample to display
+        :param same: whether we want the same category
+        :param misclassified: whether we want a misclassified sample
+        :return: None
         """
         if category != self.category or same:
             self.sample_index, self.sample = None, None
@@ -93,20 +121,32 @@ class HeatmapsSampleWidget(QWidget):
             self.change_sample_footer_widget.set_sample(self.sample)
 
     def display_misclassified_sample(self):
+        """
+        Update heatmap list with a misclassified sample
+        :return: None
+        """
         self.update_heatmap_list_with_category(self.category, same=False, misclassified=True)
 
     def display_next_sample(self):
+        """
+        Update heatmap list with next sample
+        :return: None
+        """
         self.update_heatmap_list_with_category(self.category, same=True)
 
     def update_heatmap_list_with_pv(self, with_pv):
         """
-
-        :param with_pv:
-        :return:
+        Update heatmap list with pvalue-filter heatmaps
+        :param with_pv: whether we want to filter by pvalue
+        :return: None
         """
         self.parent().update_both_lists(self.sample_index, with_pv)
 
     def get_avg_similarity(self):
+        """
+        Computer the average similarity among the heatmap displayed
+        :return: the average similarity
+        """
         sims = self.parent().get_similarities()
 
         avg_sim = round(sum([sims[sim] for sim in sims]) / len(sims), 2)
@@ -114,14 +154,24 @@ class HeatmapsSampleWidget(QWidget):
         return avg_sim
 
     def update_avg_similarity(self):
-        """"""
+        """
+        Updates the average similarity in the footer
+        :return: None
+        """
         self.change_sample_footer_widget.set_sample(self.sample)
 
     def go_to_home(self):
-        """"""
+        """
+        Go to home page
+        :return: None
+        """
         self.sample_index = None
         self.parent().go_to_home()
 
     def go_to_boost(self, sample):
-        """"""
+        """
+        Go to boost page passing the sample and the category
+        :param sample: the sample for which we want to go to the boost page
+        :return: None
+        """
         self.parent().go_to_boost(sample, self.category)

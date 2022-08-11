@@ -1,5 +1,4 @@
-from PySide6.QtWidgets import QDialog, QDialogButtonBox, QVBoxLayout, QLabel,\
-    QMessageBox
+from PySide6.QtWidgets import QMessageBox
 
 
 class WarningContinueDialog(QMessageBox):

@@ -38,6 +38,12 @@ class BoostChartWidget(QWidget):
         self.setLayout(self.main_layout)
 
     def add_series(self, elts, name):
+        """
+        Add a series to the chart
+        :param elts: the elements of which the series is composed
+        :param name: the name of this series
+        :return: None
+        """
         for x in self.chart.series():
             if x.name() == name:
                 self.chart.removeSeries(x)
@@ -48,10 +54,20 @@ class BoostChartWidget(QWidget):
         self.chart.addSeries(series)
 
     def set_dataloader(self, dataloader):
+        """
+        Updates the dataloader in this class
+        :param dataloader: the dataloader to set
+        :return: None
+        """
         if dataloader is not None:
             self.dataloader = dataloader
 
     def set_sample(self, sample):
+        """
+        Updates the sample in this class. Also add series for it
+        :param sample: the sample to set
+        :return: None
+        """
         if sample is not None:
             self.sample = sample
 
@@ -69,9 +85,19 @@ class BoostChartWidget(QWidget):
             self.update_title(self.sample, self.category)
 
     def set_layer(self, layer_index):
+        """
+        Updates the current layer for which data is displayed
+        :param layer_index: the index of the new layer to display the data for
+        :return: None
+        """
         self.layer_index = layer_index
 
     def set_category(self, category):
+        """
+        Updates the category in this class and reload data according to it.
+        :param category: The category to set
+        :return: None
+        """
         if category is not None:
             self.category = category
 
@@ -84,15 +110,30 @@ class BoostChartWidget(QWidget):
             self.update_title(self.sample, self.category)
 
     def update_title(self, sample, category):
+        """
+        Updates the title of the chart according to the sample and the category displayed
+        :param sample: The sample displayed
+        :param category: The category displayed
+        :return: None
+        """
         if sample is not None and category is not None:
             sample_index = clean_s(sample.index[0])
             category = clean_s(category)
             self.chart.setTitle(f"sample: {sample_index} VS concept: {category}")
 
     def update_layer_index(self, layer_index):
+        """
+        Updates the layer index in this class.
+        :param layer_index: the layer index to update
+        :return:
+        """
         self.layer_index = layer_index
         self.clear_chart()
 
     def clear_chart(self):
+        """
+        Clears the chart to display some new data
+        :return: None
+        """
         for series in self.chart.series():
             self.chart.removeSeries(series)

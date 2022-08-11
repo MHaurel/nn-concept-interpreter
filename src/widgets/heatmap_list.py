@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QListView, QListWidget, QListWidgetItem, QLabel
+from PySide6.QtWidgets import QListView, QListWidget, QListWidgetItem
 from PySide6.QtGui import QIcon, QFont
 from PySide6.QtCore import QSize
 
@@ -46,10 +46,8 @@ class HeatmapList(QListWidget):
     def update(self, paths_dict):
         """
         Clear & Update the list of heatmaps
-        :param paths: the paths of the new heatmaps to display in the updated list
+        :param paths_dict: the paths of the new heatmaps to display in the updated list
         :return: None
         """
         self.clear()
         self.populate_list(paths_dict)
-
-    #def

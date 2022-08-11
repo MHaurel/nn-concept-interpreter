@@ -1,5 +1,5 @@
-from PySide6.QtWidgets import QWidget, QPushButton, QLineEdit, QHBoxLayout, QSizePolicy, QMessageBox, QLabel, QSpacerItem
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget, QPushButton, QLineEdit, QHBoxLayout, QSizePolicy, QMessageBox, QLabel
+
 
 from src.widgets.dialogs.error_dialog import ErrorDialog
 from src.widgets.dialogs.warning_continue_dialog import WarningContinueDialog
@@ -58,6 +58,11 @@ class ThreshSelector(QWidget):
                 self.parent().update_thresh(self.thresh)
 
     def set_dataloader(self, dataloader):
+        """
+        Updates dataloader in this class
+        :param dataloader: the dataloader to set
+        :return: None
+        """
         self.dataloader = dataloader
         self.thresh = self.dataloader.thresh
         self.label_enter_thresh.setText(f"Edit the threshold to define a concept as popular (current is {self.thresh})")

@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QSizePolicy, QApplication
+from PySide6.QtWidgets import QWidget, QHBoxLayout
 
 from src.widgets.heatmaps_category_widget import HeatmapsCategoryWidget
 from src.widgets.comparison_category_widget import ComparisonCategoryWidget

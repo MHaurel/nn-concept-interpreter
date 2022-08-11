@@ -1,9 +1,6 @@
 import keras.models
-import pandas as pd
-import numpy as np
 
 from keras.models import Sequential
-from keras.layers import Dense, LSTM, Embedding, Dropout
 
 
 class Model:
@@ -59,8 +56,3 @@ class Model:
         print(f"Using layers {[x.name for x in model.layers]}")
 
         return Model(model=model)
-
-
-if __name__ == '__main__':
-    m = Model(path='../../models/bycountry_model')
-

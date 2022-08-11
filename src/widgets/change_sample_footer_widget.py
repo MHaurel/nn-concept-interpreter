@@ -1,7 +1,5 @@
 from PySide6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QLabel
 
-from src.widgets.dialogs.choose_layer_popup import ChooseLayerPopup
-
 
 class ChangeSampleFooterWidget(QWidget):
     def __init__(self):
@@ -35,25 +33,23 @@ class ChangeSampleFooterWidget(QWidget):
         self.setLayout(self.main_layout)
 
     def load_misclassified_sample(self):
+        """
+        Asks the parent to load a misclassified sample.
+        :return: None
+        """
         self.parent().display_misclassified_sample()
 
     def display_next_sample(self):
-        self.parent().display_next_sample()
-
-    def choose_layer(self):
         """
-        Display a popup for the user to select the layer.
-        Then, redirects the user to the sample boosting window
+        Ask the parent to display the next sample.
         :return: None
         """
-        # Open the popup
-        clp = ChooseLayerPopup(self, self.parent().dataloader)#need to get a proper dataloader attribute in this class
-        clp.exec()
+        self.parent().display_next_sample()
 
     def boost_sample(self):
         """
         Go to the boost window by passing the sample to it.
-        :return:
+        :return: None
         """
         self.parent().go_to_boost(self.sample)
 

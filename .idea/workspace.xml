@@ -3,7 +3,36 @@
   <component name="ChangeListManager">
     <list default="true" id="79c45a76-cc4a-42c0-8139-22d7ffe74342" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/backend/dataloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/backend/dataloader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/backend/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/backend/model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/backend/sample_booster.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/backend/sample_booster.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/boost_window.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/boost_window.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/boost_widget.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/boost_widget.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/category_selector.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/category_selector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/change_sample_footer_widget.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/change_sample_footer_widget.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/charts/boost_chart_widget.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/charts/boost_chart_widget.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/charts/overall_chart_widget.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/charts/overall_chart_widget.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/comparison_category_widget.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/comparison_category_widget.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/delegates/align_center_delegate.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/delegates/align_center_delegate.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/dialogs/choose_layer_popup.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/dialogs/error_dialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/dialogs/error_dialog.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/dialogs/history_boosting_popup.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/dialogs/history_boosting_popup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/dialogs/loading_dialog.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/dialogs/run_function_dialog.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/dialogs/warning_continue_dialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/dialogs/warning_continue_dialog.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/explore_category_widget.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/explore_category_widget.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/header_boost_widget.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/header_boost_widget.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/heatmap.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/heatmap.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/heatmap_list.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/heatmap_list.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/heatmaps_category_widget.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/heatmaps_category_widget.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/heatmaps_sample_widget.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/heatmaps_sample_widget.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/home_widget.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/home_widget.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/models/table_categories_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/models/table_categories_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/sample_similarity_buttons.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/sample_similarity_buttons.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/sample_widget.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/sample_widget.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/threads/dataloader_init_thread.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/thresh_selector.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/thresh_selector.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,6 +106,14 @@
       <workItem from="1659459712787" duration="848000" />
       <workItem from="1659464928310" duration="3550000" />
       <workItem from="1659528077969" duration="43000" />
+      <workItem from="1659682268060" duration="2744000" />
+      <workItem from="1659705629602" duration="2761000" />
+      <workItem from="1659867230442" duration="101000" />
+      <workItem from="1659867605414" duration="469000" />
+      <workItem from="1659868392212" duration="4972000" />
+      <workItem from="1659969801504" duration="6852000" />
+      <workItem from="1660072511364" duration="2450000" />
+      <workItem from="1660256385914" duration="3256000" />
     </task>
     <servers />
   </component>
@@ -95,6 +132,6 @@
     </option>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/nn_concept_interpreter$Run.coverage" NAME="Run Coverage Results" MODIFIED="1659465097013" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/nn_concept_interpreter$Run.coverage" NAME="Run Coverage Results" MODIFIED="1660259437277" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
   </component>
 </project>

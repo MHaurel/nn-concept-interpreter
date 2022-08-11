@@ -38,12 +38,33 @@ class HistoryBoostingPopup(QDialog):
         self.setLayout(self.main_layout)
 
     def fill_chart(self):
-        series = QLineSeries()
-        series.setName('predictions')
-        for i, x in enumerate(self.history):
-            print(i, x)
-            series.append(QPointF(i, x))
-        self.chart.addSeries(series)
+        """
+        Fills the chart with the prediction(s)
+        :return: None
+        """
+        if len(self.history[0]) > 1:
+            series_tab = []
+            for i in range(len(self.history[0])):
+                series = QLineSeries()
+                series.setName(f'class_{i}')
+                series_tab.append(series)
+            for j, x in enumerate(self.history):
+                for k in range(len(x)):
+                    series_tab[k].append(QPointF(j, x[k]))
+            for s in series_tab:
+                self.chart.addSeries(s)
+        else:
+            series = QLineSeries()
+            series.setName('predictions')
+            print(self.history)
+            for i, x in enumerate(self.history):
+                print(i, x)
+                series.append(QPointF(i, x))
+            self.chart.addSeries(series)
 
     def close_popup(self):
+        """
+        Close this popup
+        :return: None
+        """
         self.close()

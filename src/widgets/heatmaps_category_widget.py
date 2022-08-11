@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QVBoxLayout, QWidget, QPushButton, QSizePolicy
+from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from src.widgets.heatmap_list import HeatmapList
 from src.widgets.bb_checkbox_widget import BBCheckBoxWidget
@@ -29,6 +29,10 @@ class HeatmapsCategoryWidget(QWidget):
         self.setLayout(self.main_layout)
 
     def get_category(self):
+        """
+        Returns the category
+        :return: the category
+        """
         return self.category
 
     def set_category(self, category):
@@ -63,6 +67,11 @@ class HeatmapsCategoryWidget(QWidget):
             self.heatmap_list.update(paths)
 
     def update_heatmap_list(self, paths):
+        """
+        Update heatmap list with paths
+        :param paths: the paths to update the heatmap list with
+        :return: None
+        """
         self.heatmap_list.update(paths)
 
     def go_to_home(self):
@@ -74,12 +83,17 @@ class HeatmapsCategoryWidget(QWidget):
 
     def update_heatmap_list_with_pv(self, with_pv):
         """
-
-        :param with_pv:
-        :return:
+        Update heatmap list with p-value-filtered heatmaps
+        :param with_pv: whether we filter the heatmaps
+        :return: None
         """
         self.parent().update_both_lists(with_pv)
 
     def set_filtered_pvalue(self, is_filtered_pvalue):
+        """
+        Setting bool value
+        :param is_filtered_pvalue: The new bool value to assign
+        :return: None
+        """
         self.is_filtered_pvalue = is_filtered_pvalue
 

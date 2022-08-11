@@ -15,4 +15,8 @@ class SampleSimilarityButtons(QWidget):
         self.setLayout(self.main_layout)
 
     def go_to_sample(self):
+        """
+        Asks parent to go to sample page
+        :return: None
+        """
         self.parent().go_to_sample()

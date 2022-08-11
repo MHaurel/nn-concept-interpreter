@@ -1,5 +1,4 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QCheckBox, QListWidget, \
-    QSizePolicy
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QSizePolicy
 
 from src.widgets.category_selector import CategorySelector
 from src.widgets.heatmap_list import HeatmapList
@@ -30,19 +29,43 @@ class ComparisonCategoryWidget(QWidget):
         self.setLayout(self.main_layout)
 
     def get_category(self):
+        """
+        Returns the category of the class
+        :return: the current category
+        """
         return self.category
 
     def set_dataloader(self, dataloader):
+        """
+        Update the dataloader in this class and in child elements.
+        :param dataloader: The dataloader to set
+        :return: None
+        """
         self.dataloader = dataloader
         self.category_selector.set_dataloader(self.dataloader)
 
     def set_filtered_pvalue(self, is_filtered_pvalue):
+        """
+        Update boolean value
+        :param is_filtered_pvalue: the new bool value to set
+        :return: None
+        """
         self.is_filtered_pvalue = is_filtered_pvalue
 
     def update_heatmap_list(self, paths):
+        """
+        Update the heatmap list of the widget with new heatmaps which paths are contained in paths.
+        :param paths: The paths of the new heatmaps to update
+        :return: None
+        """
         self.heatmap_list.update(paths)
 
     def update_heatmap_list_with_category(self, category):
+        """
+        Updates the heatmaps list with a category
+        :param category: The category for which we iupdate the heatmap list
+        :return: None
+        """
         self.category = category
         if self.dataloader is not None:
             if self.is_filtered_pvalue:
@@ -51,5 +74,4 @@ class ComparisonCategoryWidget(QWidget):
                 self.heatmap_list.update(self.dataloader.get_diff_heatmaps_for_cat(category))
 
             self.parent().update_avg_similarity()
-            #self.parent().update_sample_heatmaps()
             self.parent().update_similarities(with_pv=self.is_filtered_pvalue)

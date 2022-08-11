@@ -46,11 +46,6 @@ class SampleWidget(QWidget):
         heatmaps_category = self.heatmaps_sample.get_category()
         comparison_category = self.comparison_category_widget.get_category()
 
-        """
-            NEED TO EXPLICIT THE CASE WHERE ONE OF THE TWO SIDE HAS NOT CHANGED
-            i.e. not re-fetch heatmaps which are already good
-        """
-
         if with_pv:
             self.sample, paths_heatmaps_sample = self.dataloader\
                 .get_pv_heatmaps_sample_for_cat(heatmaps_category, comparison_category, index)
@@ -71,24 +66,50 @@ class SampleWidget(QWidget):
         self.comparison_category_widget.update_heatmap_list(paths_comparison_category)
 
     def get_similarities(self):
+        """
+        Get the similarities between sample and concept
+        :return: similarities in the shape of a dict
+        """
         category = self.comparison_category_widget.get_category()
         sims = self.dataloader.get_similarities_sample_cat(self.sample, category)
 
         return sims
 
     def update_similarities(self, with_pv):
-        # Update left heatmap list with the actual sample
+        """
+        Update similarities with pvalue filter or not
+        :param with_pv: whether we filter by pvalues
+        :return: None
+        """
         index = self.heatmaps_sample.get_index()
         self.update_both_lists(index=index, with_pv=with_pv) #Must deal with "with_pv" now
 
     def get_comparison_category(self):
+        """
+        Returns the category of the comparison category widget
+        :return: the category of the comparison category widget
+        """
         return self.comparison_category_widget.get_category()
 
     def update_avg_similarity(self):
+        """
+        Updates the average similarity
+        :return: None
+        """
         self.heatmaps_sample.update_avg_similarity()
 
     def go_to_home(self):
+        """
+        Asks the parent widget to go to home page.
+        :return: None
+        """
         self.parent().goto("home", self.dataloader)
 
     def go_to_boost(self, sample, category):
+        """
+        Asks the parend widget to go to boost page
+        :param sample: the sample to boost
+        :param category: the category of the sample
+        :return: None
+        """
         self.parent().goto('boost', self.dataloader, category, sample)

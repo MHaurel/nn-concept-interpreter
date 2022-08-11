@@ -1,14 +1,11 @@
 import os.path
 import json
 
-from PySide6.QtWidgets import \
-    QWidget, QPushButton, QFileDialog, QHBoxLayout
+from PySide6.QtWidgets import QWidget, QPushButton, QFileDialog, QHBoxLayout
 
 from src.widgets.table_categories_widget import TableCategoriesWidget
 from src.backend.dataloader import DataLoader
 from src.backend.model import Model
-
-from tensorflow import keras
 
 
 class HomeWidget(QWidget):
@@ -38,10 +35,6 @@ class HomeWidget(QWidget):
 
         # Widget Layout
         self.main_layout = QHBoxLayout()
-
-        # Sidebar layout
-        #self.sidebar = Sidebar()
-        #self.main_layout.addWidget(self.sidebar)
 
         # Right Layout
         self.main_layout.addWidget(self.btn_load_model)
@@ -167,7 +160,7 @@ class HomeWidget(QWidget):
 
     def go_to_boost(self):
         """
-
-        :return:
+        Go to boost page
+        :return: None
         """
         self.parent().goto("boost")

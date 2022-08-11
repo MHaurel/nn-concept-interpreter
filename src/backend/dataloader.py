@@ -253,7 +253,8 @@ class DataLoader:
         """
         Standardize a DataFrame which will replace self.df
         :param df: The DataFrame to standardize
-        :param layer_name: The name of the layer for the dataloader to save the describe table
+        :param layer_name: The name of the layer for the dataloader to save the "describe" table
+        :param neuron: if neuron is in the name of the columns
         :return: the standardized DataFrame
         """
         stats_path = os.path.join('..', 'interpreter_data', 'activations', self.dirname, 'stats')
@@ -385,8 +386,9 @@ class DataLoader:
     def get_activation_for_cat(self, category, df, index):
         """
         Fetch activations related to a specific category
-        :param df:
         :param category: The category to seek the activations for
+        :param df: The df from which we want the activations
+        :param index: The index of the layer in the model
         :return: A DataFrame containing only those activations
         """
         activations_cols = [col for col in df.columns if "neuron" in col]
@@ -402,6 +404,7 @@ class DataLoader:
         Taking the mean of the activations for a given category and a given df (e.g. layer)
         :param category: The category to take the mean of the activations for
         :param df: The df from where we fetch the activation
+        :param index: The index of the layer in the model
         :return: The transposed dataframe of the mean activations
         """
         return pd.DataFrame(self.get_activation_for_cat(category, df, index=index).mean()).T
@@ -418,8 +421,9 @@ class DataLoader:
     def get_activation_for_not_cat(self, category, df, index):
         """
         Fetch activations not related to category
-        :param df:
         :param category: The category not to seek the activations for
+        :param df: The df from which we want the data
+        :param index: The index of the layer in the model
         :return: A DataFrame containing all activations except the ones for category
         """
         activations_cols = [col for col in df.columns if "neuron" in col]
@@ -435,13 +439,6 @@ class DataLoader:
             return self.get_mean_df_per_neuron(pd.DataFrame(arr))
         return return_df
 
-    """output_dim = model.get_layers()[-1].output_shape[-1]
-    acts = []
-    for i in range(len(emb_matrix)):
-        acts.append(pd.DataFrame(pd.DataFrame(emb_matrix[i].reshape(-1, output_dim)).mean()).T)
-
-    activations = np.array(acts).reshape(-1, output_dim)"""
-
     def get_sample_for_cat(self, category, comparison_category, index=None, with_pv=False, misclassified=False):
         """
         Fetch a sample for a given index and category. Then compute heatmaps for the difference between the sample and
@@ -453,7 +450,6 @@ class DataLoader:
         :param misclassified: If we want a misclassified sample
         :return: the sample and a dict of the paths of the 2 kind of the heatmaps
         """
-
         if comparison_category is None:
             comparison_category = category
 
@@ -477,11 +473,11 @@ class DataLoader:
 
         if index is None:
             if misclassified:
-                #sample = df_cat[df_cat.index == 'http://dbpedia.org/resource/Judy_Chicago'] # shortcut but only works for united states...
+                #sample = df_cat[df_cat.index == 'http://dbpedia.org/resource/Mes_trésors'] # shortcut but only works for united states...
                 sample = df_cat[df_cat.pred != df_cat.true].sample(n=1)
                 sample_index = sample.index[0]
             else:
-                #sample_index = 'http://dbpedia.org/resource/David_Choe' # AGAIN TAKING A SHORTCUT
+                #sample_index = 'http://dbpedia.org/resource/Betty_Sabo' # AGAIN TAKING A SHORTCUT
                 sample_index = df_cat.sample(n=1).index[0]
         else:
             sample_index = index
@@ -511,7 +507,7 @@ class DataLoader:
                     data=diff_sample,
                     vmin=-1.0,
                     vmax=1.0,
-                    cbar=True,#False,
+                    cbar=True,
                     cmap=custom_color_map
                 )
                 fig = ax.get_figure()
@@ -538,7 +534,7 @@ class DataLoader:
                         data=diff_pv,
                         vmin=-1.0,
                         vmax=1.0,
-                        cbar=True,#False,
+                        cbar=True,
                         cmap=custom_color_map
                     )
                     fig = ax.get_figure()
@@ -610,6 +606,7 @@ class DataLoader:
         :param category: the category of the sample
         :param df: the df (layer) for which we want to get the heatmaps
         :param layer_name: the name of the layer
+        :param index: The index of the layer from which we want the activations
         :return: the dataframe of the differences filtered with pvalue
         """
         r = self.find_pv(category, df, self.model.get_layers()[index].name, index)
@@ -689,15 +686,17 @@ class DataLoader:
         for i in range(len(self.model.get_layers())):
 
             if sim_type == "euclidean":
-                # Similarities on standardized dfs
-                a = self.get_activation_for_sample(sample, self.dfs[i])
-                b = self.get_mean_activation_for_cat(category, self.dfs[i], i)
-                sim = np.linalg.norm(np.array(a) - np.array(b))
+                if with_pv:
+                    a_s = self.get_pv_activation_for_sample(sample, category, self.dfs[i], i)
+                else:
+                    a_s = self.get_activation_for_sample(sample, self.dfs[i])
+                    if isinstance(self.model.get_layers()[i], Embedding):
+                        output_dim = self.model.get_layers()[i].output_shape[-1]
+                        a_s = self.get_mean_df_per_neuron(pd.DataFrame(a_s.to_numpy().reshape(-1, output_dim)))
 
-                # Similarities on non-standardized dfs
-                a = self.get_activation_for_sample(sample, self.non_standardized_dfs[i])
-                b = self.get_mean_activation_for_cat(category, self.non_standardized_dfs[i], i)
-                sim = np.linalg.norm(np.array(a) - np.array(b)) * 100
+                b_s = self.get_mean_activation_for_cat(category, self.dfs[i], i)
+
+                sim = np.linalg.norm(np.array(a_s) - np.array(b_s))
 
             # Means that default is cosine
             else:
@@ -817,10 +816,6 @@ class DataLoader:
                 plt.close(fig)
 
                 # P-values heatmaps
-
-                """
-                /!\ SUR LES ACTIVATIONS MOYENNES /!\
-                """
                 r = self.find_pv(c, self.dfs[i], self.model.get_layers()[i].name, i)
                 rdf = pd.DataFrame(r)
                 rdf = rdf.rename(columns={0: 'rdf'})
@@ -969,23 +964,3 @@ class DataLoader:
                 max_diff = temp_max
 
         return max_diff
-
-
-if __name__ == '__main__':
-    m = Model(path='../../models/painter_model')
-
-    dl = DataLoader('../../data/painters_ds.json', model=m, thresh=500)
-
-    print(dl.get_heatmaps_dict())
-
-    """nm = m.rebuild_model(0)
-    print(nm.get_layers()[-1].name)"""
-
-
-    #dl.get_all_activations(df=dl.df, model=m)
-
-    #cat = "http://dbpedia.org/resource/United_States"
-    #index = 'http://dbpedia.org/resource/Antoine_Roux'
-
-
-

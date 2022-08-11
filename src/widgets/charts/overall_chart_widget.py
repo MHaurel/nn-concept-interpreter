@@ -84,4 +84,9 @@ class OverallChartWidget(QWidget):
         self.setLayout(self.main_layout)
 
     def clean_category(self, category):
+        """
+        Cleans the category string
+        :param category: The category string to clean
+        :return: the cleaned category string
+        """
         return category.split('/')[-1]

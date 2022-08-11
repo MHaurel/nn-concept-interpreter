@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QPushButton, QVBoxLayout, QLabel, QMessageBox
+from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QLabel
 
 from src.backend.sample_booster import SampleBooster
 from src.widgets.charts.boost_chart_widget import BoostChartWidget
@@ -56,6 +56,12 @@ class BoostWidget(QWidget):
         self.setLayout(self.main_layout)
 
     def set_dataloader(self, dataloader):
+        """
+        Updates the dataloader in this class and in the child elements.
+        Also initialize the sample booster.
+        :param dataloader: The dataloader to set
+        :return: None
+        """
         self.dataloader = dataloader
         self.header_boost_widget.set_datalaoder(self.dataloader)
         self.boost_chart_widget.set_dataloader(self.dataloader)
@@ -63,6 +69,12 @@ class BoostWidget(QWidget):
         self.init_sample_booster()
 
     def set_sample(self, sample):
+        """
+        Updates the sample on this class and in the child elements.
+        Also initialize the sample booster.
+        :param sample: the sample to set
+        :return: None
+        """
         self.sample = sample
         self.header_boost_widget.set_sample(self.sample)
         self.boost_chart_widget.set_sample(self.sample)
@@ -72,6 +84,12 @@ class BoostWidget(QWidget):
         self.init_sample_booster()
 
     def set_category(self, category):
+        """
+        Update the category in this class and in the child elements.
+        Also initialize the sample booster.
+        :param category: The category to set
+        :return: None
+        """
         self.category = category
         self.header_boost_widget.set_category(self.category)
         self.boost_chart_widget.set_category(self.category)
@@ -79,12 +97,21 @@ class BoostWidget(QWidget):
         self.init_sample_booster()
 
     def init_sample_booster(self):
+        """
+        Tries to initialize the sample booster.
+        :return: None
+        """
         if self.dataloader is not None and self.sample is not None and self.category is not None:
             self.sample_booster = SampleBooster(
                 dataloader=self.dataloader, sample=self.sample, category=self.category, layer_index=self.layer_index
             )
 
     def boost_sample(self):
+        """
+        Calls the sample booster to get sample activations closer and updates the history with the new
+        prediction(s).
+        :return: None
+        """
         new_value = self.sample_booster.boost()
         # Update chart with new series
         self.boost_chart_widget.add_series(new_value.to_numpy(), "boosted activations")
@@ -100,6 +127,12 @@ class BoostWidget(QWidget):
         self.show_history()
 
     def update_layer_index(self, layer_index):
+        """
+        Update the layer index in this class, in the child elements and in the sample booster.
+        Also clears to UI to wait displaying the newly updated layer.
+        :param layer_index: The layer index to set
+        :return: None
+        """
         self.layer_index = layer_index
         self.boost_chart_widget.update_layer_index(self.layer_index)
 
@@ -112,10 +145,18 @@ class BoostWidget(QWidget):
         self.clear_ui()
 
     def clear_ui(self):
+        """
+        Clears the UI.
+        :return: None
+        """
         self.label_history.setText("")
         self.label_new_pred.setText("")
 
     def show_history(self):
+        """
+        Displays the history of predicitons at the bottom of the window
+        :return: None
+        """
         if self.sample_booster is not None:
             try:
                 history = self.sample_booster.get_history()[self.dataloader.model.get_layers()[self.layer_index].name]
@@ -129,15 +170,13 @@ class BoostWidget(QWidget):
                 print(ke)
 
     def show_history_with_popup(self):
+        """
+        Show history of predictions in a chart displayed by a popup.
+        :return: None
+        """
         if self.sample_booster is not None:
             try:
                 history = self.sample_booster.get_history()[self.dataloader.model.get_layers()[self.layer_index].name]
-                print("history:", history)
-
-                """msgb = QMessageBox()
-                msgb.setWindowTitle("Boost history")
-                msgb.setText(" ; ".join([str(h) for h in history]))
-                x = msgb.exec()"""
 
                 h = HistoryBoostingPopup(history)
                 x = h.exec()
@@ -150,4 +189,10 @@ class BoostWidget(QWidget):
                 print(ke)
 
     def go_to_home(self):
+        """
+        Return to home page and clears the UI.
+        :return: None
+        """
+        self.clear_ui()
+        self.boost_chart_widget.clear_chart()
         self.parent().goto("home", self.dataloader)

@@ -35,10 +35,20 @@ class CategorySelector(QComboBox):
                 self.addItem(f"{c} - {n}")
 
     def set_categories(self, categories):
+        """
+        Update the categories in the combo box.
+        :param categories: The categories to update
+        :return: None
+        """
         self.categories = categories
         self.populate_selector()
 
     def set_dataloader(self, dataloader):
+        """
+        Update the dataloader in the class. Also populate the selector.
+        :param dataloader: the dataloader to set.
+        :return: None
+        """
         self.dataloader = dataloader
         self.categories_tuple = self.dataloader.get_popular_categories(self.dataloader.thresh)
         self.populate_selector()
