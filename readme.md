@@ -25,7 +25,12 @@ The software is not compiled to an .exe file, so you'd have to run it inside a p
 
 ## Dataset format
 
-
+The dataset to provide to the software must be in this exact format.
+* It must be a JSON serialized DataFrame.
+* The index must be the name of each sample (example the name or reference to a painter).
+* In a column *category*, the concept you want to align your data with. In this column, you must have a NumPy array for each sample even if there is only one concept.
+* Next, you must include an *input* which is, for each sample, the input you passed to the model for the training. As the category columns, this must be a NumPy array.
+* Finally you want to include an one-hot-encoded column for the output(s). You will have only one columns called *output* if you're doing binary classification but several columns preceded by *output_* if you're doing multiclassification.
 
 ## Infos
 
