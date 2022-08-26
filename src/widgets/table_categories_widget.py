@@ -6,6 +6,7 @@ from src.widgets.delegates.align_center_delegate import AlignCenterDelegate
 from src.widgets.thresh_selector import ThreshSelector
 from src.widgets.charts.overall_chart_widget import OverallChartWidget
 from src.widgets.sample_similarity_buttons import SampleSimilarityButtons
+from src.widgets.sample_loader_widget import SampleLoaderWidget
 
 
 class TableCategoriesWidget(QWidget):
@@ -36,6 +37,9 @@ class TableCategoriesWidget(QWidget):
         for i in range(len(self.data_list[0])):
             self.table_view.setItemDelegateForColumn(i, align_center_delegate)
 
+        # Button load all the samples
+        self.sample_loader_widget = SampleLoaderWidget()
+
         # Button goto sample window
         self.sample_similarity_buttons = SampleSimilarityButtons()
 
@@ -45,6 +49,7 @@ class TableCategoriesWidget(QWidget):
         # Center Layout
         self.main_layout.addWidget(self.thresh_selector)
         self.main_layout.addWidget(self.overall_chart)
+        self.main_layout.addWidget(self.sample_loader_widget)
         self.main_layout.addWidget(self.sample_similarity_buttons)
         self.main_layout.addWidget(self.table_view)
 
@@ -91,6 +96,8 @@ class TableCategoriesWidget(QWidget):
     def update_thresh(self, value):
         self.parent().update_thresh(value)
 
+    def load_all_samples(self):
+        self.dataloader.load_all_samples()
 
     def set_dataloader(self, dataloader):
         """

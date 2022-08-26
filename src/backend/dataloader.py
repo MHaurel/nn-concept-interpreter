@@ -12,8 +12,6 @@ from matplotlib.colors import LinearSegmentedColormap
 from scipy import stats, spatial
 from keras.layers import Embedding, Flatten
 
-from src.backend.model import Model
-
 DEFAULT_THRESH = 200
 
 
@@ -39,6 +37,7 @@ class DataLoader:
 
         self.new_thresh = thresh
 
+        #self.THRESH_CONFIG_PATH = os.path.join('..', 'interpreter_data', 'activations', self.dirname, "thresh.json")
         self.THRESH_CONFIG_PATH = os.path.join('..', 'interpreter_data', 'activations', self.dirname, "thresh.json")
         if os.path.exists(self.THRESH_CONFIG_PATH):
             with open(self.THRESH_CONFIG_PATH, 'r') as tf:
@@ -484,6 +483,7 @@ class DataLoader:
 
         current_path = os.path.join('..', 'interpreter_data', 'heatmaps', self.dirname, 'sample',
                                     self.clean_s(category), self.clean_s(sample_index))
+
         if not os.path.exists(current_path):
             os.makedirs(current_path)
 
@@ -562,6 +562,19 @@ class DataLoader:
         dheatmaps = {f"{k} (similarity : {sims[k]})": dheatmaps[k] for k in dheatmaps}
 
         return sample, dheatmaps
+
+    def load_all_samples(self):
+        """
+        Load all the heatmaps for the samples on one shot.
+        :return: None
+        """
+        popular_categories = self.get_popular_categories(thresh=self.thresh)
+        for cat, n in popular_categories:
+            df_cat = self.get_cat_df(cat, self.df)
+            for index in df_cat.index:
+                print(f"Getting heatmaps for {index} in {cat}")
+                for _cat, _n in popular_categories:
+                    self.get_sample_for_cat(category=cat, comparison_category=_cat, index=index)
 
     def get_diff_heatmaps_sample_for_cat(self, category, comparison_category, index=None, misclassified=False):
         """
@@ -954,7 +967,6 @@ class DataLoader:
         """
         max_diff = 0
         for i in range(len(self.dfs)):
-            #need to rename columns (not really elegant)
             new_cols = {k: f"neuron_{k+1}" for k in self.dfs[i].columns.tolist() if str(k).isdigit()}
             df_cat = self.get_activation_for_cat(category, self.dfs[i].rename(columns=new_cols), i)
             df_ncat = self.get_activation_for_not_cat(category, self.dfs[i].rename(columns=new_cols), i)
@@ -964,3 +976,22 @@ class DataLoader:
                 max_diff = temp_max
 
         return max_diff
+
+
+if __name__ == '__main__':
+    from model import Model
+    from src.utils.utils import clean_s
+
+    model = Model('../../models/painter_model')
+    dl = DataLoader('../../data/painters_ds.json', model)
+    for cat, n in dl.get_popular_categories():
+        df_cat = dl.get_cat_df(cat, dl.df)
+        for index in df_cat.index[0:3]:
+            print(f"Getting heatmaps for {index}")
+            for _cat, n in dl.get_popular_categories():
+                if _cat != cat:
+                    dl.get_sample_for_cat(cat, _cat, index=index, with_pv=False)
+                    dl.get_sample_for_cat(cat, _cat, index=index, with_pv=True)
+
+
+            #def get_sample_for_cat(self, category, comparison_category, index=None, with_pv=False, misclassified=False):
