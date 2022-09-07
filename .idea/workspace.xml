@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="79c45a76-cc4a-42c0-8139-22d7ffe74342" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/widgets/sample_loader_widget.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/backend/dataloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/backend/dataloader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/widgets/table_categories_widget.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/table_categories_widget.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/charts/boost_chart_widget.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/charts/boost_chart_widget.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/dialogs/history_boosting_popup.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/dialogs/history_boosting_popup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -124,6 +124,14 @@
       <workItem from="1661348501367" duration="176000" />
       <workItem from="1661348849887" duration="9308000" />
       <workItem from="1661502334282" duration="3499000" />
+      <workItem from="1661764113245" duration="1219000" />
+      <workItem from="1662015500858" duration="318000" />
+      <workItem from="1662272490987" duration="603000" />
+      <workItem from="1662306924774" duration="906000" />
+      <workItem from="1662307851096" duration="13000" />
+      <workItem from="1662379718396" duration="939000" />
+      <workItem from="1662530347878" duration="53000" />
+      <workItem from="1662566590941" duration="29000" />
     </task>
     <servers />
   </component>
@@ -142,7 +150,7 @@
     </option>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/nn_concept_interpreter$Run.coverage" NAME="Run Coverage Results" MODIFIED="1661522969225" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/nn_concept_interpreter$Run.coverage" NAME="Run Coverage Results" MODIFIED="1662530351408" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/nn_concept_interpreter$dataloader.coverage" NAME="dataloader Coverage Results" MODIFIED="1661355846455" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/backend" />
   </component>
 </project>

@@ -53,6 +53,7 @@ class HistoryBoostingPopup(QDialog):
                     series_tab[k].append(QPointF(j, x[k]))
             for s in series_tab:
                 self.chart.addSeries(s)
+                self.chart.createDefaultAxes()
         else:
             series = QLineSeries()
             series.setName('predictions')
@@ -61,6 +62,7 @@ class HistoryBoostingPopup(QDialog):
                 print(i, x)
                 series.append(QPointF(i, x))
             self.chart.addSeries(series)
+            self.chart.createDefaultAxes()
 
     def close_popup(self):
         """

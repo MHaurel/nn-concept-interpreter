@@ -472,11 +472,9 @@ class DataLoader:
 
         if index is None:
             if misclassified:
-                #sample = df_cat[df_cat.index == 'http://dbpedia.org/resource/Mes_trésors'] # shortcut but only works for united states...
                 sample = df_cat[df_cat.pred != df_cat.true].sample(n=1)
                 sample_index = sample.index[0]
             else:
-                #sample_index = 'http://dbpedia.org/resource/Betty_Sabo' # AGAIN TAKING A SHORTCUT
                 sample_index = df_cat.sample(n=1).index[0]
         else:
             sample_index = index

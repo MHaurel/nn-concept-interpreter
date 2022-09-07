@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout
-from PySide6.QtCharts import QChartView, QChart, QLineSeries, QXYLegendMarker
+from PySide6.QtCharts import QChartView, QChart, QLineSeries, QXYLegendMarker, QAbstractAxis, QAbstractSeries
 from PySide6.QtCore import QPointF
 
 from keras.layers import Embedding
@@ -52,6 +52,10 @@ class BoostChartWidget(QWidget):
         for i, elt in enumerate(elts):
             series.append(QPointF(i, elt))
         self.chart.addSeries(series)
+
+        self.chart.createDefaultAxes()
+
+        # self.chart_view.setRenderHint(QPainter.Antialiasing)
 
     def set_dataloader(self, dataloader):
         """
